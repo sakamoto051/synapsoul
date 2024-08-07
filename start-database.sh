@@ -10,6 +10,7 @@
 # On Linux and macOS you can run this script directly - `./start-database.sh`
 
 DB_CONTAINER_NAME="synapsoul-postgres"
+DB_TIMEZONE="Asia/Tokyo"
 
 if ! [ -x "$(command -v docker)" ]; then
   echo -e "Docker is not installed. Please install docker and try again.\nDocker install guide: https://docs.docker.com/engine/install/"
@@ -51,5 +52,6 @@ docker run -d \
   -e POSTGRES_USER="postgres" \
   -e POSTGRES_PASSWORD="$DB_PASSWORD" \
   -e POSTGRES_DB=synapsoul \
+  -e TZ="$DB_TIMEZONE" \
   -p "$DB_PORT":5432 \
   docker.io/postgres && echo "Database container '$DB_CONTAINER_NAME' was successfully created"

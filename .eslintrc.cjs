@@ -36,7 +36,8 @@ const config = {
           "attributes": false
         }
       }
-    ]
+    ],
+    "indent": ["error", 2]  // タブサイズを2スペースに設定
   }
 }
 module.exports = config;
