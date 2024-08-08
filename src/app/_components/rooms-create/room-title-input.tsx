@@ -13,7 +13,7 @@ const RoomTitleInput: React.FC<RoomTitleInputProps> = ({ value, onChange }) => (
       id="roomTitle"
       value={value}
       onChange={onChange}
-      className="w-full bg-gray-700"
+      className="w-full bg-gray-700 border-none"
       placeholder="Enter room name"
     />
   </div>

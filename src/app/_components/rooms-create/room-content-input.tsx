@@ -13,7 +13,7 @@ const RoomContentInput: React.FC<RoomContentInputProps> = ({ value, onChange }) 
       id="roomContent"
       value={value}
       onChange={onChange}
-      className="w-full h-32 bg-gray-700 text-white rounded-md p-2"
+      className="w-full h-32 bg-gray-700 text-white rounded-md p-2 border-none"
       placeholder="Enter room details"
     />
   </div>

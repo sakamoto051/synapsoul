@@ -27,7 +27,7 @@ const TagsInput: React.FC<TagsInputProps> = ({ tags, onAddTag, onRemoveTag }) =>
           id="tags"
           value={currentTag}
           onChange={(e) => setCurrentTag(e.target.value)}
-          className="flex-grow mr-2 bg-gray-700"
+          className="flex-grow mr-2 bg-gray-700 border-none"
           placeholder="Enter a tag"
         />
         <button
