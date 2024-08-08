@@ -15,8 +15,8 @@ const RoomCard = ({ room, tags }: { room: Room, tags: Tag[] }) => {
       <CardContent>
         <p className="text-sm">{room.content}</p>
       </CardContent>
-      <CardFooter className="flex justify-between items-center">
-        <div className="flex -space-x-2">
+      <CardFooter>
+        <div className="space-x-2">
           {tags.map((tag) => (
             <Badge key={tag.id}>{tag.name}</Badge>
           ))}
