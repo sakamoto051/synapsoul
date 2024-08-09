@@ -1,4 +1,3 @@
-// components/RoomContentInput.tsx
 import React from 'react';
 
 interface RoomContentInputProps {

@@ -5,16 +5,25 @@ import { api } from '~/trpc/react';
 import RoomCard from '../_components/rooms/room-card';
 import { useRouter } from 'next/navigation';
 import { PlusCircle } from 'lucide-react';
+import TagFilter from '../_components/rooms/tag-filter';
+import { Tag } from '@prisma/client';
 
 export const RoomSearch = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const roomsQuery = api.room.list.useQuery();
   const router = useRouter();
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
 
-  const filteredRooms = roomsQuery.data?.filter(room =>
-    room.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    room.content.toLowerCase().includes(searchTerm.toLowerCase())
-  ) ?? [];
+  const filteredRooms = roomsQuery.data?.filter(room => {
+    const isSearchMatch = 
+      room.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      room.content.toLowerCase().includes(searchTerm.toLowerCase());
+  
+    const isTagMatch = selectedTags.length === 0 || 
+      selectedTags.some(tag => room.tags.some(t => t.name === tag.name));
+  
+    return isSearchMatch && isTagMatch;
+  }) ?? [];
 
   const handleCreateRoom = () => {
     router.push('/rooms/create');
@@ -30,9 +39,10 @@ export const RoomSearch = () => {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="bg-gray-700 border-none"
         />
-        <button className="bg-blue-600 text-white rounded-md px-4 py-2 hover:bg-blue-700 transition-colors mr-4">
-          TagFilter
-        </button>
+        <TagFilter 
+          selectedTags={selectedTags}
+          setSelectedTags={setSelectedTags}
+          />
         <button
           onClick={handleCreateRoom}
           className="bg-green-600 text-white rounded-full p-2 hover:bg-green-700 transition-colors flex items-center justify-center"
