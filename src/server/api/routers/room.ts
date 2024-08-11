@@ -17,6 +17,20 @@ export const roomRouter = createTRPCRouter({
         }
       })
     }),
+  getById: publicProcedure
+    .input(z.object({
+      id: z.string(),
+    }))
+    .query(({ input, ctx }) => {
+      return ctx.db.room.findUnique({
+        where: {
+          id: input.id,
+        },
+        include: {
+          tags: true,
+        }
+      })
+    }),
   create: protectedProcedure
     .input(z.object({
       title: z.string().min(1),
