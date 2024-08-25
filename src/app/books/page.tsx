@@ -1,34 +1,49 @@
 'use client';
+
 import React, { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { BookItem, BookItemWrapper } from '~/types/book';
 
 const BASE_API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
 
 const BookList = () => {
-  const [books, setBooks] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [authorInput, setAuthorInput] = useState('');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const [books, setBooks] = useState<BookItem[]>([]);
+  const [searchTerm, setSearchTerm] = useState(searchParams.get('title') || '');
+  const [authorInput, setAuthorInput] = useState(searchParams.get('author') || '');
   const [loading, setLoading] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(Number(searchParams.get('page')) || 1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
-  const fetchBooks = async (page = 1) => {
+  const updateUrlParams = (title: string, author: string, page: number) => {
+    const params = new URLSearchParams(searchParams);
+    if (title) params.set('title', title);
+    if (author) params.set('author', author);
+    params.set('page', String(page));
+    router.push(`/books?${params.toString()}`, { scroll: false });
+  };
+
+  const fetchBooks = async (page: number, title: string, author: string) => {
     setLoading(true);
     try {
       let apiUrl = `${BASE_API_ENDPOINT}&page=${page}`;
-      if (searchTerm) {
-        apiUrl += `&title=${encodeURIComponent(searchTerm)}`;
+      if (title) {
+        apiUrl += `&title=${encodeURIComponent(title)}`;
       }
-      if (authorInput) {
-        apiUrl += `&author=${encodeURIComponent(authorInput)}`;
+      if (author) {
+        apiUrl += `&author=${encodeURIComponent(author)}`;
       }
       const response = await fetch(apiUrl);
       const data = await response.json();
       setBooks(data.Items.map((item: BookItemWrapper) => item.Item));
       setTotalPages(data.pageCount);
       setTotalCount(data.count);
-      setCurrentPage(data.page);
+      setCurrentPage(page);
+
+      updateUrlParams(title, author, page);
     } catch (error) {
       console.error('Error fetching books:', error);
     } finally {
@@ -37,24 +52,24 @@ const BookList = () => {
   };
 
   useEffect(() => {
-    if (searchTerm || authorInput) {
-      const debounceTimer = setTimeout(() => {
-        fetchBooks(1);
-      }, 300);
-      return () => clearTimeout(debounceTimer);
-    }
-  }, [searchTerm, authorInput]);
+    fetchBooks(currentPage, searchTerm, authorInput);
+  }, []);
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
-      fetchBooks(newPage);
+      fetchBooks(newPage, searchTerm, authorInput);
     }
+  };
+
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    fetchBooks(1, searchTerm, authorInput);
   };
 
   return (
     <div style={{ padding: '1rem', backgroundColor: '#111827', color: 'white', minHeight: '100vh' }}>
-      <div style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      <form onSubmit={handleSearch} style={{ marginBottom: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         <input
           type="text"
           placeholder="タイトルで検索"
@@ -69,7 +84,10 @@ const BookList = () => {
           onChange={(e) => setAuthorInput(e.target.value)}
           style={{ padding: '0.5rem', borderRadius: '0.375rem', backgroundColor: '#1F2937', color: 'white', width: '100%' }}
         />
-      </div>
+        <button type="submit" style={{ padding: '0.5rem', borderRadius: '0.375rem', backgroundColor: '#3B82F6', color: 'white', cursor: 'pointer' }}>
+          検索
+        </button>
+      </form>
       {loading ? (
         <div style={{ textAlign: 'center' }}>Loading books...</div>
       ) : (
@@ -78,7 +96,7 @@ const BookList = () => {
             {books.map((book: BookItem) => (
               <a
                 key={book.isbn}
-                href={`/books/${book.isbn}`}
+                href={`/books/${book.isbn}?title=${encodeURIComponent(searchTerm)}&author=${encodeURIComponent(authorInput)}&page=${currentPage}`}
                 style={{
                   textDecoration: 'none',
                   color: 'inherit',

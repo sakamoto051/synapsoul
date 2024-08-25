@@ -1,14 +1,13 @@
 'use client';
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useParams, useSearchParams } from 'next/navigation';
+import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { BookItem } from '~/types/book';
 
 const APPLICATION_ID = process.env.NEXT_PUBLIC_RAKUTEN_APPLICATION_ID;
 const API_ENDPOINT = `https://app.rakuten.co.jp/services/api/BooksBook/Search/20170404?format=json&applicationId=${APPLICATION_ID}`;
 
 const BookDetail = () => {
-  const [book, setBook] = useState<BookItem>();
+  const [book, setBook] = useState<BookItem | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const params = useParams();
@@ -27,9 +26,11 @@ const BookDetail = () => {
           setBook(data.Items[0].Item);
         } else {
           console.error('Book not found');
+          setBook(null);
         }
       } catch (error) {
         console.error('Error fetching book details:', error);
+        setBook(null);
       } finally {
         setLoading(false);
       }
@@ -49,7 +50,7 @@ const BookDetail = () => {
     if (page !== '1') searchConditions.append('page', page);
 
     const searchString = searchConditions.toString();
-    router.push(`/?${searchString}`);
+    router.push(`/books?${searchString}`);
   };
 
   if (loading) {
