@@ -1,23 +1,42 @@
-import React from 'react';
-import { Home, Link } from 'lucide-react';
+'use client';
+import React, { useState } from 'react';
+import { Button, buttonVariants } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight, Home, Link } from "lucide-react";
+import NextLink from 'next/link';
 
 const Sidebar = () => {
+  const [isOpen, setIsOpen] = useState(true);
+
+  const toggleSidebar = () => setIsOpen(!isOpen);
+
   return (
-    <div className="w-64 h-screen bg-gray-800 text-white p-4">
-      <nav className="space-y-2">
-        <div className="bg-gray-700 rounded-md p-2">
-          <a href="/rooms" className="flex items-center space-x-2">
-            <Home className="w-5 h-5" />
-            <span>Rooms</span>
-          </a>
+    <div className={`flex h-screen bg-gray-900 text-white transition-all duration-300 ${isOpen ? 'w-40' : 'w-16'}`}>
+      <div className="flex flex-col flex-grow">
+        <div className="p-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className="mb-4"
+          >
+            {isOpen ? <ChevronLeft /> : <ChevronRight />}
+          </Button>
+          <nav>
+            <NextLink href="/rooms">
+              <Button variant="ghost" className="w-full justify-start mb-2">
+                <Home className="mr-2" />
+                {isOpen && "Rooms"}
+              </Button>
+            </NextLink>
+            <NextLink href="/">
+              <Button variant="ghost" className="w-full justify-start">
+                <Link className="mr-2" />
+                {isOpen && "Links"}
+              </Button>
+            </NextLink>
+          </nav>
         </div>
-        <div className="bg-gray-600 rounded-md p-2">
-          <a href="#" className="flex items-center space-x-2">
-            <Link className="w-5 h-5" />
-            <span>Links</span>
-          </a>
-        </div>
-      </nav>
+      </div>
     </div>
   );
 };

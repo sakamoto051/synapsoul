@@ -7,7 +7,7 @@ const MainPage = ({
   return (
     <div className="flex text-white min-h-screen">
       <Sidebar />
-      <main className="flex-grow p-8 bg-gray-900">
+      <main className="flex-grow p-6 bg-gray-900">
         {children}
       </main>
     </div>
