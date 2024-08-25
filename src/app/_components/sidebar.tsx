@@ -1,7 +1,7 @@
 'use client';
 import React, { useState } from 'react';
 import { Button, buttonVariants } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Home, Link } from "lucide-react";
+import { ChevronLeft, ChevronRight, Home, LibraryBig, Link } from "lucide-react";
 import NextLink from 'next/link';
 
 const Sidebar = () => {
@@ -26,6 +26,12 @@ const Sidebar = () => {
               <Button variant="ghost" className="w-full justify-start mb-2">
                 <Home className="mr-2" />
                 {isOpen && "Rooms"}
+              </Button>
+            </NextLink>
+            <NextLink href="/books">
+              <Button variant="ghost" className="w-full justify-start">
+                <LibraryBig className="mr-2" />
+                {isOpen && "Books"}
               </Button>
             </NextLink>
             <NextLink href="/">
