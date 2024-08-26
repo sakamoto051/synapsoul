@@ -11,8 +11,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { ChevronLeft, Book, BookOpen, BookMarked } from "lucide-react";
 
-const APPLICATION_ID = process.env.NEXT_PUBLIC_RAKUTEN_APPLICATION_ID;
-const API_ENDPOINT = `https://app.rakuten.co.jp/services/api/BooksBook/Search/20170404?format=json&applicationId=${APPLICATION_ID}`;
+const API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
 
 const BookDetail = () => {
   const [book, setBook] = useState<BookItem | null>(null);
@@ -62,7 +61,7 @@ const BookDetail = () => {
     if (page !== '1') searchConditions.append('page', page);
 
     const searchString = searchConditions.toString();
-    router.push(`/books?${searchString}`);
+    router.push(`/books/search?${searchString}`);
   };
 
   const updateBookStatus = async (status: BookStatus) => {

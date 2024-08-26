@@ -1,4 +1,6 @@
-export interface BookItem {
+import { Book } from '@prisma/client';
+
+export type BookItem = {
   affiliateUrl: string;
   author: string;
   authorKana: string;
@@ -31,12 +33,22 @@ export interface BookItem {
   titleKana: string;
 }
 
-export interface BookItemWrapper {
+export type BookItemWrapper = {
   Item: BookItem;
 }
 
 export type Items = BookItemWrapper[];
 
-export interface BookResponse {
+export type BookResponse = {
+  GenreInformation: [];
   Items: Items;
+  carrier: number;
+  count: number;
+  first: number;
+  hits: number;
+  last: number;
+  page: number;
+  pageCount: number;
 }
+
+export type BookWithDetails = BookItem & Book;
