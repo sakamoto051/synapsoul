@@ -7,7 +7,20 @@ export const bookThreadRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return ctx.db.bookThread.findUnique({
         where: { id: input.threadId },
-        include: { comments: true },
+        include: { 
+          comments: {
+            include: {
+              replies: {
+                include: {
+                  replies: true
+                }
+              }
+            },
+            orderBy: {
+              createdAt: 'asc'
+            }
+          }
+        },
       });
     }),
 
@@ -36,4 +49,21 @@ export const bookThreadRouter = createTRPCRouter({
         data: input,
       });
     }),
+  
+  createReply: publicProcedure
+    .input(z.object({ 
+      threadId: z.string(),
+      parentId: z.string(),
+      content: z.string() 
+    }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.comment.create({
+        data: {
+          content: input.content,
+          threadId: input.threadId,
+          parentId: input.parentId
+        },
+      });
+    }),
+
 });
