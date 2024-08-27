@@ -123,3 +123,22 @@ enum BookStatus {
   TO_READ
   INTERESTED
 }
+
+model BookThread {
+  id        String    @id @default(cuid())
+  isbn      String
+  title     String
+  content   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  comments  Comment[]
+}
+
+model Comment {
+  id        String    @id @default(cuid())
+  threadId  String
+  content   String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  thread    BookThread @relation(fields: [threadId], references: [id])
+}

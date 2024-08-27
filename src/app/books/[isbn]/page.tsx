@@ -10,6 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { ChevronLeft, Book, BookOpen, BookMarked } from "lucide-react";
+import BookThread from '../../_components/books/thread';
+import BookThreadList from '~/app/_components/books/thread-list';
 
 const API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
 
@@ -172,6 +174,7 @@ const BookDetail = () => {
           </div>
         </CardContent>
       </Card>
+      <BookThreadList />
       <div className="mt-8 text-center">
         <Button onClick={handleBack} className="bg-gray-700 text-white hover:bg-gray-600">
           <ChevronLeft className="mr-2 h-4 w-4" />
