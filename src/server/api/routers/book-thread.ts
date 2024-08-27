@@ -65,5 +65,12 @@ export const bookThreadRouter = createTRPCRouter({
         },
       });
     }),
-
+  
+  deleteComment: publicProcedure
+    .input(z.object({ commentId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.comment.delete({
+        where: { id: input.commentId },
+      });
+    }),
 });
