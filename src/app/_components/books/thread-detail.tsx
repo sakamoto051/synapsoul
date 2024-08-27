@@ -18,6 +18,7 @@ const BookThreadDetail: React.FC = () => {
     structuredComments,
     handleCreateComment,
     handleDeleteComment,
+    handleEditComment,
     refetchThread,
   } = useComments(threadId);
 
@@ -36,6 +37,7 @@ const BookThreadDetail: React.FC = () => {
               threadId={threadId}
               onReply={refetchThread}
               onDelete={handleDeleteComment}
+              onEdit={handleEditComment}
             />
           ))}
         </div>

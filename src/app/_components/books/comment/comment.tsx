@@ -13,7 +13,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Send, MessageCircle, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
+import { Send, MessageCircle, ChevronDown, ChevronUp, Trash2, Edit2 } from "lucide-react";
 import { api } from "~/trpc/react";
 import { CommentType } from '~/types/thread';
 
@@ -22,13 +22,16 @@ interface CommentProps {
   threadId: string;
   onReply: () => void;
   onDelete: (commentId: string) => void;
+  onEdit: (commentId: string, newContent: string) => void;
   depth?: number;
 }
 
-export const Comment: React.FC<CommentProps> = ({ comment, threadId, onReply, onDelete, depth = 0 }) => {
+export const Comment: React.FC<CommentProps> = ({ comment, threadId, onReply, onDelete, onEdit, depth = 0 }) => {
   const [replyContent, setReplyContent] = useState('');
   const [isReplying, setIsReplying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editContent, setEditContent] = useState(comment.content);
   const { toast } = useToast();
   const createReplyMutation = api.bookThread.createReply.useMutation();
 
@@ -62,12 +65,25 @@ export const Comment: React.FC<CommentProps> = ({ comment, threadId, onReply, on
     onDelete(comment.id);
   };
 
+  const handleEdit = () => {
+    onEdit(comment.id, editContent);
+    setIsEditing(false);
+  };
+
   return (
     <div className={`py-2 ${depth > 0 ? 'ml-4' : ''}`}>
       <div className="flex items-start space-x-2">
         <div className={`w-0.5 self-stretch ${depth > 0 ? 'bg-gray-700' : 'bg-transparent'}`} />
         <div className="flex-grow">
-          <p className="text-gray-300 text-sm">{comment.content}</p>
+          {isEditing ? (
+            <Input
+              value={editContent}
+              onChange={(e) => setEditContent(e.target.value)}
+              className="mb-2 bg-gray-700/50 text-gray-200 border-gray-600/50 text-sm"
+            />
+          ) : (
+            <p className="text-gray-300 text-sm">{comment.content}</p>
+          )}
           <div className="text-xs text-gray-500 mt-1">
             {new Date(comment.createdAt).toLocaleString()}
           </div>
@@ -80,6 +96,25 @@ export const Comment: React.FC<CommentProps> = ({ comment, threadId, onReply, on
         >
           <MessageCircle className="h-4 w-4" />
         </Button>
+        {isEditing ? (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleEdit}
+            className="text-green-400 hover:text-green-300 hover:bg-green-400/10 p-1"
+          >
+            <Send className="h-4 w-4" />
+          </Button>
+        ) : (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsEditing(true)}
+            className="text-yellow-400 hover:text-yellow-300 hover:bg-yellow-400/10 p-1"
+          >
+            <Edit2 className="h-4 w-4" />
+          </Button>
+        )}
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button
@@ -136,6 +171,7 @@ export const Comment: React.FC<CommentProps> = ({ comment, threadId, onReply, on
               threadId={threadId}
               onReply={onReply}
               onDelete={onDelete}
+              onEdit={onEdit}
               depth={depth + 1}
             />
           ))}

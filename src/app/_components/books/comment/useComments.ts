@@ -10,6 +10,7 @@ export const useComments = (threadId: string) => {
   const { data: thread, refetch: refetchThread } = api.bookThread.getThread.useQuery({ threadId });
   const createCommentMutation = api.bookThread.createComment.useMutation();
   const deleteCommentMutation = api.bookThread.deleteComment.useMutation();
+  const editCommentMutation = api.bookThread.editComment.useMutation();
 
   const structuredComments = useMemo(() => {
     if (!thread?.comments) return [];
@@ -75,6 +76,24 @@ export const useComments = (threadId: string) => {
       });
     }
   };
+  
+  const handleEditComment = async (commentId: string, newContent: string) => {
+    try {
+      await editCommentMutation.mutateAsync({ commentId, content: newContent });
+      await refetchThread();
+      toast({
+        title: "コメント編集",
+        description: "コメントが編集されました。",
+      });
+    } catch (error) {
+      console.error('Error editing comment:', error);
+      toast({
+        title: "エラー",
+        description: "コメントの編集中にエラーが発生しました。",
+        variant: "destructive",
+      });
+    }
+  };
 
   return {
     thread,
@@ -83,6 +102,7 @@ export const useComments = (threadId: string) => {
     structuredComments,
     handleCreateComment,
     handleDeleteComment,
+    handleEditComment,
     refetchThread,
   };
 };

@@ -73,4 +73,13 @@ export const bookThreadRouter = createTRPCRouter({
         where: { id: input.commentId },
       });
     }),
+  
+  editComment: publicProcedure
+    .input(z.object({ commentId: z.string(), content: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.comment.update({
+        where: { id: input.commentId },
+        data: { content: input.content },
+      });
+    }),
 });
