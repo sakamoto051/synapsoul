@@ -10,6 +10,7 @@ import { Comment } from './comment/comment';
 const BookThreadDetail: React.FC = () => {
   const params = useParams();
   const threadId = params['threadId'] as string;
+  const userId = "current-user-id"; // 実際のユーザー認証システムから取得する必要があります
 
   const {
     thread,
@@ -19,8 +20,10 @@ const BookThreadDetail: React.FC = () => {
     handleCreateComment,
     handleDeleteComment,
     handleEditComment,
+    handleLikeComment,
+    handleUnlikeComment,
     refetchThread,
-  } = useComments(threadId);
+  } = useComments(threadId, userId);
 
   if (!thread) return <div>Loading...</div>;
 
@@ -35,9 +38,12 @@ const BookThreadDetail: React.FC = () => {
               key={comment.id}
               comment={comment}
               threadId={threadId}
+              userId={userId}
               onReply={refetchThread}
               onDelete={handleDeleteComment}
               onEdit={handleEditComment}
+              onLike={handleLikeComment}
+              onUnlike={handleUnlikeComment}
             />
           ))}
         </div>

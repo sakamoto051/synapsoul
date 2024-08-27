@@ -135,13 +135,22 @@ model BookThread {
 }
 
 model Comment {
-  id            String    @id @default(cuid())
-  content       String
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  thread        BookThread @relation(fields: [threadId], references: [id])
-  threadId      String
-  parentComment Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
-  parentId      String?
-  replies       Comment[] @relation("CommentReplies")
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  thread    BookThread @relation(fields: [threadId], references: [id])
+  threadId  String
+  parent    Comment?  @relation("ReplyTo", fields: [parentId], references: [id])
+  parentId  String?
+  replies   Comment[] @relation("ReplyTo")
+  likes     Like[]
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  comment   Comment  @relation(fields: [commentId], references: [id])
+  commentId String
+  userId    String   // 実際のユーザー認証システムに合わせて調整してください
 }

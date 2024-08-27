@@ -3,7 +3,7 @@ import { api } from "~/trpc/react";
 import { useToast } from "@/components/ui/use-toast";
 import { CommentType } from '~/types/thread';
 
-export const useComments = (threadId: string) => {
+export const useComments = (threadId: string, userId: string) => {
   const [newComment, setNewComment] = useState('');
   const { toast } = useToast();
 
@@ -11,6 +11,8 @@ export const useComments = (threadId: string) => {
   const createCommentMutation = api.bookThread.createComment.useMutation();
   const deleteCommentMutation = api.bookThread.deleteComment.useMutation();
   const editCommentMutation = api.bookThread.editComment.useMutation();
+  const likeCommentMutation = api.bookThread.likeComment.useMutation();
+  const unlikeCommentMutation = api.bookThread.unlikeComment.useMutation();
 
   const structuredComments = useMemo(() => {
     if (!thread?.comments) return [];
@@ -18,7 +20,11 @@ export const useComments = (threadId: string) => {
     const rootComments: CommentType[] = [];
 
     thread.comments.forEach(comment => {
-      commentMap.set(comment.id, { ...comment, replies: [] });
+      commentMap.set(comment.id, { 
+        ...comment, 
+        replies: [],
+        likes: comment.likes || [] // ここで likes を追加
+      });
     });
 
     thread.comments.forEach(comment => {
@@ -95,6 +101,42 @@ export const useComments = (threadId: string) => {
     }
   };
 
+  const handleLikeComment = async (commentId: string, userId: string) => {
+    try {
+      await likeCommentMutation.mutateAsync({ commentId, userId });
+      await refetchThread();
+      toast({
+        title: "いいね",
+        description: "コメントにいいねしました。",
+      });
+    } catch (error) {
+      console.error('Error liking comment:', error);
+      toast({
+        title: "エラー",
+        description: "いいねの処理中にエラーが発生しました。",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleUnlikeComment = async (commentId: string, userId: string) => {
+    try {
+      await unlikeCommentMutation.mutateAsync({ commentId, userId });
+      await refetchThread();
+      toast({
+        title: "いいね取り消し",
+        description: "コメントのいいねを取り消しました。",
+      });
+    } catch (error) {
+      console.error('Error unliking comment:', error);
+      toast({
+        title: "エラー",
+        description: "いいね取り消しの処理中にエラーが発生しました。",
+        variant: "destructive",
+      });
+    }
+  };
+
   return {
     thread,
     newComment,
@@ -103,6 +145,8 @@ export const useComments = (threadId: string) => {
     handleCreateComment,
     handleDeleteComment,
     handleEditComment,
+    handleLikeComment,
+    handleUnlikeComment,
     refetchThread,
   };
 };

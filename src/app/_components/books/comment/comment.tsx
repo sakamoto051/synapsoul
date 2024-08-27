@@ -13,20 +13,33 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Send, MessageCircle, ChevronDown, ChevronUp, Trash2, Edit2 } from "lucide-react";
+import { Send, MessageCircle, ChevronDown, ChevronUp, Trash2, Edit2, ThumbsUp } from "lucide-react";
 import { api } from "~/trpc/react";
 import { CommentType } from '~/types/thread';
 
 interface CommentProps {
   comment: CommentType;
   threadId: string;
+  userId: string;
   onReply: () => void;
   onDelete: (commentId: string) => void;
   onEdit: (commentId: string, newContent: string) => void;
+  onLike: (commentId: string, userId: string) => void;
+  onUnlike: (commentId: string, userId: string) => void;
   depth?: number;
 }
 
-export const Comment: React.FC<CommentProps> = ({ comment, threadId, onReply, onDelete, onEdit, depth = 0 }) => {
+export const Comment: React.FC<CommentProps> = ({
+  comment,
+  threadId,
+  userId,
+  onReply,
+  onDelete,
+  onEdit,
+  onLike,
+  onUnlike,
+  depth = 0
+}) => {
   const [replyContent, setReplyContent] = useState('');
   const [isReplying, setIsReplying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
@@ -34,6 +47,15 @@ export const Comment: React.FC<CommentProps> = ({ comment, threadId, onReply, on
   const [editContent, setEditContent] = useState(comment.content);
   const { toast } = useToast();
   const createReplyMutation = api.bookThread.createReply.useMutation();
+  const [isLiked, setIsLiked] = useState(comment.likes.some(like => like.userId === userId));
+
+  const handleLike = () => {
+    if (isLiked) {
+      onUnlike(comment.id, userId);
+    } else {
+      onLike(comment.id, userId);
+    }
+  };
 
   const handleReply = async () => {
     if (!replyContent.trim()) return;
@@ -88,6 +110,15 @@ export const Comment: React.FC<CommentProps> = ({ comment, threadId, onReply, on
             {new Date(comment.createdAt).toLocaleString()}
           </div>
         </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleLike}
+          className={`p-1 ${isLiked ? 'text-blue-400 hover:text-blue-300 hover:bg-blue-400/10' : 'text-gray-400 hover:text-gray-300 hover:bg-gray-400/10'}`}
+        >
+          <ThumbsUp className="h-4 w-4" />
+          <span className="ml-1">{comment.likes.length}</span>
+        </Button>
         <Button
           variant="ghost"
           size="sm"
@@ -169,9 +200,12 @@ export const Comment: React.FC<CommentProps> = ({ comment, threadId, onReply, on
               key={reply.id}
               comment={reply}
               threadId={threadId}
+              userId={userId}
               onReply={onReply}
               onDelete={onDelete}
               onEdit={onEdit}
+              onLike={onLike}
+              onUnlike={onUnlike}
               depth={depth + 1}
             />
           ))}

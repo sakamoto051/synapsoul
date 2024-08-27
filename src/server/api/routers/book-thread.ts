@@ -10,9 +10,10 @@ export const bookThreadRouter = createTRPCRouter({
         include: { 
           comments: {
             include: {
+              likes: true,
               replies: {
                 include: {
-                  replies: true
+                  likes: true
                 }
               }
             },
@@ -23,7 +24,7 @@ export const bookThreadRouter = createTRPCRouter({
         },
       });
     }),
-
+  
   getThreads: publicProcedure
     .input(z.object({ isbn: z.string() }))
     .query(async ({ ctx, input }) => {
@@ -80,6 +81,28 @@ export const bookThreadRouter = createTRPCRouter({
       return ctx.db.comment.update({
         where: { id: input.commentId },
         data: { content: input.content },
+      });
+    }),
+  
+  likeComment: publicProcedure
+    .input(z.object({ commentId: z.string(), userId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.like.create({
+        data: {
+          commentId: input.commentId,
+          userId: input.userId,
+        },
+      });
+    }),
+
+  unlikeComment: publicProcedure
+    .input(z.object({ commentId: z.string(), userId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.like.deleteMany({
+        where: {
+          commentId: input.commentId,
+          userId: input.userId,
+        },
       });
     }),
 });
