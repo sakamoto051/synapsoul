@@ -1,9 +1,9 @@
 import { postRouter } from "~/server/api/routers/post";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
-import { roomRouter } from './routers/room';
-import { tagRouter } from './routers/tag';
-import { bookRouter } from './routers/book';
-import { bookThreadRouter } from './routers/book-thread';
+import { roomRouter } from "./routers/room";
+import { tagRouter } from "./routers/tag";
+import { bookRouter } from "./routers/book";
+import { bookThreadRouter } from "./routers/book-thread";
 
 /**
  * This is the primary router for your server.

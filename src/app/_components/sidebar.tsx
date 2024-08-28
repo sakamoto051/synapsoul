@@ -1,8 +1,18 @@
-'use client';
-import React, { useState } from 'react';
+"use client";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Home, LibraryBig, Link, ChevronDown, ChevronUp, BookOpen, Search } from "lucide-react";
-import NextLink from 'next/link';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Home,
+  LibraryBig,
+  Link,
+  ChevronDown,
+  ChevronUp,
+  BookOpen,
+  Search,
+} from "lucide-react";
+import NextLink from "next/link";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
@@ -12,7 +22,9 @@ const Sidebar = () => {
   const toggleBooks = () => setIsBooksOpen(!isBooksOpen);
 
   return (
-    <div className={`flex h-screen bg-gray-900 text-white transition-all duration-300 ${isOpen ? 'w-40' : 'w-16'}`}>
+    <div
+      className={`flex h-screen bg-gray-900 text-white transition-all duration-300 ${isOpen ? "w-40" : "w-16"}`}
+    >
       <div className="flex flex-col flex-grow">
         <div className="p-4">
           <Button
@@ -40,20 +52,30 @@ const Sidebar = () => {
                 {isOpen && (
                   <>
                     Books
-                    {isBooksOpen ? <ChevronUp className="ml-auto" /> : <ChevronDown className="ml-auto" />}
+                    {isBooksOpen ? (
+                      <ChevronUp className="ml-auto" />
+                    ) : (
+                      <ChevronDown className="ml-auto" />
+                    )}
                   </>
                 )}
               </Button>
               {isOpen && isBooksOpen && (
                 <div className="ml-4">
                   <NextLink href="/books/mybooks">
-                    <Button variant="ghost" className="w-full justify-start mb-2">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start mb-2"
+                    >
                       <BookOpen className="mr-2" />
                       My Books
                     </Button>
                   </NextLink>
                   <NextLink href="/books/search">
-                    <Button variant="ghost" className="w-full justify-start mb-2">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start mb-2"
+                    >
                       <Search className="mr-2" />
                       Search
                     </Button>

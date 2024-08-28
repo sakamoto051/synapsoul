@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
@@ -13,9 +13,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Send, MessageCircle, ChevronDown, ChevronUp, Trash2, Edit2, ThumbsUp } from "lucide-react";
+import {
+  Send,
+  MessageCircle,
+  ChevronDown,
+  ChevronUp,
+  Trash2,
+  Edit2,
+  ThumbsUp,
+} from "lucide-react";
 import { api } from "~/trpc/react";
-import { CommentType } from '~/types/thread';
+import { CommentType } from "~/types/thread";
 
 interface CommentProps {
   comment: CommentType;
@@ -38,16 +46,18 @@ export const Comment: React.FC<CommentProps> = ({
   onEdit,
   onLike,
   onUnlike,
-  depth = 0
+  depth = 0,
 }) => {
-  const [replyContent, setReplyContent] = useState('');
+  const [replyContent, setReplyContent] = useState("");
   const [isReplying, setIsReplying] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
   const { toast } = useToast();
   const createReplyMutation = api.bookThread.createReply.useMutation();
-  const [isLiked, setIsLiked] = useState(comment.likes.some(like => like.userId === userId));
+  const [isLiked, setIsLiked] = useState(
+    comment.likes.some((like) => like.userId === userId),
+  );
 
   const handleLike = () => {
     if (isLiked) {
@@ -66,7 +76,7 @@ export const Comment: React.FC<CommentProps> = ({
         parentId: comment.id,
         content: replyContent,
       });
-      setReplyContent('');
+      setReplyContent("");
       setIsReplying(false);
       onReply();
       toast({
@@ -74,7 +84,7 @@ export const Comment: React.FC<CommentProps> = ({
         description: "返信が投稿されました。",
       });
     } catch (error) {
-      console.error('Error creating reply:', error);
+      console.error("Error creating reply:", error);
       toast({
         title: "エラー",
         description: "返信の投稿中にエラーが発生しました。",
@@ -93,9 +103,11 @@ export const Comment: React.FC<CommentProps> = ({
   };
 
   return (
-    <div className={`py-2 ${depth > 0 ? 'ml-4' : ''}`}>
+    <div className={`py-2 ${depth > 0 ? "ml-4" : ""}`}>
       <div className="flex items-start space-x-2">
-        <div className={`w-0.5 self-stretch ${depth > 0 ? 'bg-gray-700' : 'bg-transparent'}`} />
+        <div
+          className={`w-0.5 self-stretch ${depth > 0 ? "bg-gray-700" : "bg-transparent"}`}
+        />
         <div className="flex-grow">
           {isEditing ? (
             <Input
@@ -114,7 +126,7 @@ export const Comment: React.FC<CommentProps> = ({
           variant="ghost"
           size="sm"
           onClick={handleLike}
-          className={`p-1 ${isLiked ? 'text-blue-400 hover:text-blue-300 hover:bg-blue-400/10' : 'text-gray-400 hover:text-gray-300 hover:bg-gray-400/10'}`}
+          className={`p-1 ${isLiked ? "text-blue-400 hover:text-blue-300 hover:bg-blue-400/10" : "text-gray-400 hover:text-gray-300 hover:bg-gray-400/10"}`}
         >
           <ThumbsUp className="h-4 w-4" />
           <span className="ml-1">{comment.likes.length}</span>
@@ -176,7 +188,11 @@ export const Comment: React.FC<CommentProps> = ({
             onClick={() => setIsExpanded(!isExpanded)}
             className="text-gray-400 hover:text-gray-300 hover:bg-gray-700/50 p-1"
           >
-            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+            {isExpanded ? (
+              <ChevronUp className="h-4 w-4" />
+            ) : (
+              <ChevronDown className="h-4 w-4" />
+            )}
           </Button>
         )}
       </div>
@@ -188,7 +204,10 @@ export const Comment: React.FC<CommentProps> = ({
             onChange={(e) => setReplyContent(e.target.value)}
             className="flex-grow bg-gray-700/50 text-gray-200 border-gray-600/50 text-sm"
           />
-          <Button onClick={handleReply} className="bg-indigo-600/70 hover:bg-indigo-700/70 text-gray-200 px-2 py-1">
+          <Button
+            onClick={handleReply}
+            className="bg-indigo-600/70 hover:bg-indigo-700/70 text-gray-200 px-2 py-1"
+          >
             <Send className="h-4 w-4" />
           </Button>
         </div>

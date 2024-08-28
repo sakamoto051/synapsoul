@@ -6,21 +6,22 @@ import {
 } from "~/server/api/trpc";
 
 export const roomRouter = createTRPCRouter({
-  list: publicProcedure
-    .query(({ ctx }) => {
-      return ctx.db.room.findMany({
-        include: {
-          tags: true,
-        },
-        orderBy: {
-          createdAt: 'desc',
-        }
-      })
-    }),
+  list: publicProcedure.query(({ ctx }) => {
+    return ctx.db.room.findMany({
+      include: {
+        tags: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  }),
   getById: publicProcedure
-    .input(z.object({
-      id: z.string(),
-    }))
+    .input(
+      z.object({
+        id: z.string(),
+      }),
+    )
     .query(({ input, ctx }) => {
       return ctx.db.room.findUnique({
         where: {
@@ -28,17 +29,21 @@ export const roomRouter = createTRPCRouter({
         },
         include: {
           tags: true,
-        }
-      })
+        },
+      });
     }),
   create: protectedProcedure
-    .input(z.object({
-      title: z.string().min(1),
-      content: z.string().min(1),
-      tags: z.array(z.object({
-        name: z.string(),
-      })),
-    }))
+    .input(
+      z.object({
+        title: z.string().min(1),
+        content: z.string().min(1),
+        tags: z.array(
+          z.object({
+            name: z.string(),
+          }),
+        ),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const tagsToConnect = [];
       for (const tag of input.tags) {

@@ -1,4 +1,4 @@
-import { Book } from '@prisma/client';
+import { Book } from "@prisma/client";
 
 export type BookItem = {
   affiliateUrl: string;
@@ -31,11 +31,11 @@ export type BookItem = {
   subTitleKana: string;
   title: string;
   titleKana: string;
-}
+};
 
 export type BookItemWrapper = {
   Item: BookItem;
-}
+};
 
 export type Items = BookItemWrapper[];
 
@@ -49,6 +49,6 @@ export type BookResponse = {
   last: number;
   page: number;
   pageCount: number;
-}
+};
 
 export type BookWithDetails = BookItem & Book;

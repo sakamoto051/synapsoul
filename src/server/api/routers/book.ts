@@ -5,9 +5,9 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { BookStatus } from "@prisma/client";
-import { TRPCError } from '@trpc/server';
-import { BookResponse, BookWithDetails } from '~/types/book';
-import NodeCache from 'node-cache';
+import { TRPCError } from "@trpc/server";
+import { BookResponse, BookWithDetails } from "~/types/book";
+import NodeCache from "node-cache";
 
 const API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
 const CACHE_TTL = 60 * 60 * 24; // 24 hours
@@ -30,7 +30,7 @@ class RateLimiter {
     this.refillTokens();
     if (this.tokenBucket < 1) {
       const waitTime = (1 / this.refillRate) * 1000;
-      await new Promise(resolve => setTimeout(resolve, waitTime));
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
       return this.waitForToken();
     }
     this.tokenBucket--;
@@ -40,19 +40,26 @@ class RateLimiter {
     const now = Date.now();
     const timePassed = now - this.lastRefilled;
     const refillAmount = timePassed * (this.refillRate / 1000);
-    this.tokenBucket = Math.min(this.maxTokens, this.tokenBucket + refillAmount);
+    this.tokenBucket = Math.min(
+      this.maxTokens,
+      this.tokenBucket + refillAmount,
+    );
     this.lastRefilled = now;
   }
 }
 
 const rateLimiter = new RateLimiter(5, 1); // 5 requests per second
 
-async function fetchWithTimeout(resource: string, options: RequestInit = {}, timeout = 5000): Promise<Response> {
+async function fetchWithTimeout(
+  resource: string,
+  options: RequestInit = {},
+  timeout = 5000,
+): Promise<Response> {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeout);
   const response = await fetch(resource, {
     ...options,
-    signal: controller.signal
+    signal: controller.signal,
   });
   clearTimeout(id);
   return response;
@@ -70,8 +77,8 @@ async function fetchBookInfo(isbn: string): Promise<BookWithDetails | null> {
     const response = await fetchWithTimeout(`${API_ENDPOINT}&isbn=${isbn}`);
     if (!response.ok) {
       if (response.status === 429) {
-        console.warn('Rate limit exceeded. Waiting before retry...');
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        console.warn("Rate limit exceeded. Waiting before retry...");
+        await new Promise((resolve) => setTimeout(resolve, 5000));
         return fetchBookInfo(isbn); // Retry after waiting
       }
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -81,8 +88,8 @@ async function fetchBookInfo(isbn: string): Promise<BookWithDetails | null> {
       const bookInfo: BookWithDetails = {
         ...data.Items[0].Item,
         isbn: isbn,
-        status: 'INTERESTED', // Default status, adjust as needed
-        userId: '', // This will be set later
+        status: "INTERESTED", // Default status, adjust as needed
+        userId: "", // This will be set later
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -99,9 +106,11 @@ async function fetchBookInfo(isbn: string): Promise<BookWithDetails | null> {
 
 export const bookRouter = createTRPCRouter({
   getStatus: publicProcedure
-    .input(z.object({
-      isbn: z.string(),
-    }))
+    .input(
+      z.object({
+        isbn: z.string(),
+      }),
+    )
     .query(async ({ ctx, input }) => {
       if (!ctx.session) {
         return null;
@@ -113,7 +122,8 @@ export const bookRouter = createTRPCRouter({
           isbn_userId: {
             isbn: input.isbn,
             userId: userId,
-        } },
+          },
+        },
         select: { status: true },
       });
 
@@ -121,10 +131,12 @@ export const bookRouter = createTRPCRouter({
     }),
 
   updateStatus: protectedProcedure
-    .input(z.object({
-      isbn: z.string(),
-      status: z.nativeEnum(BookStatus),
-    }))
+    .input(
+      z.object({
+        isbn: z.string(),
+        status: z.nativeEnum(BookStatus),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       const userId = ctx.session.user.id;
       if (!userId) {
@@ -133,8 +145,8 @@ export const bookRouter = createTRPCRouter({
           message: "User must be logged in to perform this action",
         });
       }
-      console.log(userId)
-      console.log(input.isbn)
+      console.log(userId);
+      console.log(input.isbn);
 
       try {
         const upsertedBook = await ctx.db.book.upsert({
@@ -164,41 +176,46 @@ export const bookRouter = createTRPCRouter({
         });
       }
     }),
-  
-  getUserBooks: protectedProcedure
-    .query(async ({ ctx }) => {
-      try {
-        const books = await ctx.db.book.findMany({
-          where: {
-            userId: ctx.session.user.id,
-          },
-        });
 
-        const booksWithInfo = await Promise.all(
-          books.map(async (book) => {
-            const bookInfo = await fetchBookInfo(book.isbn);
-            if (!bookInfo) {
-              console.warn(`Failed to fetch info for book with ISBN: ${book.isbn}`);
-              return null;
-            }
-            return {
-              ...bookInfo,
-              ...book, // Overwrite with database values
-            };
-          })
-        );
+  getUserBooks: protectedProcedure.query(async ({ ctx }) => {
+    try {
+      const books = await ctx.db.book.findMany({
+        where: {
+          userId: ctx.session.user.id,
+        },
+      });
 
-        const validBooks = booksWithInfo.filter((book): book is BookWithDetails => book !== null);
+      const booksWithInfo = await Promise.all(
+        books.map(async (book) => {
+          const bookInfo = await fetchBookInfo(book.isbn);
+          if (!bookInfo) {
+            console.warn(
+              `Failed to fetch info for book with ISBN: ${book.isbn}`,
+            );
+            return null;
+          }
+          return {
+            ...bookInfo,
+            ...book, // Overwrite with database values
+          };
+        }),
+      );
 
-        console.log(`Successfully fetched info for ${validBooks.length} out of ${books.length} books`);
+      const validBooks = booksWithInfo.filter(
+        (book): book is BookWithDetails => book !== null,
+      );
 
-        return validBooks;
-      } catch (error) {
-        console.error("Error in getUserBooks:", error);
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An error occurred while fetching user books",
-        });
-      }
-    }),
+      console.log(
+        `Successfully fetched info for ${validBooks.length} out of ${books.length} books`,
+      );
+
+      return validBooks;
+    } catch (error) {
+      console.error("Error in getUserBooks:", error);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "An error occurred while fetching user books",
+      });
+    }
+  }),
 });

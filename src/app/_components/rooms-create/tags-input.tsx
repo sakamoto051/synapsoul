@@ -1,33 +1,44 @@
-import React, { useState, useEffect, useRef, ChangeEvent, MouseEvent } from 'react';
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { CircleX } from 'lucide-react';
-import { api } from '~/trpc/react';
-import { Prisma } from '@prisma/client';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  ChangeEvent,
+  MouseEvent,
+} from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { CircleX } from "lucide-react";
+import { api } from "~/trpc/react";
+import { Prisma } from "@prisma/client";
 
 const TagInput = ({
   tags,
   setTags,
   handleTagRemove,
 }: {
-  tags: Prisma.TagCreateInput[],
-  setTags: React.Dispatch<React.SetStateAction<Prisma.TagCreateInput[]>>,
-  handleTagRemove: (index: number) => void,
+  tags: Prisma.TagCreateInput[];
+  setTags: React.Dispatch<React.SetStateAction<Prisma.TagCreateInput[]>>;
+  handleTagRemove: (index: number) => void;
 }) => {
-  const [inputValue, setInputValue] = useState<string>('');
-  const [suggestions, setSuggestions] = useState<Prisma.TagCreateInput[] | undefined>([]);
+  const [inputValue, setInputValue] = useState<string>("");
+  const [suggestions, setSuggestions] = useState<
+    Prisma.TagCreateInput[] | undefined
+  >([]);
   const containerRef = useRef(null);
   const tagsQuery = api.tag.list.useQuery();
 
   const fetchTags = async (query: string) => {
-    const filteredTags = tagsQuery.data?.filter(tag => tag.name.toLowerCase().includes(query.toLowerCase()));
+    const filteredTags = tagsQuery.data?.filter((tag) =>
+      tag.name.toLowerCase().includes(query.toLowerCase()),
+    );
     return filteredTags;
   };
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
       if (inputValue) {
-        const fetchedTags: Prisma.TagCreateInput[] | undefined = await fetchTags(inputValue);
+        const fetchedTags: Prisma.TagCreateInput[] | undefined =
+          await fetchTags(inputValue);
         setSuggestions(fetchedTags);
       } else {
         setSuggestions([]);
@@ -48,13 +59,13 @@ const TagInput = ({
         name: inputValue.trim(),
       };
       setTags([...tags, newTag]);
-      setInputValue('');
+      setInputValue("");
       setSuggestions([]);
     }
   };
 
   const handleSuggestionClick = (suggestion: Prisma.TagCreateInput) => {
-    setInputValue('');
+    setInputValue("");
     setSuggestions([]);
     setTags([...tags, suggestion]);
   };
@@ -71,7 +82,12 @@ const TagInput = ({
             className="bg-gray-700 border-none"
           />
         </div>
-        <Button onClick={handleAddTag} className="bg-blue-700 hover:bg-blue-600">Add</Button>
+        <Button
+          onClick={handleAddTag}
+          className="bg-blue-700 hover:bg-blue-600"
+        >
+          Add
+        </Button>
       </div>
       <div className="relative">
         {suggestions && suggestions.length > 0 && (
@@ -90,7 +106,10 @@ const TagInput = ({
       </div>
       <div className="flex space-x-2 flex-wrap">
         {tags.map((tag, index) => (
-          <div key={index} className="bg-blue-500 text-white px-2 py-1 rounded-md flex items-center space-x-2">
+          <div
+            key={index}
+            className="bg-blue-500 text-white px-2 py-1 rounded-md flex items-center space-x-2"
+          >
             <span>{tag.name}</span>
             <button
               className="text-white hover:text-gray-300"

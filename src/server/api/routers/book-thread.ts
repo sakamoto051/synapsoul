@@ -7,24 +7,24 @@ export const bookThreadRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return ctx.db.bookThread.findUnique({
         where: { id: input.threadId },
-        include: { 
+        include: {
           comments: {
             include: {
               likes: true,
               replies: {
                 include: {
-                  likes: true
-                }
-              }
+                  likes: true,
+                },
+              },
             },
             orderBy: {
-              createdAt: 'asc'
-            }
-          }
+              createdAt: "asc",
+            },
+          },
         },
       });
     }),
-  
+
   getThreads: publicProcedure
     .input(z.object({ isbn: z.string() }))
     .query(async ({ ctx, input }) => {
@@ -36,7 +36,9 @@ export const bookThreadRouter = createTRPCRouter({
     }),
 
   createThread: publicProcedure
-    .input(z.object({ isbn: z.string(), title: z.string(), content: z.string() }))
+    .input(
+      z.object({ isbn: z.string(), title: z.string(), content: z.string() }),
+    )
     .mutation(async ({ ctx, input }) => {
       return ctx.db.bookThread.create({
         data: input,
@@ -50,23 +52,25 @@ export const bookThreadRouter = createTRPCRouter({
         data: input,
       });
     }),
-  
+
   createReply: publicProcedure
-    .input(z.object({ 
-      threadId: z.string(),
-      parentId: z.string(),
-      content: z.string() 
-    }))
+    .input(
+      z.object({
+        threadId: z.string(),
+        parentId: z.string(),
+        content: z.string(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       return ctx.db.comment.create({
         data: {
           content: input.content,
           threadId: input.threadId,
-          parentId: input.parentId
+          parentId: input.parentId,
         },
       });
     }),
-  
+
   deleteComment: publicProcedure
     .input(z.object({ commentId: z.string() }))
     .mutation(async ({ ctx, input }) => {
@@ -74,7 +78,7 @@ export const bookThreadRouter = createTRPCRouter({
         where: { id: input.commentId },
       });
     }),
-  
+
   editComment: publicProcedure
     .input(z.object({ commentId: z.string(), content: z.string() }))
     .mutation(async ({ ctx, input }) => {
@@ -83,7 +87,7 @@ export const bookThreadRouter = createTRPCRouter({
         data: { content: input.content },
       });
     }),
-  
+
   likeComment: publicProcedure
     .input(z.object({ commentId: z.string(), userId: z.string() }))
     .mutation(async ({ ctx, input }) => {

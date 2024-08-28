@@ -1,15 +1,15 @@
-'use client';
-import React from 'react';
-import { useParams } from 'next/navigation';
+"use client";
+import React from "react";
+import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send } from "lucide-react";
-import { useComments } from './comment/useComments';
-import { Comment } from './comment/comment';
+import { useComments } from "./comment/useComments";
+import { Comment } from "./comment/comment";
 
 const BookThreadDetail: React.FC = () => {
   const params = useParams();
-  const threadId = params['threadId'] as string;
+  const threadId = params["threadId"] as string;
   const userId = "current-user-id"; // 実際のユーザー認証システムから取得する必要があります
 
   const {
@@ -30,7 +30,9 @@ const BookThreadDetail: React.FC = () => {
   return (
     <div className="container mx-auto px-4 py-4 bg-gray-900 min-h-screen">
       <div className="bg-gray-800/70 text-gray-200 rounded-lg shadow-lg mb-4 p-4">
-        <h1 className="text-xl font-bold text-indigo-300 mb-2">{thread.title}</h1>
+        <h1 className="text-xl font-bold text-indigo-300 mb-2">
+          {thread.title}
+        </h1>
         <p className="mb-4 text-sm">{thread.content}</p>
         <div className="space-y-2">
           {structuredComments.map((comment) => (

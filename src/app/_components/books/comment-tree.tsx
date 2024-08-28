@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ interface CommentTreeProps {
 
 const CommentTree: React.FC<CommentTreeProps> = ({ comment, depth = 0 }) => {
   return (
-    <Card className={`my-2 ${depth > 0 ? 'ml-4' : ''}`}>
+    <Card className={`my-2 ${depth > 0 ? "ml-4" : ""}`}>
       <CardContent className="p-4">
         <div className="flex items-start space-x-4">
           <Avatar>

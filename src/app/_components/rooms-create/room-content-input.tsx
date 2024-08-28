@@ -1,13 +1,18 @@
-import React from 'react';
+import React from "react";
 
 interface RoomContentInputProps {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
 }
 
-const RoomContentInput: React.FC<RoomContentInputProps> = ({ value, onChange }) => (
+const RoomContentInput: React.FC<RoomContentInputProps> = ({
+  value,
+  onChange,
+}) => (
   <div>
-    <label htmlFor="roomContent" className="block mb-2">Room Details</label>
+    <label htmlFor="roomContent" className="block mb-2">
+      Room Details
+    </label>
     <textarea
       id="roomContent"
       value={value}
