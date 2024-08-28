@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
-import { BookItem } from "~/types/book";
+import type { BookItem } from "~/types/book";
 import { api } from "~/trpc/react";
 import { BookStatus } from "@prisma/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +10,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
 import { ChevronLeft, Book, BookOpen, BookMarked } from "lucide-react";
-import BookThread from "../../_components/books/thread";
 import BookThreadList from "~/app/_components/books/thread-list";
 
 const API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
@@ -21,7 +20,7 @@ const BookDetail = () => {
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
-  const isbn = params["isbn"] as string;
+  const isbn = params.isbn as string;
   const updateStatusMutation = api.book.updateStatus.useMutation();
   const { toast } = useToast();
 

@@ -1,6 +1,6 @@
 import React from "react";
 import { User } from "lucide-react";
-import { Room, Tag } from "@prisma/client";
+import type { Room, Tag } from "@prisma/client";
 import { formatDateInJST } from "~/utils/date";
 import {
   Card,
@@ -32,7 +32,7 @@ const RoomCard = ({ room, tags }: { room: Room; tags: Tag[] }) => {
         </CardFooter>
         <CardFooter className="flex justify-between items-center">
           <div className="flex space-x-2">
-            {[1, 2, 3].map((_, i) => (
+            {/* {[1, 2, 3].map((_, i) => (
               <Avatar
                 key={i}
                 className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center"
@@ -41,7 +41,7 @@ const RoomCard = ({ room, tags }: { room: Room; tags: Tag[] }) => {
                   <User className="w-4 h-4" />
                 </AvatarFallback>
               </Avatar>
-            ))}
+            ))} */}
           </div>
           <span className="text-xs text-muted-foreground">
             {formatDateInJST(room.createdAt)}

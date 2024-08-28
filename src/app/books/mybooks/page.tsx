@@ -1,8 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
-import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
-import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -18,9 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Book as BookImg, Search } from "lucide-react";
 import { BookStatus } from "@prisma/client";
-import { BookWithDetails } from "~/types/book";
+import type { BookWithDetails } from "~/types/book";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 
@@ -29,7 +26,6 @@ const MyBooksPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<BookStatus | "ALL">("ALL");
   const updateStatusMutation = api.book.updateStatus.useMutation();
-  const router = useRouter();
   const { data: userBooks, isLoading } = api.book.getUserBooks.useQuery();
 
   useEffect(() => {
@@ -61,15 +57,17 @@ const MyBooksPage = () => {
         status: status,
       });
 
-      // ローカルの状態を更新
       setBooks((prevBooks) =>
         prevBooks.map((b) => (b.isbn === book.isbn ? { ...b, status } : b)),
       );
     } catch (error) {
       console.error("Failed to update book status:", error);
-      // エラー処理をここに追加（例：ユーザーへの通知）
     }
   };
+
+  // Generate a unique key for skeleton items
+  const generateSkeletonKey = () =>
+    `skeleton-${Math.random().toString(36).substr(2, 9)}`;
 
   return (
     <div className="container mx-auto p-4 bg-gray-900 text-gray-100">
@@ -102,8 +100,11 @@ const MyBooksPage = () => {
 
       {isLoading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-          {[...Array(12)].map((_, index) => (
-            <Card key={index} className="bg-gray-800 border-none shadow-lg">
+          {Array.from({ length: 12 }).map(() => (
+            <Card
+              key={generateSkeletonKey()}
+              className="bg-gray-800 border-none shadow-lg"
+            >
               <CardHeader>
                 <Skeleton className="h-40 w-full bg-gray-700" />
               </CardHeader>

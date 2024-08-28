@@ -1,4 +1,4 @@
-import { Book } from "@prisma/client";
+import type { Book } from "@prisma/client";
 
 export type BookItem = {
   affiliateUrl: string;

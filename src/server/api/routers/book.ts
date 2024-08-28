@@ -6,7 +6,7 @@ import {
 } from "~/server/api/trpc";
 import { BookStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
-import { BookResponse, BookWithDetails } from "~/types/book";
+import type { BookResponse, BookWithDetails } from "~/types/book";
 import NodeCache from "node-cache";
 
 const API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;

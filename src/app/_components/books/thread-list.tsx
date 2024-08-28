@@ -13,7 +13,7 @@ const BookThreadList = () => {
   const [newThreadContent, setNewThreadContent] = useState("");
   const params = useParams();
   const router = useRouter();
-  const isbn = params["isbn"] as string;
+  const isbn = params.isbn as string;
   const { toast } = useToast();
 
   const { data: threads, refetch: refetchThreads } =

@@ -20,15 +20,15 @@ export const useComments = (threadId: string, userId: string) => {
     const commentMap = new Map<string, CommentType>();
     const rootComments: CommentType[] = [];
 
-    thread.comments.forEach((comment) => {
+    for (const comment of thread.comments) {
       commentMap.set(comment.id, {
         ...comment,
         replies: [],
-        likes: comment.likes || [], // ここで likes を追加
+        likes: comment.likes || [],
       });
-    });
+    }
 
-    thread.comments.forEach((comment) => {
+    for (const comment of thread.comments) {
       if (comment.parentId) {
         const parentComment = commentMap.get(comment.parentId);
         if (parentComment) {
@@ -37,7 +37,7 @@ export const useComments = (threadId: string, userId: string) => {
       } else {
         rootComments.push(commentMap.get(comment.id) as CommentType);
       }
-    });
+    }
 
     return rootComments;
   }, [thread?.comments]);
@@ -68,7 +68,29 @@ export const useComments = (threadId: string, userId: string) => {
 
   const handleDeleteComment = async (commentId: string) => {
     try {
-      await deleteCommentMutation.mutateAsync({ commentId });
+      // コメントとその返信を再帰的に削除する関数
+      const deleteCommentRecursively = async (id: string) => {
+        const comment = thread?.comments.find((c) => c.id === id);
+        if (!comment) return;
+
+        // 子コメントを再帰的に削除
+        for (const reply of comment.replies) {
+          await deleteCommentRecursively(reply.id);
+        }
+
+        // コメントに関連する「いいね」を削除
+        for (const like of comment.likes) {
+          await unlikeCommentMutation.mutateAsync({
+            commentId: id,
+            userId: like.userId,
+          });
+        }
+
+        // コメントを削除
+        await deleteCommentMutation.mutateAsync({ commentId: id });
+      };
+
+      await deleteCommentRecursively(commentId);
       await refetchThread();
       toast({
         title: "コメント削除",

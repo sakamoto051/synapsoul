@@ -1,16 +1,20 @@
 "use client";
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { api } from "~/trpc/react";
 import { useRouter } from "next/navigation";
 import RoomTitleInput from "~/app/_components/rooms-create/room-title-input";
 import RoomContentInput from "~/app/_components/rooms-create/room-content-input";
 import TagsInput from "~/app/_components/rooms-create/tags-input";
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 
-const CreateRoomPage = () => {
+// Define a type that includes both TagCreateInput and an id
+type TagWithId = Prisma.TagCreateInput & { id: string };
+
+const CreateRoomPage: React.FC = () => {
   const [roomTitle, setRoomTitle] = useState<string>("");
   const [roomContent, setRoomContent] = useState<string>("");
-  const [tags, setTags] = useState<Prisma.TagCreateInput[]>([]);
+  const [tags, setTags] = useState<TagWithId[]>([]);
   const utils = api.useUtils();
   const router = useRouter();
   const { refetch } = api.room.list.useQuery();
@@ -27,20 +31,18 @@ const CreateRoomPage = () => {
       createRoom.mutate({
         title: roomTitle,
         content: roomContent,
-        tags: tags,
+        tags: tags.map(({ id, ...tag }) => tag), // Remove the id before sending to the API
       });
       console.log("Room created.");
-      refetch();
+      await refetch();
       router.push("/rooms");
     } catch (error) {
       console.error("Room create error:", error);
     }
   };
 
-  const handleTagRemove = (index: number) => {
-    const newTags = [...tags];
-    newTags.splice(index, 1);
-    setTags(newTags);
+  const handleTagRemove = (id: string) => {
+    setTags(tags.filter((tag) => tag.id !== id));
   };
 
   return (

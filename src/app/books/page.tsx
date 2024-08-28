@@ -1,12 +1,16 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import type React from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { BookItem, BookItemWrapper } from "~/types/book";
+import type { BookItem, BookItemWrapper } from "~/types/book";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const BASE_API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
 
-const BookList = () => {
+const BookList: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -22,47 +26,47 @@ const BookList = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
-  const updateUrlParams = (title: string, author: string, page: number) => {
-    const params = new URLSearchParams(searchParams);
-    if (title) params.set("title", title);
-    if (author) params.set("author", author);
-    params.set("page", String(page));
-    router.push(`/books?${params.toString()}`, { scroll: false });
-  };
+  const updateUrlParams = useCallback(
+    (title: string, author: string, page: number) => {
+      const params = new URLSearchParams(searchParams);
+      if (title) params.set("title", title);
+      if (author) params.set("author", author);
+      params.set("page", String(page));
+      router.push(`/books?${params.toString()}`, { scroll: false });
+    },
+    [searchParams, router],
+  );
 
-  const fetchBooks = async (page: number, title: string, author: string) => {
-    setLoading(true);
-    try {
-      let apiUrl = `${BASE_API_ENDPOINT}&page=${page}`;
-      if (title) {
-        apiUrl += `&title=${encodeURIComponent(title)}`;
+  const fetchBooks = useCallback(
+    async (page: number, title: string, author: string) => {
+      setLoading(true);
+      try {
+        let apiUrl = `${BASE_API_ENDPOINT}&page=${page}`;
+        if (title) apiUrl += `&title=${encodeURIComponent(title)}`;
+        if (author) apiUrl += `&author=${encodeURIComponent(author)}`;
+        const response = await fetch(apiUrl);
+        const data = await response.json();
+        setBooks(data.Items.map((item: BookItemWrapper) => item.Item));
+        setTotalPages(data.pageCount);
+        setTotalCount(data.count);
+        setCurrentPage(page);
+        updateUrlParams(title, author, page);
+      } catch (error) {
+        console.error("Error fetching books:", error);
+      } finally {
+        setLoading(false);
       }
-      if (author) {
-        apiUrl += `&author=${encodeURIComponent(author)}`;
-      }
-      const response = await fetch(apiUrl);
-      const data = await response.json();
-      setBooks(data.Items.map((item: BookItemWrapper) => item.Item));
-      setTotalPages(data.pageCount);
-      setTotalCount(data.count);
-      setCurrentPage(page);
-
-      updateUrlParams(title, author, page);
-    } catch (error) {
-      console.error("Error fetching books:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+    },
+    [updateUrlParams],
+  );
 
   useEffect(() => {
     fetchBooks(currentPage, searchTerm, authorInput);
-  }, []);
+  }, [fetchBooks, currentPage, searchTerm, authorInput]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= totalPages) {
       setCurrentPage(newPage);
-      fetchBooks(newPage, searchTerm, authorInput);
     }
   };
 
@@ -72,160 +76,69 @@ const BookList = () => {
   };
 
   return (
-    <div
-      style={{
-        padding: "1rem",
-        backgroundColor: "#111827",
-        color: "white",
-        minHeight: "100vh",
-      }}
-    >
-      <form
-        onSubmit={handleSearch}
-        style={{
-          marginBottom: "1rem",
-          display: "flex",
-          flexDirection: "column",
-          gap: "0.5rem",
-        }}
-      >
-        <input
+    <div className="container mx-auto p-4 bg-gray-900 text-white min-h-screen">
+      <form onSubmit={handleSearch} className="mb-4 flex flex-col gap-2">
+        <Input
           type="text"
           placeholder="タイトルで検索"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            padding: "0.5rem",
-            borderRadius: "0.375rem",
-            backgroundColor: "#1F2937",
-            color: "white",
-            width: "100%",
-          }}
+          className="bg-gray-800 text-white border-gray-700"
         />
-        <input
+        <Input
           type="text"
           placeholder="著者名で検索"
           value={authorInput}
           onChange={(e) => setAuthorInput(e.target.value)}
-          style={{
-            padding: "0.5rem",
-            borderRadius: "0.375rem",
-            backgroundColor: "#1F2937",
-            color: "white",
-            width: "100%",
-          }}
+          className="bg-gray-800 text-white border-gray-700"
         />
-        <button
-          type="submit"
-          style={{
-            padding: "0.5rem",
-            borderRadius: "0.375rem",
-            backgroundColor: "#3B82F6",
-            color: "white",
-            cursor: "pointer",
-          }}
-        >
+        <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
           検索
-        </button>
+        </Button>
       </form>
       {loading ? (
-        <div style={{ textAlign: "center" }}>Loading books...</div>
+        <div className="text-center">Loading books...</div>
       ) : (
         <>
-          <div className="grid grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {books.map((book: BookItem) => (
-              <a
+              <Link
                 key={book.isbn}
                 href={`/books/${book.isbn}?title=${encodeURIComponent(searchTerm)}&author=${encodeURIComponent(authorInput)}&page=${currentPage}`}
-                style={{
-                  textDecoration: "none",
-                  color: "inherit",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  padding: "0.5rem",
-                  borderRadius: "0.375rem",
-                  backgroundColor: "#1F2937",
-                  transition: "background-color 0.3s ease",
-                }}
+                className="flex flex-col items-center p-2 rounded-md bg-gray-800 transition-colors hover:bg-gray-700"
               >
                 <img
                   src={book.largeImageUrl}
                   alt={book.title}
-                  style={{
-                    width: "100%",
-                    height: "auto",
-                    marginBottom: "0.5rem",
-                    borderRadius: "0.375rem",
-                  }}
+                  className="w-full h-auto mb-2 rounded-md"
                 />
-                <h3
-                  style={{
-                    fontSize: "0.875rem",
-                    fontWeight: "600",
-                    textAlign: "center",
-                    width: "100%",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
-                >
+                <h3 className="text-sm font-semibold text-center truncate w-full">
                   {book.title}
                 </h3>
-                <p
-                  style={{
-                    fontSize: "0.75rem",
-                    color: "#9CA3AF",
-                    textAlign: "center",
-                    width: "100%",
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                    whiteSpace: "nowrap",
-                  }}
-                >
+                <p className="text-xs text-gray-400 text-center truncate w-full">
                   {book.author}
                 </p>
-              </a>
+              </Link>
             ))}
           </div>
-          <div
-            style={{
-              marginTop: "1rem",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: "0.5rem",
-            }}
-          >
-            <button
+          <div className="mt-4 flex justify-center items-center gap-2">
+            <Button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              style={{
-                padding: "0.5rem",
-                borderRadius: "0.375rem",
-                backgroundColor: "#374151",
-                color: "white",
-                cursor: currentPage === 1 ? "not-allowed" : "pointer",
-              }}
+              className="bg-gray-700 hover:bg-gray-600"
             >
               Previous
-            </button>
+            </Button>
             <span>{`Page ${currentPage} of ${totalPages}`}</span>
-            <button
+            <Button
               onClick={() => handlePageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              style={{
-                padding: "0.5rem",
-                borderRadius: "0.375rem",
-                backgroundColor: "#374151",
-                color: "white",
-                cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-              }}
+              className="bg-gray-700 hover:bg-gray-600"
             >
               Next
-            </button>
+            </Button>
           </div>
-          <div style={{ marginTop: "0.5rem", textAlign: "center" }}>
+          <div className="mt-2 text-center">
             {`Total results: ${totalCount}`}
           </div>
         </>

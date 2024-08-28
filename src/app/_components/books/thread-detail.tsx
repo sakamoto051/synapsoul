@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import type React from "react";
 import { useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,7 @@ import { Comment } from "./comment/comment";
 
 const BookThreadDetail: React.FC = () => {
   const params = useParams();
-  const threadId = params["threadId"] as string;
+  const threadId = params.threadId as string;
   const userId = "current-user-id"; // 実際のユーザー認証システムから取得する必要があります
 
   const {

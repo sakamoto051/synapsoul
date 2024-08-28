@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import type React from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/use-toast";
@@ -23,7 +24,7 @@ import {
   ThumbsUp,
 } from "lucide-react";
 import { api } from "~/trpc/react";
-import { CommentType } from "~/types/thread";
+import type { CommentType } from "~/types/thread";
 
 interface CommentProps {
   comment: CommentType;

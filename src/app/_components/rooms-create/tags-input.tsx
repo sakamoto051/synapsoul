@@ -1,44 +1,50 @@
-import React, {
+import type React from "react";
+import {
   useState,
   useEffect,
   useRef,
-  ChangeEvent,
-  MouseEvent,
+  useCallback,
+  type ChangeEvent,
+  type MouseEvent,
 } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CircleX } from "lucide-react";
 import { api } from "~/trpc/react";
-import { Prisma } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
+
+interface TagWithId extends Prisma.TagCreateInput {
+  id: string;
+}
 
 const TagInput = ({
   tags,
   setTags,
   handleTagRemove,
 }: {
-  tags: Prisma.TagCreateInput[];
-  setTags: React.Dispatch<React.SetStateAction<Prisma.TagCreateInput[]>>;
-  handleTagRemove: (index: number) => void;
+  tags: TagWithId[];
+  setTags: React.Dispatch<React.SetStateAction<TagWithId[]>>;
+  handleTagRemove: (id: string) => void;
 }) => {
   const [inputValue, setInputValue] = useState<string>("");
-  const [suggestions, setSuggestions] = useState<
-    Prisma.TagCreateInput[] | undefined
-  >([]);
+  const [suggestions, setSuggestions] = useState<TagWithId[]>([]);
   const containerRef = useRef(null);
   const tagsQuery = api.tag.list.useQuery();
 
-  const fetchTags = async (query: string) => {
-    const filteredTags = tagsQuery.data?.filter((tag) =>
-      tag.name.toLowerCase().includes(query.toLowerCase()),
-    );
-    return filteredTags;
-  };
+  const fetchTags = useCallback(
+    async (query: string) => {
+      const filteredTags = tagsQuery.data
+        ?.filter((tag) => tag.name.toLowerCase().includes(query.toLowerCase()))
+        .map((tag) => ({ ...tag, id: tag.id || crypto.randomUUID() }));
+      return filteredTags || [];
+    },
+    [tagsQuery.data],
+  );
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
       if (inputValue) {
-        const fetchedTags: Prisma.TagCreateInput[] | undefined =
-          await fetchTags(inputValue);
+        const fetchedTags = await fetchTags(inputValue);
         setSuggestions(fetchedTags);
       } else {
         setSuggestions([]);
@@ -46,7 +52,7 @@ const TagInput = ({
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);
-  }, [inputValue]);
+  }, [inputValue, fetchTags]);
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
@@ -54,8 +60,13 @@ const TagInput = ({
 
   const handleAddTag = (e: MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
+    addTag();
+  };
+
+  const addTag = () => {
     if (inputValue.trim()) {
-      const newTag: Prisma.TagCreateInput = {
+      const newTag: TagWithId = {
+        id: crypto.randomUUID(),
         name: inputValue.trim(),
       };
       setTags([...tags, newTag]);
@@ -64,10 +75,17 @@ const TagInput = ({
     }
   };
 
-  const handleSuggestionClick = (suggestion: Prisma.TagCreateInput) => {
+  const handleSuggestionClick = (suggestion: TagWithId) => {
     setInputValue("");
     setSuggestions([]);
     setTags([...tags, suggestion]);
+  };
+
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addTag();
+    }
   };
 
   return (
@@ -79,10 +97,12 @@ const TagInput = ({
             placeholder="Enter a tag"
             value={inputValue}
             onChange={handleInputChange}
+            onKeyDown={handleInputKeyDown}
             className="bg-gray-700 border-none"
           />
         </div>
         <Button
+          type="button"
           onClick={handleAddTag}
           className="bg-blue-700 hover:bg-blue-600"
         >
@@ -90,30 +110,33 @@ const TagInput = ({
         </Button>
       </div>
       <div className="relative">
-        {suggestions && suggestions.length > 0 && (
+        {suggestions.length > 0 && (
           <ul className="border border-gray-500 rounded-md absolute w-full overflow-hidden">
-            {suggestions.map((suggestion, index) => (
-              <li
-                key={index}
-                className="px-4 py-2 hover:bg-gray-600 cursor-pointer bg-gray-700"
-                onClick={() => handleSuggestionClick(suggestion)}
-              >
-                {suggestion.name}
+            {suggestions.map((suggestion) => (
+              <li key={suggestion.id} className="bg-gray-700">
+                <button
+                  type="button"
+                  className="w-full text-left px-4 py-2 hover:bg-gray-600 cursor-pointer"
+                  onClick={() => handleSuggestionClick(suggestion)}
+                >
+                  {suggestion.name}
+                </button>
               </li>
             ))}
           </ul>
         )}
       </div>
       <div className="flex space-x-2 flex-wrap">
-        {tags.map((tag, index) => (
+        {tags.map((tag) => (
           <div
-            key={index}
+            key={tag.id}
             className="bg-blue-500 text-white px-2 py-1 rounded-md flex items-center space-x-2"
           >
             <span>{tag.name}</span>
             <button
+              type="button"
               className="text-white hover:text-gray-300"
-              onClick={() => handleTagRemove(index)}
+              onClick={() => handleTagRemove(tag.id)}
             >
               <CircleX className="w-4 h-4" />
             </button>
