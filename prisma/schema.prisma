@@ -66,6 +66,7 @@ model User {
   chats         Chat[]
   room          Room[]
   book          Book[]
+  flowcharts Flowchart[]
 }
 
 model VerificationToken {
@@ -153,4 +154,18 @@ model Like {
   comment   Comment  @relation(fields: [commentId], references: [id])
   commentId String
   userId    String   // 実際のユーザー認証システムに合わせて調整してください
+}
+
+model Flowchart {
+  id        String   @id @default(cuid())
+  title     String
+  content   String   @db.Text
+  isbn      String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isbn])
+  @@index([userId])
 }

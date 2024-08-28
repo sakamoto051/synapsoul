@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import type { BookItem } from "~/types/book";
 import { api } from "~/trpc/react";
 import { BookStatus } from "@prisma/client";
@@ -9,7 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
-import { ChevronLeft, Book, BookOpen, BookMarked } from "lucide-react";
+import {
+  ChevronLeft,
+  Book,
+  BookOpen,
+  BookMarked,
+  GitBranch,
+} from "lucide-react";
 import BookThreadList from "~/app/_components/books/thread-list";
 
 const API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
@@ -190,6 +197,12 @@ const BookDetail = () => {
                   <BookMarked className="mr-2 h-4 w-4" />
                   気になる本
                 </Button>
+                <Link href={`/books/${isbn}/flowcharts/new`} passHref>
+                  <Button className="bg-purple-600 hover:bg-purple-700 text-white">
+                    <GitBranch className="mr-2 h-4 w-4" />
+                    新しいフローチャート
+                  </Button>
+                </Link>
               </div>
             </div>
           </div>

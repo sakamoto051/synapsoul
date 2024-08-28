@@ -1,6 +1,7 @@
 "use client";
 import type React from "react";
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Send } from "lucide-react";
@@ -34,7 +35,12 @@ const BookThreadDetail: React.FC = () => {
           {thread.title}
         </h1>
         <p className="mb-4 text-sm">{thread.content}</p>
-        <div className="space-y-2">
+        <Link href={`/flowchart/${threadId}`} passHref>
+          <Button className="mb-4 bg-indigo-600 hover:bg-indigo-700 text-white">
+            フローチャートを編集
+          </Button>
+        </Link>
+        <div className="space-y-2 mt-4">
           {structuredComments.map((comment) => (
             <Comment
               key={comment.id}
