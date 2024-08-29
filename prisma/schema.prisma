@@ -182,4 +182,16 @@ model Note {
   book      Book     @relation(fields: [bookId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  attachments Attachment[]
+}
+
+model Attachment {
+  id        Int      @id @default(autoincrement())
+  fileName  String
+  filePath  String
+  mimeType  String
+  noteId    Int
+  note      Note     @relation(fields: [noteId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2, Save, ArrowLeft, Trash2 } from "lucide-react";
+import { Loader2, Save, ArrowLeft, Trash2, Paperclip, X } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +32,7 @@ const EditNotePage = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [attachments, setAttachments] = useState<File[]>([]);
 
   const { data: note, isLoading } = api.note.getById.useQuery({ id: noteId });
 
@@ -39,6 +40,7 @@ const EditNotePage = () => {
     if (note) {
       setTitle(note.title);
       setContent(note.content);
+      // Note: We no longer have attachments in the note data
     }
   }, [note]);
 
@@ -80,13 +82,48 @@ const EditNotePage = () => {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    updateNoteMutation.mutate({ id: noteId, title, content });
+    const attachmentsData = await Promise.all(
+      attachments.map(async (file) => {
+        const fileContent = await readFileAsBase64(file);
+        return {
+          fileName: file.name,
+          fileContent,
+          mimeType: file.type,
+        };
+      }),
+    );
+
+    updateNoteMutation.mutate({
+      id: noteId,
+      title,
+      content,
+      attachments: attachmentsData,
+    });
+  };
+
+  const readFileAsBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+      reader.readAsDataURL(file);
+    });
   };
 
   const handleDelete = () => {
     deleteNoteMutation.mutate({ id: noteId });
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setAttachments((prev) => [...prev, ...Array.from(e.target.files || [])]);
+    }
+  };
+
+  const removeAttachment = (index: number) => {
+    setAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
   if (isLoading) {
@@ -137,6 +174,50 @@ const EditNotePage = () => {
                 rows={10}
                 required
               />
+            </div>
+            <div>
+              <label
+                htmlFor="attachments"
+                className="block text-sm font-medium text-gray-300"
+              >
+                添付ファイル
+              </label>
+              <div className="mt-1 flex items-center">
+                <Input
+                  id="attachments"
+                  type="file"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  multiple
+                />
+                <Button
+                  type="button"
+                  onClick={() =>
+                    document.getElementById("attachments")?.click()
+                  }
+                  className="bg-gray-700 text-white hover:bg-gray-600"
+                >
+                  <Paperclip className="mr-2 h-4 w-4" />
+                  ファイルを選択
+                </Button>
+              </div>
+              <div className="mt-2 space-y-2">
+                {attachments.map((file, index) => (
+                  <div
+                    key={file.name}
+                    className="flex items-center justify-between bg-gray-700 p-2 rounded"
+                  >
+                    <span className="text-sm text-gray-300">{file.name}</span>
+                    <Button
+                      type="button"
+                      onClick={() => removeAttachment(index)}
+                      className="bg-red-600 hover:bg-red-700 p-1"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
             </div>
             <div className="flex justify-between">
               <Button
