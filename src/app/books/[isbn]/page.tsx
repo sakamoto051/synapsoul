@@ -15,7 +15,6 @@ import {
   Book,
   BookOpen,
   BookMarked,
-  GitBranch,
   BookText,
 } from "lucide-react";
 import BookThreadList from "~/app/_components/books/thread-list";
@@ -198,12 +197,6 @@ const BookDetail = () => {
                   <BookMarked className="mr-2 h-4 w-4" />
                   気になる本
                 </Button>
-                <Link href={`/books/${isbn}/flowcharts/new`} passHref>
-                  <Button className="bg-purple-600 hover:bg-purple-700 text-white">
-                    <GitBranch className="mr-2 h-4 w-4" />
-                    新しいフローチャート
-                  </Button>
-                </Link>
                 <Link href={`/books/${isbn}/notes`} passHref>
                   <Button className="bg-teal-600 hover:bg-teal-700 text-white">
                     <BookText className="mr-2 h-4 w-4" />

@@ -18,7 +18,6 @@ export const appRouter = createTRPCRouter({
   tag: tagRouter,
   book: bookRouter,
   bookThread: bookThreadRouter,
-  flowchart: flowchartRouter,
   note: noteRouter,
 });
 
