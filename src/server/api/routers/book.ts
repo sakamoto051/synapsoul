@@ -86,10 +86,11 @@ async function fetchBookInfo(isbn: string): Promise<BookWithDetails | null> {
     const data: BookResponse = await response.json();
     if (data.Items && data.Items.length > 0 && data.Items[0]) {
       const bookInfo: BookWithDetails = {
+        id: 0, // Add the 'id' property
         ...data.Items[0].Item,
         isbn: isbn,
         status: "INTERESTED", // Default status, adjust as needed
-        userId: "", // This will be set later
+        userId: 0, // This will be set later
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -115,13 +116,12 @@ export const bookRouter = createTRPCRouter({
       if (!ctx.session) {
         return null;
       }
-      const userId = ctx.session.user.id;
 
       const book = await ctx.db.book.findUnique({
         where: {
           isbn_userId: {
             isbn: input.isbn,
-            userId: userId,
+            userId: Number(ctx.session.user.id),
           },
         },
         select: { status: true },
@@ -138,7 +138,7 @@ export const bookRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const userId = ctx.session.user.id;
+      const userId = Number(ctx.session.user.id);
       if (!userId) {
         throw new TRPCError({
           code: "UNAUTHORIZED",
@@ -181,7 +181,7 @@ export const bookRouter = createTRPCRouter({
     try {
       const books = await ctx.db.book.findMany({
         where: {
-          userId: ctx.session.user.id,
+          userId: Number(ctx.session.user.id),
         },
       });
 
@@ -218,4 +218,18 @@ export const bookRouter = createTRPCRouter({
       });
     }
   }),
+
+  getByIsbn: protectedProcedure
+    .input(z.object({ isbn: z.string() }))
+    .query(async ({ ctx, input }) => {
+      return ctx.db.book.findUnique({
+        where: {
+          isbn_userId: {
+            isbn: input.isbn,
+            userId: Number(ctx.session.user.id),
+          },
+        },
+        include: { notes: true },
+      });
+    }),
 });

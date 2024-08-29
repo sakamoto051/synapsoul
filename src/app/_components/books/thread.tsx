@@ -47,7 +47,7 @@ const BookThread = () => {
     }
   };
 
-  const handleCreateComment = async (threadId: string) => {
+  const handleCreateComment = async (threadId: number) => {
     if (!newComment) return;
 
     try {

@@ -21,15 +21,15 @@ model Post {
   updatedAt DateTime @updatedAt
 
   createdBy   User   @relation(fields: [createdById], references: [id])
-  createdById String
+  createdById Int
 
   @@index([name])
 }
 
 // Necessary for Next auth
 model Account {
-  id                       String  @id @default(cuid())
-  userId                   String
+  id                       Int  @id @default(autoincrement())
+  userId                   Int
   type                     String
   provider                 String
   providerAccountId        String
@@ -47,15 +47,15 @@ model Account {
 }
 
 model Session {
-  id           String   @id @default(cuid())
+  id           Int   @id @default(autoincrement())
   sessionToken String   @unique
-  userId       String
+  userId       Int
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            Int    @id @default(autoincrement())
   name          String?
   email         String?   @unique
   emailVerified DateTime?
@@ -66,7 +66,8 @@ model User {
   chats         Chat[]
   room          Room[]
   book          Book[]
-  flowcharts Flowchart[]
+  flowcharts    Flowchart[]
+  likes         Like[]
 }
 
 model VerificationToken {
@@ -78,8 +79,8 @@ model VerificationToken {
 }
 
 model Room {
-  id        String   @id @default(cuid())
-  ownerId   String
+  id        Int   @id @default(autoincrement())
+  ownerId   Int
   title     String
   content   String
   createdAt DateTime @default(now())
@@ -90,10 +91,10 @@ model Room {
 }
 
 model Chat {
-  id        String   @id @default(cuid())
+  id        Int   @id @default(autoincrement())
   content   String
-  roomId    String
-  userId    String
+  roomId    Int
+  userId    Int
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
@@ -101,7 +102,7 @@ model Chat {
 }
 
 model Tag {
-  id        String   @id @default(cuid())
+  id        Int   @id @default(autoincrement())
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -109,9 +110,11 @@ model Tag {
 }
 
 model Book {
+  id        Int    @id @default(autoincrement())
   isbn      String
-  userId    String
+  userId    Int
   status    BookStatus
+  notes     Note[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -126,7 +129,7 @@ enum BookStatus {
 }
 
 model BookThread {
-  id        String    @id @default(cuid())
+  id        Int    @id @default(autoincrement())
   isbn      String
   title     String
   content   String
@@ -136,36 +139,47 @@ model BookThread {
 }
 
 model Comment {
-  id        String   @id @default(cuid())
+  id        Int   @id @default(autoincrement())
   content   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   thread    BookThread @relation(fields: [threadId], references: [id])
-  threadId  String
+  threadId  Int
   parent    Comment?  @relation("ReplyTo", fields: [parentId], references: [id])
-  parentId  String?
+  parentId  Int?
   replies   Comment[] @relation("ReplyTo")
   likes     Like[]
 }
 
 model Like {
-  id        String   @id @default(cuid())
+  id        Int   @id @default(autoincrement())
   createdAt DateTime @default(now())
   comment   Comment  @relation(fields: [commentId], references: [id])
-  commentId String
-  userId    String   // 実際のユーザー認証システムに合わせて調整してください
+  commentId Int
+  userId    Int   // 実際のユーザー認証システムに合わせて調整してください
+  user      User  @relation(fields: [userId], references: [id])
 }
 
 model Flowchart {
-  id        String   @id @default(cuid())
+  id        Int   @id @default(autoincrement())
   title     String
   content   String   @db.Text
   isbn      String
-  userId    String
+  userId    Int
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([isbn])
   @@index([userId])
+}
+
+model Note {
+  id        Int   @id @default(autoincrement())
+  title     String
+  content   String
+  bookId    Int
+  book      Book     @relation(fields: [bookId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

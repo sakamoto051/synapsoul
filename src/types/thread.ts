@@ -1,20 +1,20 @@
 export interface LikeType {
-  id: string;
-  userId: string;
+  id: number;
+  userId: number;
   createdAt: Date;
 }
 
 export interface CommentType {
-  id: string;
+  id: number;
   content: string;
   createdAt: Date;
-  parentId: string | null;
+  parentId: number | null;
   replies: CommentType[];
   likes: LikeType[];
 }
 
 export interface ThreadType {
-  id: string;
+  id: number;
   title: string;
   content: string;
   comments: CommentType[];

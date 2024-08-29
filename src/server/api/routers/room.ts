@@ -19,7 +19,7 @@ export const roomRouter = createTRPCRouter({
   getById: publicProcedure
     .input(
       z.object({
-        id: z.string(),
+        id: z.number(),
       }),
     )
     .query(({ input, ctx }) => {
@@ -70,7 +70,7 @@ export const roomRouter = createTRPCRouter({
           tags: {
             connect: tagsToConnect,
           },
-          owner: { connect: { id: ctx.session.user.id } },
+          owner: { connect: { id: Number(ctx.session.user.id) } },
         },
       });
     }),

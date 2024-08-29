@@ -46,7 +46,7 @@ const BookThreadList = () => {
     }
   };
 
-  const navigateToThread = (threadId: string) => {
+  const navigateToThread = (threadId: number) => {
     router.push(`/books/${isbn}/threads/${threadId}`);
   };
 

@@ -3,7 +3,7 @@ import { api } from "~/trpc/react";
 import { useToast } from "@/components/ui/use-toast";
 import type { CommentType } from "~/types/thread";
 
-export const useComments = (threadId: string, userId: string) => {
+export const useComments = (threadId: number) => {
   const [newComment, setNewComment] = useState("");
   const { toast } = useToast();
 
@@ -17,7 +17,7 @@ export const useComments = (threadId: string, userId: string) => {
 
   const structuredComments = useMemo(() => {
     if (!thread?.comments) return [];
-    const commentMap = new Map<string, CommentType>();
+    const commentMap = new Map<number, CommentType>();
     const rootComments: CommentType[] = [];
 
     for (const comment of thread.comments) {
@@ -66,11 +66,13 @@ export const useComments = (threadId: string, userId: string) => {
     }
   };
 
-  const handleDeleteComment = async (commentId: string) => {
+  const handleDeleteComment = async (commentId: number) => {
     try {
       // コメントとその返信を再帰的に削除する関数
-      const deleteCommentRecursively = async (id: string) => {
-        const comment = thread?.comments.find((c) => c.id === id);
+      const deleteCommentRecursively = async (id: number) => {
+        const comment = thread?.comments.find(
+          (c: { id: number }) => c.id === id,
+        );
         if (!comment) return;
 
         // 子コメントを再帰的に削除
@@ -106,7 +108,7 @@ export const useComments = (threadId: string, userId: string) => {
     }
   };
 
-  const handleEditComment = async (commentId: string, newContent: string) => {
+  const handleEditComment = async (commentId: number, newContent: string) => {
     try {
       await editCommentMutation.mutateAsync({ commentId, content: newContent });
       await refetchThread();
@@ -124,7 +126,7 @@ export const useComments = (threadId: string, userId: string) => {
     }
   };
 
-  const handleLikeComment = async (commentId: string, userId: string) => {
+  const handleLikeComment = async (commentId: number, userId: number) => {
     try {
       await likeCommentMutation.mutateAsync({ commentId, userId });
       await refetchThread();
@@ -142,7 +144,7 @@ export const useComments = (threadId: string, userId: string) => {
     }
   };
 
-  const handleUnlikeComment = async (commentId: string, userId: string) => {
+  const handleUnlikeComment = async (commentId: number, userId: number) => {
     try {
       await unlikeCommentMutation.mutateAsync({ commentId, userId });
       await refetchThread();

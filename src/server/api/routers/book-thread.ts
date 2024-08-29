@@ -3,7 +3,7 @@ import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 
 export const bookThreadRouter = createTRPCRouter({
   getThread: publicProcedure
-    .input(z.object({ threadId: z.string() }))
+    .input(z.object({ threadId: z.number() }))
     .query(async ({ ctx, input }) => {
       return ctx.db.bookThread.findUnique({
         where: { id: input.threadId },
@@ -46,7 +46,7 @@ export const bookThreadRouter = createTRPCRouter({
     }),
 
   createComment: publicProcedure
-    .input(z.object({ threadId: z.string(), content: z.string() }))
+    .input(z.object({ threadId: z.number(), content: z.string() }))
     .mutation(async ({ ctx, input }) => {
       return ctx.db.comment.create({
         data: input,
@@ -56,8 +56,8 @@ export const bookThreadRouter = createTRPCRouter({
   createReply: publicProcedure
     .input(
       z.object({
-        threadId: z.string(),
-        parentId: z.string(),
+        threadId: z.number(),
+        parentId: z.number(),
         content: z.string(),
       }),
     )
@@ -72,7 +72,7 @@ export const bookThreadRouter = createTRPCRouter({
     }),
 
   deleteComment: publicProcedure
-    .input(z.object({ commentId: z.string() }))
+    .input(z.object({ commentId: z.number() }))
     .mutation(async ({ ctx, input }) => {
       return ctx.db.comment.delete({
         where: { id: input.commentId },
@@ -80,7 +80,7 @@ export const bookThreadRouter = createTRPCRouter({
     }),
 
   editComment: publicProcedure
-    .input(z.object({ commentId: z.string(), content: z.string() }))
+    .input(z.object({ commentId: z.number(), content: z.string() }))
     .mutation(async ({ ctx, input }) => {
       return ctx.db.comment.update({
         where: { id: input.commentId },
@@ -89,7 +89,7 @@ export const bookThreadRouter = createTRPCRouter({
     }),
 
   likeComment: publicProcedure
-    .input(z.object({ commentId: z.string(), userId: z.string() }))
+    .input(z.object({ commentId: z.number(), userId: z.number() }))
     .mutation(async ({ ctx, input }) => {
       return ctx.db.like.create({
         data: {
@@ -100,7 +100,7 @@ export const bookThreadRouter = createTRPCRouter({
     }),
 
   unlikeComment: publicProcedure
-    .input(z.object({ commentId: z.string(), userId: z.string() }))
+    .input(z.object({ commentId: z.number(), userId: z.number() }))
     .mutation(async ({ ctx, input }) => {
       return ctx.db.like.deleteMany({
         where: {

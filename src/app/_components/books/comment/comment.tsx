@@ -25,23 +25,22 @@ import {
 } from "lucide-react";
 import { api } from "~/trpc/react";
 import type { CommentType } from "~/types/thread";
+import { useSession } from "next-auth/react";
 
 interface CommentProps {
   comment: CommentType;
-  threadId: string;
-  userId: string;
+  threadId: number;
   onReply: () => void;
-  onDelete: (commentId: string) => void;
-  onEdit: (commentId: string, newContent: string) => void;
-  onLike: (commentId: string, userId: string) => void;
-  onUnlike: (commentId: string, userId: string) => void;
+  onDelete: (commentId: number) => void;
+  onEdit: (commentId: number, newContent: string) => void;
+  onLike: (commentId: number, userId: number) => void;
+  onUnlike: (commentId: number, userId: number) => void;
   depth?: number;
 }
 
 export const Comment: React.FC<CommentProps> = ({
   comment,
   threadId,
-  userId,
   onReply,
   onDelete,
   onEdit,
@@ -56,6 +55,8 @@ export const Comment: React.FC<CommentProps> = ({
   const [editContent, setEditContent] = useState(comment.content);
   const { toast } = useToast();
   const createReplyMutation = api.bookThread.createReply.useMutation();
+  const { data: session } = useSession();
+  const userId = Number(session?.user?.id);
   const [isLiked, setIsLiked] = useState(
     comment.likes.some((like) => like.userId === userId),
   );
@@ -220,7 +221,6 @@ export const Comment: React.FC<CommentProps> = ({
               key={reply.id}
               comment={reply}
               threadId={threadId}
-              userId={userId}
               onReply={onReply}
               onDelete={onDelete}
               onEdit={onEdit}
