@@ -117,11 +117,11 @@ export const noteRouter = createTRPCRouter({
           const filePath = path.join(uploadDir, fileName);
 
           try {
-            // Base64デコードしてファイルを保存
-            await fs.writeFile(
-              filePath,
-              Buffer.from(attachment.fileContent, "base64"),
+            const fileBuffer = Buffer.from(
+              attachment.fileContent?.split(",")[1] ?? "",
+              "base64",
             );
+            await fs.writeFile(filePath, fileBuffer);
 
             savedAttachments.push({
               fileName: attachment.fileName,
@@ -130,9 +130,20 @@ export const noteRouter = createTRPCRouter({
             });
           } catch (error) {
             console.error(`Failed to save file: ${fileName}`, error);
+            console.error(
+              `File details: ${JSON.stringify(
+                {
+                  fileName: attachment.fileName,
+                  mimeType: attachment.mimeType,
+                  contentLength: attachment.fileContent.length,
+                },
+                null,
+                2,
+              )}`,
+            );
             throw new TRPCError({
               code: "INTERNAL_SERVER_ERROR",
-              message: "Failed to save attachment",
+              message: `Failed to save attachment: ${(error as Error).message}`,
             });
           }
         }
