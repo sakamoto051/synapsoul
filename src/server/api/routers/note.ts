@@ -32,4 +32,35 @@ export const noteRouter = createTRPCRouter({
         },
       });
     }),
+
+  getById: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const note = await ctx.db.note.findUnique({
+        where: { id: input.id },
+      });
+      if (!note) {
+        throw new Error("Note not found");
+      }
+      return note;
+    }),
+
+  update: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        title: z.string(),
+        content: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const updatedNote = await ctx.db.note.update({
+        where: { id: input.id },
+        data: {
+          title: input.title,
+          content: input.content,
+        },
+      });
+      return updatedNote;
+    }),
 });

@@ -225,11 +225,11 @@ export const bookRouter = createTRPCRouter({
       return ctx.db.book.findUnique({
         where: {
           isbn_userId: {
-            isbn: input.isbn,
-            userId: Number(ctx.session.user.id),
+        isbn: input.isbn,
+        userId: Number(ctx.session.user.id),
           },
         },
-        include: { notes: true },
+        include: { notes: { orderBy: { updatedAt: "desc" } } },
       });
     }),
 });
