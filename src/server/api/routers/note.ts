@@ -63,4 +63,13 @@ export const noteRouter = createTRPCRouter({
       });
       return updatedNote;
     }),
+
+  delete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const deletedNote = await ctx.db.note.delete({
+        where: { id: input.id },
+      });
+      return deletedNote;
+    }),
 });

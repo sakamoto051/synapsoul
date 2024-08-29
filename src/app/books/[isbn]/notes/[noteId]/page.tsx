@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect } from "react";
+import type React from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 import { api } from "~/trpc/react";
@@ -8,7 +9,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2, Save, ArrowLeft } from "lucide-react";
+import { Loader2, Save, ArrowLeft, Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const EditNotePage = () => {
   const router = useRouter();
@@ -17,8 +29,9 @@ const EditNotePage = () => {
   const isbn = params.isbn as string;
   const noteId = Number(params.noteId);
 
-  const [title, setTitle] = React.useState("");
-  const [content, setContent] = React.useState("");
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const { data: note, isLoading } = api.note.getById.useQuery({ id: noteId });
 
@@ -37,9 +50,25 @@ const EditNotePage = () => {
         title: "Note updated",
         description: "Your note has been successfully updated.",
       });
-      // Invalidate the getByIsbn query to refresh the notes list
       utils.book.getByIsbn.invalidate({ isbn });
-      // Navigate back to the notes list
+      router.push(`/books/${isbn}/notes`);
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const deleteNoteMutation = api.note.delete.useMutation({
+    onSuccess: () => {
+      toast({
+        title: "Note deleted",
+        description: "Your note has been successfully deleted.",
+      });
+      utils.book.getByIsbn.invalidate({ isbn });
       router.push(`/books/${isbn}/notes`);
     },
     onError: (error) => {
@@ -54,6 +83,10 @@ const EditNotePage = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     updateNoteMutation.mutate({ id: noteId, title, content });
+  };
+
+  const handleDelete = () => {
+    deleteNoteMutation.mutate({ id: noteId });
   };
 
   if (isLoading) {
@@ -114,18 +147,49 @@ const EditNotePage = () => {
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 戻る
               </Button>
-              <Button
-                type="submit"
-                className="bg-blue-600 text-white hover:bg-blue-700"
-                disabled={updateNoteMutation.isPending}
-              >
-                {updateNoteMutation.isPending ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                ) : (
-                  <Save className="mr-2 h-4 w-4" />
-                )}
-                保存
-              </Button>
+              <div className="space-x-2">
+                <AlertDialog
+                  open={isDeleteDialogOpen}
+                  onOpenChange={setIsDeleteDialogOpen}
+                >
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      type="button"
+                      className="bg-red-600 text-white hover:bg-red-700"
+                      disabled={deleteNoteMutation.isPending}
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      削除
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>本当に削除しますか？</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        この操作は取り消せません。本当にこのメモを削除してもよろしいですか？
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete}>
+                        削除
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+                <Button
+                  type="submit"
+                  className="bg-blue-600 text-white hover:bg-blue-700"
+                  disabled={updateNoteMutation.isPending}
+                >
+                  {updateNoteMutation.isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Save className="mr-2 h-4 w-4" />
+                  )}
+                  保存
+                </Button>
+              </div>
             </div>
           </form>
         </CardContent>
