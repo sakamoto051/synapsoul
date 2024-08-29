@@ -9,7 +9,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
-import { Loader2, Save, ArrowLeft, Trash2, Paperclip, X } from "lucide-react";
+import {
+  Loader2,
+  Save,
+  ArrowLeft,
+  Trash2,
+  Paperclip,
+  X,
+  Download,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +30,13 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+interface Attachment {
+  id?: number;
+  fileName: string;
+  mimeType: string;
+  filePath?: string;
+}
+
 const EditNotePage = () => {
   const router = useRouter();
   const params = useParams();
@@ -32,7 +47,8 @@ const EditNotePage = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [attachments, setAttachments] = useState<File[]>([]);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [newAttachments, setNewAttachments] = useState<File[]>([]);
 
   const { data: note, isLoading } = api.note.getById.useQuery({ id: noteId });
 
@@ -40,7 +56,7 @@ const EditNotePage = () => {
     if (note) {
       setTitle(note.title);
       setContent(note.content);
-      // Note: We no longer have attachments in the note data
+      setAttachments(note.attachments);
     }
   }, [note]);
 
@@ -84,22 +100,23 @@ const EditNotePage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const attachmentsData = await Promise.all(
-      attachments.map(async (file) => {
-        const fileContent = await readFileAsBase64(file);
-        return {
+    const allAttachments = [
+      ...attachments,
+      ...(await Promise.all(
+        newAttachments.map(async (file) => ({
           fileName: file.name,
-          fileContent,
+          fileContent: await readFileAsBase64(file),
           mimeType: file.type,
-        };
-      }),
-    );
-
+        })),
+      )),
+    ];
     updateNoteMutation.mutate({
       id: noteId,
       title,
       content,
-      attachments: attachmentsData,
+      attachments: allAttachments.filter(
+        (attachment) => "fileContent" in attachment,
+      ),
     });
   };
 
@@ -118,12 +135,30 @@ const EditNotePage = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setAttachments((prev) => [...prev, ...Array.from(e.target.files || [])]);
+      setNewAttachments((prev) => [
+        ...prev,
+        ...Array.from(e.target.files || []),
+      ]);
     }
   };
 
-  const removeAttachment = (index: number) => {
-    setAttachments((prev) => prev.filter((_, i) => i !== index));
+  const handleDownload = (attachment: Attachment) => {
+    if (attachment.filePath) {
+      const link = document.createElement("a");
+      link.href = attachment.filePath;
+      link.download = attachment.fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  };
+
+  const removeAttachment = (index: number, isNew: boolean) => {
+    if (isNew) {
+      setNewAttachments((prev) => prev.filter((_, i) => i !== index));
+    } else {
+      setAttachments((prev) => prev.filter((_, i) => i !== index));
+    }
   };
 
   if (isLoading) {
@@ -202,7 +237,33 @@ const EditNotePage = () => {
                 </Button>
               </div>
               <div className="mt-2 space-y-2">
-                {attachments.map((file, index) => (
+                {attachments.map((attachment, index) => (
+                  <div
+                    key={attachment.id}
+                    className="flex items-center justify-between bg-gray-700 p-2 rounded"
+                  >
+                    <span className="text-sm text-gray-300">
+                      {attachment.fileName}
+                    </span>
+                    <div>
+                      <Button
+                        type="button"
+                        onClick={() => handleDownload(attachment)}
+                        className="bg-blue-600 hover:bg-blue-700 p-1 mr-2"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={() => removeAttachment(index, false)}
+                        className="bg-red-600 hover:bg-red-700 p-1"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+                {newAttachments.map((file, index) => (
                   <div
                     key={file.name}
                     className="flex items-center justify-between bg-gray-700 p-2 rounded"
@@ -210,7 +271,7 @@ const EditNotePage = () => {
                     <span className="text-sm text-gray-300">{file.name}</span>
                     <Button
                       type="button"
-                      onClick={() => removeAttachment(index)}
+                      onClick={() => removeAttachment(index, true)}
                       className="bg-red-600 hover:bg-red-700 p-1"
                     >
                       <X className="h-4 w-4" />
@@ -219,6 +280,7 @@ const EditNotePage = () => {
                 ))}
               </div>
             </div>
+
             <div className="flex justify-between">
               <Button
                 type="button"

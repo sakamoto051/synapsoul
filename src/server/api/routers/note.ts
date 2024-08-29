@@ -41,7 +41,7 @@ export const noteRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const note = await ctx.db.note.findUnique({
         where: { id: input.id },
-        include: { book: true }, // Include book instead of attachments
+        include: { book: true, attachments: true },
       });
       if (!note) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Note not found" });
@@ -55,19 +55,44 @@ export const noteRouter = createTRPCRouter({
         id: z.number(),
         title: z.string(),
         content: z.string(),
-        attachments: z.array(
-          z.object({
-            fileName: z.string(),
-            fileContent: z.string(), // Base64エンコードされたファイル内容
-            mimeType: z.string(),
-          }),
-        ),
+        attachments: z
+          .array(
+            z.object({
+              fileName: z.string(),
+              fileContent: z.string(), // Base64エンコードされたファイル内容
+              mimeType: z.string(),
+            }),
+          )
+          .optional(),
+        removedAttachmentIds: z.array(z.number()).optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { id, title, content, attachments } = input;
+      const { id, title, content, attachments, removedAttachmentIds } = input;
 
-      // 添付ファイルの保存
+      // 削除する添付ファイルの処理
+      if (removedAttachmentIds && removedAttachmentIds.length > 0) {
+        const attachmentsToRemove = await ctx.db.attachment.findMany({
+          where: { id: { in: removedAttachmentIds }, noteId: id },
+        });
+
+        for (const attachment of attachmentsToRemove) {
+          const filePath = path.join(
+            process.cwd(),
+            "public",
+            attachment.filePath,
+          );
+          await fs.unlink(filePath).catch(() => {
+            // ファイルが見つからない場合など、エラーを無視
+          });
+        }
+
+        await ctx.db.attachment.deleteMany({
+          where: { id: { in: removedAttachmentIds }, noteId: id },
+        });
+      }
+
+      // 新しい添付ファイルの保存
       const savedAttachments = [];
       if (attachments && attachments.length > 0) {
         const uploadDir = path.join(process.cwd(), "public", "uploads");
@@ -92,7 +117,7 @@ export const noteRouter = createTRPCRouter({
 
             savedAttachments.push({
               fileName: attachment.fileName,
-              filePath: `/uploads/${fileName}`, // データベースには相対パスを保存
+              filePath: `/uploads/${fileName}`,
               mimeType: attachment.mimeType,
             });
           } catch (error) {
@@ -141,7 +166,6 @@ export const noteRouter = createTRPCRouter({
         throw new TRPCError({ code: "NOT_FOUND", message: "Note not found" });
       }
 
-      // 添付ファイルの削除
       for (const attachment of note.attachments) {
         const filePath = path.join(
           process.cwd(),
@@ -149,16 +173,39 @@ export const noteRouter = createTRPCRouter({
           attachment.filePath,
         );
         await fs.unlink(filePath).catch(() => {
-          // ファイルが見つからない場合など、エラーを無視
+          // Ignore errors if file is not found
         });
       }
 
-      // ノートの削除（attachmentsは CASCADE で自動的に削除される）
       await ctx.db.note.delete({
         where: { id: input.id },
       });
 
       return { success: true };
+    }),
+
+  downloadAttachment: protectedProcedure
+    .input(z.object({ attachmentId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const attachment = await ctx.db.attachment.findUnique({
+        where: { id: input.attachmentId },
+      });
+
+      if (!attachment) {
+        throw new TRPCError({
+          code: "NOT_FOUND",
+          message: "Attachment not found",
+        });
+      }
+
+      const filePath = path.join(process.cwd(), "public", attachment.filePath);
+      const fileContent = await fs.readFile(filePath, { encoding: "base64" });
+
+      return {
+        fileName: attachment.fileName,
+        fileContent,
+        mimeType: attachment.mimeType,
+      };
     }),
 });
 
