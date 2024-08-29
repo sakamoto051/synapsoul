@@ -35,7 +35,10 @@ const TagInput = ({
     async (query: string) => {
       const filteredTags = tagsQuery.data
         ?.filter((tag) => tag.name.toLowerCase().includes(query.toLowerCase()))
-        .map((tag) => ({ ...tag, id: tag.id || crypto.randomUUID() }));
+        .map((tag) => ({
+          ...tag,
+          id: (tag.id || crypto.randomUUID()).toString(),
+        }));
       return filteredTags || [];
     },
     [tagsQuery.data],

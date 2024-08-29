@@ -17,7 +17,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 const RoomDetailPage = () => {
   const params = useParams();
-  const roomId = params.id as string;
+  const roomId = Number(params.id);
   const [newMessage, setNewMessage] = useState("");
   const [isSharing, setIsSharing] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);

@@ -15,17 +15,18 @@ export const RoomSearch: React.FC = () => {
   const router = useRouter();
   const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
 
-  const filteredRooms = roomsQuery.data?.filter((room) => {
-    const isSearchMatch =
-      room.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      room.content.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredRooms =
+    roomsQuery.data?.filter((room) => {
+      const isSearchMatch =
+        room.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        room.content.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const isTagMatch =
-      selectedTags.length === 0 ||
-      selectedTags.some((tag) => room.tags.some((t) => t.name === tag.name));
+      const isTagMatch =
+        selectedTags.length === 0 ||
+        selectedTags.some((tag) => room.tags.some((t) => t.name === tag.name));
 
-    return isSearchMatch && isTagMatch;
-  }) ?? [];
+      return isSearchMatch && isTagMatch;
+    }) ?? [];
 
   const handleCreateRoom = () => {
     router.push("/rooms/create");
