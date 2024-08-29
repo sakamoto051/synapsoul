@@ -71,7 +71,7 @@ export const noteRouter = createTRPCRouter({
       const { id, title, content, attachments, removedAttachmentIds } = input;
 
       // 削除する添付ファイルの処理
-      if (removedAttachmentIds && removedAttachmentIds.length > 0) {
+      try {
         const attachmentsToRemove = await ctx.db.attachment.findMany({
           where: { id: { in: removedAttachmentIds }, noteId: id },
         });
@@ -82,13 +82,21 @@ export const noteRouter = createTRPCRouter({
             "public",
             attachment.filePath,
           );
-          await fs.unlink(filePath).catch(() => {
-            // ファイルが見つからない場合など、エラーを無視
-          });
+          try {
+            await fs.unlink(filePath);
+          } catch (error) {
+            console.error(`Failed to delete file: ${filePath}`, error);
+          }
         }
 
         await ctx.db.attachment.deleteMany({
           where: { id: { in: removedAttachmentIds }, noteId: id },
+        });
+      } catch (error) {
+        console.error("Failed to process removed attachments:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to process removed attachments",
         });
       }
 
@@ -172,9 +180,11 @@ export const noteRouter = createTRPCRouter({
           "public",
           attachment.filePath,
         );
-        await fs.unlink(filePath).catch(() => {
-          // Ignore errors if file is not found
-        });
+        try {
+          await fs.unlink(filePath);
+        } catch (error) {
+          console.error(`Failed to delete file: ${filePath}`, error);
+        }
       }
 
       await ctx.db.note.delete({

@@ -31,10 +31,10 @@ import {
 } from "@/components/ui/alert-dialog";
 
 interface Attachment {
-  id?: number;
+  id: number;
   fileName: string;
   mimeType: string;
-  filePath?: string;
+  filePath: string;
 }
 
 const EditNotePage = () => {
@@ -47,8 +47,13 @@ const EditNotePage = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [existingAttachments, setExistingAttachments] = useState<Attachment[]>(
+    [],
+  );
   const [newAttachments, setNewAttachments] = useState<File[]>([]);
+  const [removedAttachmentIds, setRemovedAttachmentIds] = useState<number[]>(
+    [],
+  );
 
   const { data: note, isLoading } = api.note.getById.useQuery({ id: noteId });
 
@@ -56,7 +61,7 @@ const EditNotePage = () => {
     if (note) {
       setTitle(note.title);
       setContent(note.content);
-      setAttachments(note.attachments);
+      setExistingAttachments(note.attachments);
     }
   }, [note]);
 
@@ -100,32 +105,23 @@ const EditNotePage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const allAttachments = [
-      ...attachments,
-      ...(await Promise.all(
-        newAttachments.map(async (file) => ({
+    const attachmentsToUpload = await Promise.all(
+      newAttachments.map(async (file) => {
+        const fileContent = await fileToBase64(file);
+        return {
           fileName: file.name,
-          fileContent: await readFileAsBase64(file),
+          fileContent,
           mimeType: file.type,
-        })),
-      )),
-    ];
+        };
+      }),
+    );
+
     updateNoteMutation.mutate({
       id: noteId,
       title,
       content,
-      attachments: allAttachments.filter(
-        (attachment) => "fileContent" in attachment,
-      ),
-    });
-  };
-
-  const readFileAsBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-      reader.readAsDataURL(file);
+      attachments: attachmentsToUpload,
+      removedAttachmentIds,
     });
   };
 
@@ -142,23 +138,33 @@ const EditNotePage = () => {
     }
   };
 
-  const handleDownload = (attachment: Attachment) => {
-    if (attachment.filePath) {
-      const link = document.createElement("a");
-      link.href = attachment.filePath;
-      link.download = attachment.fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+  const removeNewAttachment = (index: number) => {
+    setNewAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const removeAttachment = (index: number, isNew: boolean) => {
-    if (isNew) {
-      setNewAttachments((prev) => prev.filter((_, i) => i !== index));
-    } else {
-      setAttachments((prev) => prev.filter((_, i) => i !== index));
-    }
+  const removeExistingAttachment = (id: number) => {
+    setExistingAttachments((prev) =>
+      prev.filter((attachment) => attachment.id !== id),
+    );
+    setRemovedAttachmentIds((prev) => [...prev, id]);
+  };
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
+  const handleDownload = (attachment: Attachment) => {
+    const link = document.createElement("a");
+    link.href = attachment.filePath;
+    link.download = attachment.fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   if (isLoading) {
@@ -237,7 +243,7 @@ const EditNotePage = () => {
                 </Button>
               </div>
               <div className="mt-2 space-y-2">
-                {attachments.map((attachment, index) => (
+                {existingAttachments.map((attachment) => (
                   <div
                     key={attachment.id}
                     className="flex items-center justify-between bg-gray-700 p-2 rounded"
@@ -255,7 +261,7 @@ const EditNotePage = () => {
                       </Button>
                       <Button
                         type="button"
-                        onClick={() => removeAttachment(index, false)}
+                        onClick={() => removeExistingAttachment(attachment.id)}
                         className="bg-red-600 hover:bg-red-700 p-1"
                       >
                         <X className="h-4 w-4" />
@@ -271,7 +277,7 @@ const EditNotePage = () => {
                     <span className="text-sm text-gray-300">{file.name}</span>
                     <Button
                       type="button"
-                      onClick={() => removeAttachment(index, true)}
+                      onClick={() => removeNewAttachment(index)}
                       className="bg-red-600 hover:bg-red-700 p-1"
                     >
                       <X className="h-4 w-4" />
