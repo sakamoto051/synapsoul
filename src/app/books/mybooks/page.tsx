@@ -22,6 +22,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
 import { BookStatusDropdown } from "~/app/_components/books/book-status-dropdown";
 import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { RefreshCw } from "lucide-react";
 
 const MyBooksPage = () => {
   const [books, setBooks] = useState<BookWithDetails[]>([]);
@@ -31,6 +34,7 @@ const MyBooksPage = () => {
   const {
     data: userBooks,
     isLoading,
+    error,
     refetch: refetchBooks,
   } = api.book.getUserBooks.useQuery();
   const { toast } = useToast();
@@ -65,7 +69,6 @@ const MyBooksPage = () => {
       });
 
       if (newStatus === null) {
-        // Remove the book from the local state if status is set to null
         setBooks((prevBooks) => prevBooks.filter((b) => b.isbn !== book.isbn));
         toast({
           title: "ステータス解除",
@@ -94,47 +97,13 @@ const MyBooksPage = () => {
     }
   };
 
-  // Generate a unique key for skeleton items
   const generateSkeletonKey = () =>
     `skeleton-${Math.random().toString(36).substr(2, 9)}`;
 
-  return (
-    <div className="container mx-auto p-4 bg-gray-900 text-gray-100">
-      <h1 className="text-2xl font-bold mb-4 text-blue-300">My Books</h1>
-
-      <div className="flex mb-4 gap-2">
-        <Input
-          type="text"
-          placeholder="Search books..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="flex-grow bg-gray-800 text-gray-100 border-gray-700"
-        />
-        <Select
-          onValueChange={(value) =>
-            setStatusFilter(value as BookStatus | "ALL")
-          }
-        >
-          <SelectTrigger className="w-[180px] bg-gray-800 text-gray-100 border-gray-700">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent className="bg-gray-800 text-gray-100 border-gray-700">
-            <SelectItem value="ALL">All</SelectItem>
-            <SelectItem value={BookStatus.READING}>読んでいる本</SelectItem>
-            <SelectItem value={BookStatus.TO_READ}>積んでいる本</SelectItem>
-            <SelectItem value={BookStatus.INTERESTED}>気になる本</SelectItem>
-            <SelectItem value={BookStatus.FINISHED}>読み終わった本</SelectItem>
-            <SelectItem value={BookStatus.DNF}>
-              途中で読むのをやめた本
-            </SelectItem>
-            <SelectItem value={BookStatus.REFERENCE}>参考書</SelectItem>
-            <SelectItem value={BookStatus.FAVORITE}>お気に入り</SelectItem>
-            <SelectItem value={BookStatus.REREADING}>再読中</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      {isLoading ? (
+  if (isLoading) {
+    return (
+      <div className="container mx-auto p-4 bg-gray-900 text-gray-100">
+        <h1 className="text-2xl font-bold mb-4 text-blue-300">マイブックス</h1>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
           {Array.from({ length: 12 }).map(() => (
             <Card
@@ -151,42 +120,106 @@ const MyBooksPage = () => {
             </Card>
           ))}
         </div>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-          {filteredBooks.map((book) => (
-            <Card
-              key={book.isbn}
-              className="bg-gray-800 text-gray-100 border-none shadow-lg flex flex-col h-full transition-all duration-300 ease-in-out hover:shadow-xl hover:bg-gray-700"
-            >
-              <Link href={`/books/${book.isbn}`} className="flex-grow">
-                <CardHeader className="p-2">
-                  <img
-                    src={book.largeImageUrl || "/api/placeholder/120/180"}
-                    alt={book.title || "Book cover"}
-                    className="w-full h-40 object-cover rounded-t-lg"
-                  />
-                </CardHeader>
-                <CardContent className="flex-grow">
-                  <CardTitle className="text-sm font-medium text-blue-300 line-clamp-2 mb-1">
-                    {book.title || "Unknown Title"}
-                  </CardTitle>
-                  <p className="text-xs text-gray-400 line-clamp-1">
-                    {book.author || "Unknown Author"}
-                  </p>
-                </CardContent>
-              </Link>
-              <CardFooter className="flex flex-col gap-2 p-2">
-                <BookStatusDropdown
-                  currentStatus={book.status}
-                  onStatusChange={(newStatus) =>
-                    handleStatusChange(book, newStatus)
-                  }
-                  isInMyBooks={true}
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto p-4 bg-gray-900 text-gray-100">
+        <h1 className="text-2xl font-bold mb-4 text-blue-300">マイブックス</h1>
+        <Card className="bg-gray-800 border-none shadow-lg">
+          <CardContent className="text-center py-8">
+            <Alert variant="destructive">
+              <AlertDescription>
+                本の情報の取得中にエラーが発生しました。
+              </AlertDescription>
+            </Alert>
+            <Button onClick={() => refetchBooks()} className="mt-4">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              再試行
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="container mx-auto p-4 bg-gray-900 text-gray-100">
+      <h1 className="text-2xl font-bold mb-4 text-blue-300">マイブックス</h1>
+
+      <div className="flex mb-4 gap-2">
+        <Input
+          type="text"
+          placeholder="本を検索..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="flex-grow bg-gray-800 text-gray-100 border-gray-700"
+        />
+        <Select
+          onValueChange={(value) =>
+            setStatusFilter(value as BookStatus | "ALL")
+          }
+        >
+          <SelectTrigger className="w-[180px] bg-gray-800 text-gray-100 border-gray-700">
+            <SelectValue placeholder="ステータスでフィルター" />
+          </SelectTrigger>
+          <SelectContent className="bg-gray-800 text-gray-100 border-gray-700">
+            <SelectItem value="ALL">すべて</SelectItem>
+            <SelectItem value={BookStatus.READING}>読んでいる本</SelectItem>
+            <SelectItem value={BookStatus.TO_READ}>積んでいる本</SelectItem>
+            <SelectItem value={BookStatus.INTERESTED}>気になる本</SelectItem>
+            <SelectItem value={BookStatus.FINISHED}>読み終わった本</SelectItem>
+            <SelectItem value={BookStatus.DNF}>
+              途中で読むのをやめた本
+            </SelectItem>
+            <SelectItem value={BookStatus.REFERENCE}>参考書</SelectItem>
+            <SelectItem value={BookStatus.FAVORITE}>お気に入り</SelectItem>
+            <SelectItem value={BookStatus.REREADING}>再読中</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        {filteredBooks.map((book) => (
+          <Card
+            key={book.isbn}
+            className="bg-gray-800 text-gray-100 border-none shadow-lg flex flex-col h-full transition-all duration-300 ease-in-out hover:shadow-xl hover:bg-gray-700"
+          >
+            <Link href={`/books/${book.isbn}`} className="flex-grow">
+              <CardHeader className="p-2">
+                <img
+                  src={book.largeImageUrl || "/api/placeholder/120/180"}
+                  alt={book.title || "Book cover"}
+                  className="w-full h-40 object-cover rounded-t-lg"
                 />
-              </CardFooter>
-            </Card>
-          ))}
-        </div>
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <CardTitle className="text-sm font-medium text-blue-300 line-clamp-2 mb-1">
+                  {book.title || "Unknown Title"}
+                </CardTitle>
+                <p className="text-xs text-gray-400 line-clamp-1">
+                  {book.author || "Unknown Author"}
+                </p>
+              </CardContent>
+            </Link>
+            <CardFooter className="flex flex-col gap-2 p-2">
+              <BookStatusDropdown
+                currentStatus={book.status}
+                onStatusChange={(newStatus) =>
+                  handleStatusChange(book, newStatus)
+                }
+                isInMyBooks={true}
+              />
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+      {filteredBooks.length === 0 && (
+        <p className="text-center text-gray-400 mt-4">
+          条件に一致する本が見つかりません。
+        </p>
       )}
     </div>
   );

@@ -6,14 +6,20 @@ import { api } from "~/trpc/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, ChevronLeft, Globe, Lock } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Plus, ChevronLeft, RefreshCw, Globe, Lock } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "~/components/ui/badge";
 
 const BookNotesList = () => {
   const params = useParams();
   const isbn = params.isbn as string;
 
-  const { data: book, isLoading } = api.book.getByIsbn.useQuery({ isbn });
+  const {
+    data: book,
+    isLoading,
+    error,
+    refetch,
+  } = api.book.getByIsbn.useQuery({ isbn });
 
   if (isLoading) {
     return (
@@ -26,6 +32,26 @@ const BookNotesList = () => {
             <Skeleton className="h-24 w-full bg-gray-700 mb-4" />
             <Skeleton className="h-24 w-full bg-gray-700 mb-4" />
             <Skeleton className="h-24 w-full bg-gray-700" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Card className="w-full max-w-3xl mx-auto bg-gray-800 text-gray-100 shadow-lg border-none">
+          <CardContent className="text-center py-8">
+            <Alert variant="destructive">
+              <AlertDescription>
+                読書メモの取得中にエラーが発生しました。
+              </AlertDescription>
+            </Alert>
+            <Button onClick={() => refetch()} className="mt-4">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              再試行
+            </Button>
           </CardContent>
         </Card>
       </div>

@@ -5,8 +5,17 @@ import { api } from "~/trpc/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { ArrowLeft, Edit, Download, Globe, Lock } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import {
+  ArrowLeft,
+  Edit,
+  Download,
+  RefreshCw,
+  Globe,
+  Lock,
+} from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "~/components/ui/skeleton";
+import { Badge } from "~/components/ui/badge";
 
 const ViewNotePage = () => {
   const router = useRouter();
@@ -19,7 +28,12 @@ const ViewNotePage = () => {
     number | null
   >(null);
 
-  const { data: note, isLoading } = api.note.getById.useQuery({ id: noteId });
+  const {
+    data: note,
+    isLoading,
+    error,
+    refetch,
+  } = api.note.getById.useQuery({ id: noteId });
   const downloadQuery = api.note.downloadAttachment.useQuery(
     { attachmentId: downloadingAttachmentId ?? -1 },
     {
@@ -79,13 +93,53 @@ const ViewNotePage = () => {
   }, [downloadQuery.error, toast]);
 
   if (isLoading) {
-    return <div className="text-center text-white">読み込み中...</div>;
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Card className="w-full max-w-3xl mx-auto bg-gray-800 text-gray-100 shadow-lg border-none">
+          <CardHeader>
+            <Skeleton className="h-8 w-3/4 bg-gray-700" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-24 w-full bg-gray-700 mb-4" />
+            <Skeleton className="h-24 w-full bg-gray-700 mb-4" />
+            <Skeleton className="h-24 w-full bg-gray-700" />
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Card className="w-full max-w-3xl mx-auto bg-gray-800 text-gray-100 shadow-lg border-none">
+          <CardContent className="text-center py-8">
+            <Alert variant="destructive">
+              <AlertDescription>
+                読書メモの取得中にエラーが発生しました。
+              </AlertDescription>
+            </Alert>
+            <Button onClick={() => refetch()} className="mt-4">
+              <RefreshCw className="mr-2 h-4 w-4" />
+              再試行
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   if (!note) {
-    return <div className="text-center text-white">メモが見つかりません</div>;
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Card className="w-full max-w-3xl mx-auto bg-gray-800 text-gray-100 shadow-lg border-none">
+          <CardContent className="text-center py-8">
+            <p className="text-xl font-semibold">メモが見つかりません</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
-
   const handleEdit = () => {
     router.push(`/books/${isbn}/notes/${noteId}/edit`);
   };

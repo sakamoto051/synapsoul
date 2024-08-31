@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
-import { ChevronLeft, BookText, ShoppingCart, Users } from "lucide-react";
+import { ChevronLeft, BookText, ShoppingCart, Users, RefreshCw } from "lucide-react";
 import BookThreadList from "~/app/_components/books/thread-list";
 import { BookStatusDropdown } from "~/app/_components/books/book-status-dropdown";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -32,6 +32,7 @@ const API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
 const BookDetail = () => {
   const [book, setBook] = useState<BookItem | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const params = useParams();
   const searchParams = useSearchParams();
@@ -44,26 +45,32 @@ const BookDetail = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<BookStatus | null>(null);
 
-  const { data: initialStatus, refetch: refetchStatus } =
-    api.book.getStatus.useQuery({ isbn });
+  const {
+    data: initialStatus,
+    refetch: refetchStatus,
+    error: statusError,
+  } = api.book.getStatus.useQuery({ isbn });
 
   useEffect(() => {
     const fetchBookDetail = async () => {
       if (!isbn) return;
 
       setLoading(true);
+      setError(null);
       try {
         const response = await fetch(`${API_ENDPOINT}&isbn=${isbn}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
         const data = await response.json();
         if (data.Items && data.Items.length > 0) {
           setBook(data.Items[0].Item);
         } else {
-          console.error("Book not found");
-          setBook(null);
+          setError("書籍情報が見つかりませんでした。");
         }
       } catch (error) {
         console.error("Error fetching book details:", error);
-        setBook(null);
+        setError("書籍情報の取得中にエラーが発生しました。");
       } finally {
         setLoading(false);
       }
@@ -78,6 +85,12 @@ const BookDetail = () => {
       setIsInMyBooks(initialStatus !== null);
     }
   }, [initialStatus]);
+
+  useEffect(() => {
+    if (statusError) {
+      setError("ステータス情報の取得中にエラーが発生しました。");
+    }
+  }, [statusError]);
 
   const handleBack = () => {
     const title = searchParams.get("title") || "";
@@ -145,6 +158,33 @@ const BookDetail = () => {
     updateBookStatus(pendingStatus);
   };
 
+  const handleRetry = () => {
+    setLoading(true);
+    setError(null);
+    refetchStatus();
+    // 書籍情報も再取得
+    const fetchBookDetail = async () => {
+      try {
+        const response = await fetch(`${API_ENDPOINT}&isbn=${isbn}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        if (data.Items && data.Items.length > 0) {
+          setBook(data.Items[0].Item);
+        } else {
+          setError("書籍情報が見つかりませんでした。");
+        }
+      } catch (error) {
+        console.error("Error fetching book details:", error);
+        setError("書籍情報の取得中にエラーが発生しました。");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBookDetail();
+  };
+
   if (loading) {
     return (
       <Card className="w-full max-w-3xl mx-auto mt-8 bg-gray-800 text-gray-100 border-none shadow-lg">
@@ -161,6 +201,22 @@ const BookDetail = () => {
               <Skeleton className="h-4 w-3/4 bg-gray-700" />
             </div>
           </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (error) {
+    return (
+      <Card className="w-full max-w-3xl mx-auto mt-8 bg-gray-800 text-gray-100 border-none shadow-lg">
+        <CardContent className="text-center py-8">
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+          <Button onClick={handleRetry} className="mt-4">
+            <RefreshCw className="mr-2 h-4 w-4" />
+            再試行
+          </Button>
         </CardContent>
       </Card>
     );
