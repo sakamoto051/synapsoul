@@ -13,6 +13,8 @@ import {
   Search,
 } from "lucide-react";
 import NextLink from "next/link";
+import LoginButton from "./login-button";
+import { SessionProvider } from "next-auth/react";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
@@ -36,12 +38,12 @@ const Sidebar = () => {
             {isOpen ? <ChevronLeft /> : <ChevronRight />}
           </Button>
           <nav>
-            <NextLink href="/rooms">
+            {/* <NextLink href="/rooms">
               <Button variant="ghost" className="w-full justify-start mb-2">
                 <Home className="mr-2" />
                 {isOpen && "Rooms"}
               </Button>
-            </NextLink>
+            </NextLink> */}
             <div>
               <Button
                 variant="ghost"
@@ -83,12 +85,15 @@ const Sidebar = () => {
                 </div>
               )}
             </div>
-            <NextLink href="/">
-              <Button variant="ghost" className="w-full justify-start">
+            {/* <NextLink href="/">
+              <Button variant="ghost" className="w-full justify-start mb-2">
                 <Link className="mr-2" />
                 {isOpen && "Links"}
               </Button>
-            </NextLink>
+            </NextLink> */}
+            <SessionProvider>
+              <LoginButton isOpen={isOpen} />
+            </SessionProvider>
           </nav>
         </div>
       </div>
