@@ -15,6 +15,17 @@ import BookThreadList from "~/app/_components/books/thread-list";
 import { BookStatusDropdown } from "~/app/_components/books/book-status-dropdown";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
 
@@ -30,6 +41,8 @@ const BookDetail = () => {
 
   const [currentStatus, setCurrentStatus] = useState<BookStatus | null>(null);
   const [isInMyBooks, setIsInMyBooks] = useState(false);
+  const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<BookStatus | null>(null);
 
   const { data: initialStatus, refetch: refetchStatus } =
     api.book.getStatus.useQuery({ isbn });
@@ -80,7 +93,7 @@ const BookDetail = () => {
     router.push(`/books/search?${searchString}`);
   };
 
-  const updateBookStatus = async (status: BookStatus) => {
+  const updateBookStatus = async (status: BookStatus | null) => {
     if (!book) return;
 
     try {
@@ -89,11 +102,25 @@ const BookDetail = () => {
         status: status,
       });
       await refetchStatus();
-      toast({
-        title: "ステータス更新",
-        description: `本のステータスを "${status}" に更新しました。`,
-        action: <ToastAction altText="閉じる">閉じる</ToastAction>,
-      });
+
+      // 状態を更新
+      setCurrentStatus(status);
+      setIsInMyBooks(status !== null);
+
+      if (status === null) {
+        toast({
+          title: "ステータス解除",
+          description:
+            "本のステータスを解除し、マイブックから削除しました。関連する読書メモも削除されました。",
+          action: <ToastAction altText="閉じる">閉じる</ToastAction>,
+        });
+      } else {
+        toast({
+          title: "ステータス更新",
+          description: `本のステータスを "${status}" に更新しました。`,
+          action: <ToastAction altText="閉じる">閉じる</ToastAction>,
+        });
+      }
     } catch (error) {
       console.error("Error updating book status:", error);
       toast({
@@ -105,45 +132,17 @@ const BookDetail = () => {
   };
 
   const handleStatusChange = async (newStatus: BookStatus | null) => {
-    try {
-      await updateStatusMutation.mutateAsync({
-        isbn: book?.isbn ?? "",
-        status: newStatus,
-      });
-
-      // 状態を即座に更新
-      setCurrentStatus(newStatus);
-      setIsInMyBooks(newStatus !== null);
-
-      // サーバーからの最新の状態を取得
-      const updatedStatus = await refetchStatus();
-      setCurrentStatus(updatedStatus.data ?? null);
-      setIsInMyBooks(updatedStatus.data !== null);
-
-      if (newStatus === null) {
-        toast({
-          title: "ステータス解除",
-          description: "本のステータスを解除し、マイブックから削除しました。",
-          action: <ToastAction altText="閉じる">閉じる</ToastAction>,
-        });
-      } else {
-        toast({
-          title: "ステータス更新",
-          description: `本のステータスを "${newStatus}" に更新しました。`,
-          action: <ToastAction altText="閉じる">閉じる</ToastAction>,
-        });
-      }
-    } catch (error) {
-      console.error("Error updating book status:", error);
-      toast({
-        title: "エラー",
-        description: "本のステータス更新中にエラーが発生しました。",
-        variant: "destructive",
-      });
-      // エラーが発生した場合、元の状態に戻す
-      setCurrentStatus(initialStatus ?? null);
-      setIsInMyBooks(initialStatus !== null);
+    if (newStatus === null && isInMyBooks) {
+      setPendingStatus(null);
+      setIsConfirmOpen(true);
+    } else {
+      await updateBookStatus(newStatus);
     }
+  };
+
+  const confirmStatusChange = () => {
+    setIsConfirmOpen(false);
+    updateBookStatus(pendingStatus);
   };
 
   if (loading) {
@@ -264,6 +263,22 @@ const BookDetail = () => {
           戻る
         </Button>
       </div>
+      <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>本のステータスを解除しますか？</AlertDialogTitle>
+            <AlertDialogDescription>
+              本のステータスを解除すると、マイブックから削除されます。また、この本に関連するすべての読書メモも削除されます。この操作は取り消せません。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>キャンセル</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmStatusChange}>
+              解除して削除する
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -147,15 +147,48 @@ export const bookRouter = createTRPCRouter({
       }
 
       if (input.status === null) {
-        // ステータスがnullの場合、本を削除しようとする
-        // しかし、本が存在しない場合はエラーを発生させずに成功として扱う
-        await ctx.db.book.deleteMany({
-          where: {
-            isbn: input.isbn,
-            userId: userId,
-          },
-        });
-        return { success: true, message: "Book status removed or not found" };
+        // ステータスがnullの場合、本を削除
+        try {
+          // トランザクションを使用して、本と関連する読書メモを一括で削除
+          await ctx.db.$transaction(async (prisma) => {
+            // まず、本を取得
+            const book = await prisma.book.findUnique({
+              where: {
+                isbn_userId: {
+                  isbn: input.isbn,
+                  userId: userId,
+                },
+              },
+            });
+
+            if (book) {
+              // 本が存在する場合、関連する読書メモを削除
+              await prisma.note.deleteMany({
+                where: {
+                  bookId: book.id,
+                },
+              });
+
+              // 本を削除
+              await prisma.book.delete({
+                where: {
+                  isbn_userId: {
+                    isbn: input.isbn,
+                    userId: userId,
+                  },
+                },
+              });
+            }
+          });
+
+          return { success: true, message: "Book and related notes removed" };
+        } catch (error) {
+          console.error("Error removing book and notes:", error);
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "Failed to remove book and related notes",
+          });
+        }
       }
       // ステータスが設定されている場合、upsert操作を行う
       return ctx.db.book.upsert({
