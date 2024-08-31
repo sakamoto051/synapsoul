@@ -29,20 +29,16 @@ const ViewNotePage = () => {
     },
   );
   const handleDownload = useCallback((attachmentId: number) => {
-    console.log("Download requested for attachment ID:", attachmentId);
     setDownloadingAttachmentId(attachmentId);
   }, []);
 
   const processDownload = useCallback(
     (data: { fileName: string; fileContent: string; mimeType: string }) => {
-      console.log("Processing download data:", data);
       try {
         const blob = new Blob([Buffer.from(data.fileContent, "base64")], {
           type: data.mimeType,
         });
-        console.log("Blob created:", blob);
         const url = window.URL.createObjectURL(blob);
-        console.log("URL created:", url);
         const link = document.createElement("a");
         link.href = url;
         link.download = data.fileName;
@@ -50,13 +46,11 @@ const ViewNotePage = () => {
         link.click();
         document.body.removeChild(link);
         window.URL.revokeObjectURL(url);
-        console.log("Download initiated");
         toast({
           title: "成功",
           description: "ファイルのダウンロードを開始しました。",
         });
       } catch (error) {
-        console.error("Error processing download data:", error);
         toast({
           title: "エラー",
           description: "ファイルの処理中にエラーが発生しました。",
@@ -76,7 +70,6 @@ const ViewNotePage = () => {
 
   useEffect(() => {
     if (downloadQuery.error) {
-      console.error("Download error:", downloadQuery.error);
       toast({
         title: "エラー",
         description: "ダウンロード中にエラーが発生しました。",
@@ -113,9 +106,6 @@ const ViewNotePage = () => {
           </div>
           {note.attachments.length > 0 && (
             <div>
-              <h3 className="text-lg font-semibold mb-2 text-blue-200">
-                添付ファイル:
-              </h3>
               <ul>
                 {note.attachments.length > 0 && (
                   <div>
