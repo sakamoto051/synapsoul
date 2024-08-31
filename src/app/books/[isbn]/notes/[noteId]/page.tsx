@@ -1,5 +1,3 @@
-// src/app/books/[isbn]/notes/[noteId]/page.tsx
-
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
@@ -7,7 +5,8 @@ import { api } from "~/trpc/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { ArrowLeft, Edit, Download } from "lucide-react";
+import { ArrowLeft, Edit, Download, Globe, Lock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const ViewNotePage = () => {
   const router = useRouter();
@@ -94,10 +93,26 @@ const ViewNotePage = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <Card className="w-full max-w-3xl mx-auto bg-gray-800 text-gray-100 shadow-lg border-none">
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="text-2xl font-bold text-blue-300">
             {note.title}
           </CardTitle>
+          <Badge
+            variant={note.isPublic ? "default" : "secondary"}
+            className="ml-2"
+          >
+            {note.isPublic ? (
+              <>
+                <Globe className="w-3 h-3 mr-1" />
+                公開
+              </>
+            ) : (
+              <>
+                <Lock className="w-3 h-3 mr-1" />
+                非公開
+              </>
+            )}
+          </Badge>
         </CardHeader>
         <CardContent>
           <div className="mb-4">
@@ -106,42 +121,33 @@ const ViewNotePage = () => {
           </div>
           {note.attachments.length > 0 && (
             <div>
+              <h3 className="text-lg font-semibold mb-2 text-blue-200">
+                添付ファイル:
+              </h3>
               <ul>
-                {note.attachments.length > 0 && (
-                  <div>
-                    <h3 className="text-lg font-semibold mb-2 text-blue-200">
-                      添付ファイル:
-                    </h3>
-                    <ul>
-                      {note.attachments.map((attachment) => (
-                        <li
-                          key={attachment.id}
-                          className="flex items-center mb-2"
-                        >
-                          <span className="mr-2 text-gray-300">
-                            {attachment.fileName}
-                          </span>
-                          <Button
-                            onClick={() => handleDownload(attachment.id)}
-                            size="sm"
-                            variant="secondary"
-                            className="bg-blue-600 hover:bg-blue-700 text-white"
-                            disabled={
-                              downloadQuery.isFetching &&
-                              downloadingAttachmentId === attachment.id
-                            }
-                          >
-                            <Download className="h-4 w-4 mr-1" />
-                            {downloadQuery.isFetching &&
-                            downloadingAttachmentId === attachment.id
-                              ? "ダウンロード中..."
-                              : "ダウンロード"}
-                          </Button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
+                {note.attachments.map((attachment) => (
+                  <li key={attachment.id} className="flex items-center mb-2">
+                    <span className="mr-2 text-gray-300">
+                      {attachment.fileName}
+                    </span>
+                    <Button
+                      onClick={() => handleDownload(attachment.id)}
+                      size="sm"
+                      variant="secondary"
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      disabled={
+                        downloadQuery.isFetching &&
+                        downloadingAttachmentId === attachment.id
+                      }
+                    >
+                      <Download className="h-4 w-4 mr-1" />
+                      {downloadQuery.isFetching &&
+                      downloadingAttachmentId === attachment.id
+                        ? "ダウンロード中..."
+                        : "ダウンロード"}
+                    </Button>
+                  </li>
+                ))}
               </ul>
             </div>
           )}
