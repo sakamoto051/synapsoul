@@ -1,8 +1,13 @@
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
+import {
+  createTRPCRouter,
+  protectedProcedure,
+  publicProcedure,
+} from "~/server/api/trpc";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { v4 as uuidv4 } from "uuid";
 
 export const noteRouter = createTRPCRouter({
   create: protectedProcedure
@@ -11,27 +16,18 @@ export const noteRouter = createTRPCRouter({
         title: z.string().min(1),
         content: z.string().min(1),
         bookId: z.number(),
+        isPublic: z.boolean(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const book = await ctx.db.book.findFirst({
-        where: {
-          id: input.bookId,
-          userId: Number(ctx.session.user.id),
-        },
-      });
-
-      if (!book) {
-        throw new Error("Book not found or you don't have permission");
-      }
-
+      const userId = Number(ctx.session.user.id);
       return ctx.db.note.create({
         data: {
           title: input.title,
           content: input.content,
-          book: {
-            connect: { id: input.bookId },
-          },
+          isPublic: input.isPublic,
+          book: { connect: { id: input.bookId } },
+          user: { connect: { id: userId } },
         },
       });
     }),
@@ -55,11 +51,12 @@ export const noteRouter = createTRPCRouter({
         id: z.number(),
         title: z.string(),
         content: z.string(),
+        isPublic: z.boolean(),
         attachments: z
           .array(
             z.object({
               fileName: z.string(),
-              fileContent: z.string(), // Base64エンコードされたファイル内容
+              fileContent: z.string(),
               mimeType: z.string(),
             }),
           )
@@ -68,109 +65,60 @@ export const noteRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { id, title, content, attachments, removedAttachmentIds } = input;
+      const userId = Number(ctx.session.user.id);
+      const note = await ctx.db.note.findUnique({
+        where: { id: input.id },
+        select: { userId: true },
+      });
 
-      // 削除する添付ファイルの処理
-      try {
-        const attachmentsToRemove = await ctx.db.attachment.findMany({
-          where: { id: { in: removedAttachmentIds }, noteId: id },
+      if (!note || note.userId !== userId) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "Not authorized to update this note",
         });
+      }
 
-        for (const attachment of attachmentsToRemove) {
+      // 新しい添付ファイルの処理
+      const newAttachments = await Promise.all(
+        (input.attachments ?? []).map(async (attachment) => {
+          const fileName = `${uuidv4()}-${attachment.fileName}`;
           const filePath = path.join(
             process.cwd(),
             "public",
-            attachment.filePath,
+            "uploads",
+            fileName,
           );
-          try {
-            await fs.unlink(filePath);
-          } catch (error) {
-            console.error(`Failed to delete file: ${filePath}`, error);
-          }
-        }
 
-        await ctx.db.attachment.deleteMany({
-          where: { id: { in: removedAttachmentIds }, noteId: id },
-        });
-      } catch (error) {
-        console.error("Failed to process removed attachments:", error);
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to process removed attachments",
-        });
-      }
+          // Base64デコードしてファイルを保存
+          const fileBuffer = Buffer.from(
+            attachment.fileContent?.split(",")[1] ?? "",
+            "base64",
+          );
+          await fs.writeFile(filePath, fileBuffer);
 
-      // 新しい添付ファイルの保存
-      const savedAttachments = [];
-      if (attachments && attachments.length > 0) {
-        const uploadDir = path.join(process.cwd(), "public", "uploads");
+          return {
+            fileName: attachment.fileName,
+            filePath: `/uploads/${fileName}`,
+            mimeType: attachment.mimeType,
+          };
+        }),
+      );
 
-        // アップロードディレクトリの存在確認と作成
-        try {
-          await fs.access(uploadDir);
-        } catch (error) {
-          await fs.mkdir(uploadDir, { recursive: true });
-        }
-
-        for (const attachment of attachments) {
-          const fileName = `${Date.now()}-${attachment.fileName}`;
-          const filePath = path.join(uploadDir, fileName);
-
-          try {
-            const fileBuffer = Buffer.from(
-              attachment.fileContent?.split(",")[1] ?? "",
-              "base64",
-            );
-            await fs.writeFile(filePath, fileBuffer);
-
-            savedAttachments.push({
-              fileName: attachment.fileName,
-              filePath: `/uploads/${fileName}`,
-              mimeType: attachment.mimeType,
-            });
-          } catch (error) {
-            console.error(`Failed to save file: ${fileName}`, error);
-            console.error(
-              `File details: ${JSON.stringify(
-                {
-                  fileName: attachment.fileName,
-                  mimeType: attachment.mimeType,
-                  contentLength: attachment.fileContent.length,
-                },
-                null,
-                2,
-              )}`,
-            );
-            throw new TRPCError({
-              code: "INTERNAL_SERVER_ERROR",
-              message: `Failed to save attachment: ${(error as Error).message}`,
-            });
-          }
-        }
-      }
-
-      // ノートの更新
-      try {
-        const updatedNote = await ctx.db.note.update({
-          where: { id },
-          data: {
-            title,
-            content,
-            attachments: {
-              create: savedAttachments,
-            },
+      return ctx.db.note.update({
+        where: { id: input.id },
+        data: {
+          title: input.title,
+          content: input.content,
+          isPublic: input.isPublic,
+          attachments: {
+            create: newAttachments,
+            deleteMany: input.removedAttachmentIds
+              ? { id: { in: input.removedAttachmentIds } }
+              : undefined,
           },
-          include: { attachments: true },
-        });
-
-        return updatedNote;
-      } catch (error) {
-        console.error("Failed to update note:", error);
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Failed to update note",
-        });
-      }
+        },
+        include: { attachments: true },
+      });
     }),
 
   delete: protectedProcedure
@@ -227,6 +175,18 @@ export const noteRouter = createTRPCRouter({
         fileContent,
         mimeType: attachment.mimeType,
       };
+    }),
+
+  getPublicNotes: publicProcedure
+    .input(z.object({ bookId: z.number() }))
+    .query(async ({ ctx, input }) => {
+      return ctx.db.note.findMany({
+        where: {
+          bookId: input.bookId,
+          isPublic: true,
+        },
+        include: { user: { select: { name: true } } },
+      });
     }),
 });
 

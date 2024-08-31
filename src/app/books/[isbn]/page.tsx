@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
-import { ChevronLeft, BookText, ShoppingCart } from "lucide-react";
+import { ChevronLeft, BookText, ShoppingCart, Users } from "lucide-react";
 import BookThreadList from "~/app/_components/books/thread-list";
 import { BookStatusDropdown } from "~/app/_components/books/book-status-dropdown";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -235,6 +235,12 @@ const BookDetail = () => {
                   <Button className="bg-teal-600 hover:bg-teal-700 text-white">
                     <BookText className="mr-2 h-4 w-4" />
                     読書メモ
+                  </Button>
+                </Link>
+                <Link href={`/books/${isbn}/public-notes`} passHref>
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                    <Users className="mr-2 h-4 w-4" />
+                    公開メモを見る
                   </Button>
                 </Link>
                 <Link href={book.affiliateUrl} passHref>

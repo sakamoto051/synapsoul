@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
 import { ChevronLeft, Save } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 const NewBookNote = () => {
   const params = useParams();
@@ -18,6 +19,7 @@ const NewBookNote = () => {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [isPublic, setIsPublic] = useState(false);
 
   const utils = api.useContext();
   const {
@@ -47,6 +49,7 @@ const NewBookNote = () => {
         bookId: book.id,
         title,
         content,
+        isPublic,
       });
       toast({
         title: "読書メモを作成しました",
@@ -115,6 +118,14 @@ const NewBookNote = () => {
                 rows={10}
                 required
               />
+            </div>
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="isPublic"
+                checked={isPublic}
+                onCheckedChange={setIsPublic}
+              />
+              <label htmlFor="isPublic">公開する</label>
             </div>
             <div className="flex justify-between">
               <Button

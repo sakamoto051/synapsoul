@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/components/ui/use-toast";
+import { Switch } from "@/components/ui/switch"; // 新しくインポート
 import {
   Loader2,
   Save,
@@ -46,6 +47,7 @@ const EditNotePage = () => {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [isPublic, setIsPublic] = useState(false); // 新しく追加
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [existingAttachments, setExistingAttachments] = useState<Attachment[]>(
     [],
@@ -65,6 +67,7 @@ const EditNotePage = () => {
     if (note) {
       setTitle(note.title);
       setContent(note.content);
+      setIsPublic(note.isPublic); // 新しく追加
       setExistingAttachments(note.attachments);
     }
   }, [note]);
@@ -78,7 +81,8 @@ const EditNotePage = () => {
         description: "Your note has been successfully updated.",
       });
       await utils.book.getByIsbn.invalidate({ isbn });
-      await refetch(); // 注釈を更新した後、データを再取得
+      await refetch();
+      router.push(`/books/${isbn}/notes/${noteId}`);
     },
     onError: (error) => {
       toast({
@@ -124,6 +128,7 @@ const EditNotePage = () => {
       id: noteId,
       title,
       content,
+      isPublic,
       attachments: attachmentsToUpload,
       removedAttachmentIds,
     });
@@ -296,7 +301,19 @@ const EditNotePage = () => {
                 ))}
               </div>
             </div>
-
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="isPublic"
+                checked={isPublic}
+                onCheckedChange={setIsPublic}
+              />
+              <label
+                htmlFor="isPublic"
+                className="text-sm font-medium text-gray-300"
+              >
+                公開する
+              </label>
+            </div>
             <div className="flex justify-between">
               <Button
                 type="button"
