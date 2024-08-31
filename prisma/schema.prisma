@@ -203,7 +203,7 @@ model Attachment {
   filePath  String
   mimeType  String
   noteId    Int
-  note      Note     @relation(fields: [noteId], references: [id])
+  note      Note     @relation(fields: [noteId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

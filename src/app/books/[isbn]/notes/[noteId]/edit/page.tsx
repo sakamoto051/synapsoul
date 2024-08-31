@@ -42,7 +42,6 @@ const EditNotePage = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [isPublic, setIsPublic] = useState(false); // 新しく追加
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [existingAttachments, setExistingAttachments] = useState<Attachment[]>(
     [],
   );
@@ -89,20 +88,13 @@ const EditNotePage = () => {
   });
 
   const deleteNoteMutation = api.note.delete.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       toast({
-        title: "Note deleted",
-        description: "Your note has been successfully deleted.",
+        title: "ノートを削除しました",
+        description: "ノートとその添付ファイルが正常に削除されました。",
       });
-      utils.book.getByIsbn.invalidate({ isbn });
+      await utils.book.getByIsbn.invalidate({ isbn });
       router.push(`/books/${isbn}/notes`);
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
     },
   });
 
@@ -319,25 +311,28 @@ const EditNotePage = () => {
                 戻る
               </Button>
               <div className="space-x-2">
-                <AlertDialog
-                  open={isDeleteDialogOpen}
-                  onOpenChange={setIsDeleteDialogOpen}
-                >
+                <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button
                       type="button"
                       className="bg-red-600 text-white hover:bg-red-700"
                       disabled={deleteNoteMutation.isPending}
                     >
-                      <Trash2 className="mr-2 h-4 w-4" />
+                      {deleteNoteMutation.isPending ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="mr-2 h-4 w-4" />
+                      )}
                       削除
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>本当に削除しますか？</AlertDialogTitle>
+                      <AlertDialogTitle>
+                        本当にこのノートを削除しますか？
+                      </AlertDialogTitle>
                       <AlertDialogDescription>
-                        この操作は取り消せません。本当にこのメモを削除してもよろしいですか？
+                        この操作は取り消せません。ノートと関連するすべての添付ファイルが完全に削除されます。
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
