@@ -38,7 +38,7 @@ const statusConfig = {
     icon: "✅",
   },
   [BookStatus.DNF]: {
-    label: "途中で読むのをやめた本",
+    label: "読むのをやめた本",
     color: "bg-red-600",
     icon: "🛑",
   },
@@ -66,7 +66,7 @@ export const BookStatusDropdown: React.FC<BookStatusDropdownProps> = ({
         <Button
           className={`${
             currentStatus ? statusConfig[currentStatus].color : "bg-gray-600"
-          } text-white flex items-center justify-between min-w-[200px]`}
+          } text-white flex items-center justify-between w-full`}
         >
           {currentStatus ? (
             <>
@@ -82,7 +82,7 @@ export const BookStatusDropdown: React.FC<BookStatusDropdownProps> = ({
           <ChevronDown className="ml-2 h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
+      <DropdownMenuContent className="w-full min-w-[200px]">
         {Object.entries(statusConfig).map(([status, config]) => (
           <DropdownMenuItem
             key={status}

@@ -163,7 +163,7 @@ const MyBooksPage = () => {
           }
         >
           <SelectTrigger className="w-[180px] bg-gray-800 text-gray-100 border-gray-700">
-            <SelectValue placeholder="ステータスでフィルター" />
+            <SelectValue placeholder="ステータス" />
           </SelectTrigger>
           <SelectContent className="bg-gray-800 text-gray-100 border-gray-700">
             <SelectItem value="ALL">すべて</SelectItem>
@@ -171,9 +171,7 @@ const MyBooksPage = () => {
             <SelectItem value={BookStatus.TO_READ}>積んでいる本</SelectItem>
             <SelectItem value={BookStatus.INTERESTED}>気になる本</SelectItem>
             <SelectItem value={BookStatus.FINISHED}>読み終わった本</SelectItem>
-            <SelectItem value={BookStatus.DNF}>
-              途中で読むのをやめた本
-            </SelectItem>
+            <SelectItem value={BookStatus.DNF}>読むのをやめた本</SelectItem>
             <SelectItem value={BookStatus.REFERENCE}>参考書</SelectItem>
             <SelectItem value={BookStatus.FAVORITE}>お気に入り</SelectItem>
             <SelectItem value={BookStatus.REREADING}>再読中</SelectItem>
@@ -181,22 +179,22 @@ const MyBooksPage = () => {
         </Select>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {filteredBooks.map((book) => (
           <Card
             key={book.isbn}
             className="bg-gray-800 text-gray-100 border-none shadow-lg flex flex-col h-full transition-all duration-300 ease-in-out hover:shadow-xl hover:bg-gray-700"
           >
             <Link href={`/books/${book.isbn}`} className="flex-grow">
-              <CardHeader className="p-2">
+              <CardHeader className="p-4">
                 <img
                   src={book.largeImageUrl || "/api/placeholder/120/180"}
                   alt={book.title || "Book cover"}
-                  className="w-full h-40 object-cover rounded-t-lg"
+                  className="w-full h-48 object-cover rounded-t-lg"
                 />
               </CardHeader>
-              <CardContent className="flex-grow">
-                <CardTitle className="text-sm font-medium text-blue-300 line-clamp-2 mb-1">
+              <CardContent className="flex-grow p-4">
+                <CardTitle className="text-sm font-medium text-blue-300 line-clamp-2 mb-2">
                   {book.title || "Unknown Title"}
                 </CardTitle>
                 <p className="text-xs text-gray-400 line-clamp-1">
@@ -204,7 +202,7 @@ const MyBooksPage = () => {
                 </p>
               </CardContent>
             </Link>
-            <CardFooter className="flex flex-col gap-2 p-2">
+            <CardFooter className="p-4">
               <BookStatusDropdown
                 currentStatus={book.status}
                 onStatusChange={(newStatus) =>

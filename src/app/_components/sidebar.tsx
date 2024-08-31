@@ -64,15 +64,6 @@ const Sidebar = () => {
               </Button>
               {isOpen && isBooksOpen && (
                 <div className="ml-4">
-                  <NextLink href="/books/mybooks">
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start mb-2"
-                    >
-                      <BookOpen className="mr-2" />
-                      My Books
-                    </Button>
-                  </NextLink>
                   <NextLink href="/books/search">
                     <Button
                       variant="ghost"
@@ -80,6 +71,15 @@ const Sidebar = () => {
                     >
                       <Search className="mr-2" />
                       Search
+                    </Button>
+                  </NextLink>
+                  <NextLink href="/books/mybooks">
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start mb-2"
+                    >
+                      <BookOpen className="mr-2" />
+                      My Books
                     </Button>
                   </NextLink>
                 </div>
