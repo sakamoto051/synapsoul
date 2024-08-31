@@ -10,7 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
-import { ChevronLeft, BookText, ShoppingCart, Users, RefreshCw } from "lucide-react";
+import {
+  ChevronLeft,
+  BookText,
+  ShoppingCart,
+  Users,
+  RefreshCw,
+} from "lucide-react";
 import BookThreadList from "~/app/_components/books/thread-list";
 import { BookStatusDropdown } from "~/app/_components/books/book-status-dropdown";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -45,11 +51,8 @@ const BookDetail = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [pendingStatus, setPendingStatus] = useState<BookStatus | null>(null);
 
-  const {
-    data: initialStatus,
-    refetch: refetchStatus,
-    error: statusError,
-  } = api.book.getStatus.useQuery({ isbn });
+  const { data: initialStatus, refetch: refetchStatus } =
+    api.book.getStatus.useQuery({ isbn });
 
   useEffect(() => {
     const fetchBookDetail = async () => {
@@ -85,12 +88,6 @@ const BookDetail = () => {
       setIsInMyBooks(initialStatus !== null);
     }
   }, [initialStatus]);
-
-  useEffect(() => {
-    if (statusError) {
-      setError("ステータス情報の取得中にエラーが発生しました。");
-    }
-  }, [statusError]);
 
   const handleBack = () => {
     const title = searchParams.get("title") || "";

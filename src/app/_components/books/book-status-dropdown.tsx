@@ -73,11 +73,6 @@ export const BookStatusDropdown: React.FC<BookStatusDropdownProps> = ({
               <span>{statusConfig[currentStatus].icon}</span>
               <span>{statusConfig[currentStatus].label}</span>
             </>
-          ) : isInMyBooks ? (
-            <>
-              <X className="h-4 w-4 mr-2" />
-              <span>ステータス未設定 (マイブックに追加済み)</span>
-            </>
           ) : (
             <>
               <HelpCircle className="h-4 w-4 mr-2" />
