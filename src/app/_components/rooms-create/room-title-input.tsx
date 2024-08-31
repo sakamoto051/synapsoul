@@ -1,4 +1,4 @@
-import React from 'react';
+import type React from "react";
 import { Input } from "@/components/ui/input";
 
 interface RoomTitleInputProps {
@@ -8,7 +8,9 @@ interface RoomTitleInputProps {
 
 const RoomTitleInput: React.FC<RoomTitleInputProps> = ({ value, onChange }) => (
   <div>
-    <label htmlFor="roomTitle" className="block mb-2">Room Name</label>
+    <label htmlFor="roomTitle" className="block mb-2">
+      Room Name
+    </label>
     <Input
       id="roomTitle"
       value={value}
