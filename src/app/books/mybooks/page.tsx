@@ -94,6 +94,13 @@ const MyBooksPage = () => {
             <SelectItem value={BookStatus.READING}>読んでいる本</SelectItem>
             <SelectItem value={BookStatus.TO_READ}>積んでいる本</SelectItem>
             <SelectItem value={BookStatus.INTERESTED}>気になる本</SelectItem>
+            <SelectItem value={BookStatus.FINISHED}>読み終わった本</SelectItem>
+            <SelectItem value={BookStatus.DNF}>
+              途中で読むのをやめた本
+            </SelectItem>
+            <SelectItem value={BookStatus.REFERENCE}>参考書</SelectItem>
+            <SelectItem value={BookStatus.FAVORITE}>お気に入り</SelectItem>
+            <SelectItem value={BookStatus.REREADING}>再読中</SelectItem>
           </SelectContent>
         </Select>
       </div>
@@ -152,7 +159,7 @@ const MyBooksPage = () => {
                     >
                       <SelectValue placeholder="Change status" />
                     </SelectTrigger>
-                    <SelectContent className="bg-gray-700 text-gray-100 border-gray-600">
+                    <SelectContent className="bg-gray-800 text-gray-100 border-gray-700">
                       <SelectItem value={BookStatus.READING}>
                         読んでいる本
                       </SelectItem>
@@ -161,6 +168,21 @@ const MyBooksPage = () => {
                       </SelectItem>
                       <SelectItem value={BookStatus.INTERESTED}>
                         気になる本
+                      </SelectItem>
+                      <SelectItem value={BookStatus.FINISHED}>
+                        読み終わった本
+                      </SelectItem>
+                      <SelectItem value={BookStatus.DNF}>
+                        途中で読むのをやめた本
+                      </SelectItem>
+                      <SelectItem value={BookStatus.REFERENCE}>
+                        参考書
+                      </SelectItem>
+                      <SelectItem value={BookStatus.FAVORITE}>
+                        お気に入り
+                      </SelectItem>
+                      <SelectItem value={BookStatus.REREADING}>
+                        再読中
                       </SelectItem>
                     </SelectContent>
                   </Select>

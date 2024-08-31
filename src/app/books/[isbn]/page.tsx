@@ -19,6 +19,7 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import BookThreadList from "~/app/_components/books/thread-list";
+import { BookStatusDropdown } from "~/app/_components/books/book-status-dropdown";
 
 const API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
 
@@ -79,13 +80,35 @@ const BookDetail = () => {
 
     try {
       await updateStatusMutation.mutateAsync({
-        isbn: book.isbn,
+        isbn: book?.isbn,
         status: status,
       });
       await refetchStatus();
       toast({
         title: "ステータス更新",
         description: `本のステータスを "${status}" に更新しました。`,
+        action: <ToastAction altText="閉じる">閉じる</ToastAction>,
+      });
+    } catch (error) {
+      console.error("Error updating book status:", error);
+      toast({
+        title: "エラー",
+        description: "本のステータス更新中にエラーが発生しました。",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleStatusChange = async (newStatus: BookStatus) => {
+    try {
+      await updateStatusMutation.mutateAsync({
+        isbn: book?.isbn || "",
+        status: newStatus,
+      });
+      await refetchStatus();
+      toast({
+        title: "ステータス更新",
+        description: `本のステータスを "${newStatus}" に更新しました。`,
         action: <ToastAction altText="閉じる">閉じる</ToastAction>,
       });
     } catch (error) {
@@ -164,40 +187,11 @@ const BookDetail = () => {
                 {book.itemPrice}円
               </p>
               <p className="mt-4 text-gray-300">{book.itemCaption}</p>
-              <div className="mt-6 space-x-2">
-                <Button
-                  onClick={() => updateBookStatus(BookStatus.READING)}
-                  className={`${
-                    currentStatus === BookStatus.READING
-                      ? "bg-blue-600 hover:bg-blue-700"
-                      : "bg-gray-600 hover:bg-gray-700"
-                  } text-white`}
-                >
-                  <BookOpen className="mr-2 h-4 w-4" />
-                  読んでいる本
-                </Button>
-                <Button
-                  onClick={() => updateBookStatus(BookStatus.TO_READ)}
-                  className={`${
-                    currentStatus === BookStatus.TO_READ
-                      ? "bg-green-600 hover:bg-green-700"
-                      : "bg-gray-600 hover:bg-gray-700"
-                  } text-white`}
-                >
-                  <Book className="mr-2 h-4 w-4" />
-                  積んでいる本
-                </Button>
-                <Button
-                  onClick={() => updateBookStatus(BookStatus.INTERESTED)}
-                  className={`${
-                    currentStatus === BookStatus.INTERESTED
-                      ? "bg-yellow-600 hover:bg-yellow-700"
-                      : "bg-gray-600 hover:bg-gray-700"
-                  } text-white`}
-                >
-                  <BookMarked className="mr-2 h-4 w-4" />
-                  気になる本
-                </Button>
+              <div className="mt-6">
+                <BookStatusDropdown
+                  currentStatus={currentStatus || BookStatus.INTERESTED}
+                  onStatusChange={handleStatusChange}
+                />
               </div>
               <div className="mt-6 space-x-2">
                 <Link href={`/books/${isbn}/notes`} passHref>

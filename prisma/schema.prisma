@@ -126,7 +126,13 @@ enum BookStatus {
   READING
   TO_READ
   INTERESTED
+  FINISHED
+  DNF
+  REFERENCE
+  FAVORITE
+  REREADING
 }
+
 
 model BookThread {
   id        Int    @id @default(autoincrement())
