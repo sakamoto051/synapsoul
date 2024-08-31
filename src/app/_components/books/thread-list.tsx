@@ -24,7 +24,7 @@ const BookThreadList = () => {
     if (!newThreadTitle || !newThreadContent) return;
 
     try {
-      await createThreadMutation.mutateAsync({
+      const thread = await createThreadMutation.mutateAsync({
         isbn,
         title: newThreadTitle,
         content: newThreadContent,
@@ -36,6 +36,7 @@ const BookThreadList = () => {
         title: "スレッド作成",
         description: "新しいスレッドが作成されました。",
       });
+      router.push(`/books/${isbn}/threads/${thread.id}`);
     } catch (error) {
       console.error("Error creating thread:", error);
       toast({

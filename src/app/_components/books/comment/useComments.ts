@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { api } from "~/trpc/react";
 import { useToast } from "@/components/ui/use-toast";
 import type { CommentType } from "~/types/thread";
+import { TRPCError } from "@trpc/server";
 
 export const useComments = (threadId: number) => {
   const [newComment, setNewComment] = useState("");
@@ -128,7 +129,7 @@ export const useComments = (threadId: number) => {
 
   const handleLikeComment = async (commentId: number, userId: number) => {
     try {
-      await likeCommentMutation.mutateAsync({ commentId, userId });
+      await likeCommentMutation.mutateAsync({ commentId });
       await refetchThread();
       toast({
         title: "いいね",
@@ -136,11 +137,19 @@ export const useComments = (threadId: number) => {
       });
     } catch (error) {
       console.error("Error liking comment:", error);
-      toast({
-        title: "エラー",
-        description: "いいねの処理中にエラーが発生しました。",
-        variant: "destructive",
-      });
+      if (error instanceof TRPCError && error.code === "CONFLICT") {
+        toast({
+          title: "エラー",
+          description: "既にいいねしています。",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "エラー",
+          description: "いいねの処理中にエラーが発生しました。",
+          variant: "destructive",
+        });
+      }
     }
   };
 

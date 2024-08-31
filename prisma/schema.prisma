@@ -152,12 +152,14 @@ model Comment {
 }
 
 model Like {
-  id        Int   @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
   comment   Comment  @relation(fields: [commentId], references: [id])
   commentId Int
-  userId    Int   // 実際のユーザー認証システムに合わせて調整してください
-  user      User  @relation(fields: [userId], references: [id])
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([commentId, userId])
 }
 
 model Flowchart {

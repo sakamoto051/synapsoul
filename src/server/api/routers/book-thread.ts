@@ -1,5 +1,6 @@
+import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "~/server/api/trpc";
 
 export const bookThreadRouter = createTRPCRouter({
   getThread: publicProcedure
@@ -88,13 +89,30 @@ export const bookThreadRouter = createTRPCRouter({
       });
     }),
 
-  likeComment: publicProcedure
-    .input(z.object({ commentId: z.number(), userId: z.number() }))
+  likeComment: protectedProcedure
+    .input(z.object({ commentId: z.number() }))
     .mutation(async ({ ctx, input }) => {
+      const userId = Number(ctx.session.user.id);
+      const existingLike = await ctx.db.like.findUnique({
+        where: {
+          commentId_userId: {
+            commentId: input.commentId,
+            userId: userId,
+          },
+        },
+      });
+
+      if (existingLike) {
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "You have already liked this comment",
+        });
+      }
+
       return ctx.db.like.create({
         data: {
           commentId: input.commentId,
-          userId: input.userId,
+          userId: userId,
         },
       });
     }),
