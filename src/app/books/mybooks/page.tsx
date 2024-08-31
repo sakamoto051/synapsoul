@@ -20,13 +20,20 @@ import { BookStatus } from "@prisma/client";
 import type { BookWithDetails } from "~/types/book";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from "next/link";
+import { BookStatusDropdown } from "~/app/_components/books/book-status-dropdown";
+import { useToast } from "@/components/ui/use-toast";
 
 const MyBooksPage = () => {
   const [books, setBooks] = useState<BookWithDetails[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<BookStatus | "ALL">("ALL");
   const updateStatusMutation = api.book.updateStatus.useMutation();
-  const { data: userBooks, isLoading } = api.book.getUserBooks.useQuery();
+  const {
+    data: userBooks,
+    isLoading,
+    refetch: refetchBooks,
+  } = api.book.getUserBooks.useQuery();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (userBooks) {
@@ -49,19 +56,41 @@ const MyBooksPage = () => {
 
   const handleStatusChange = async (
     book: BookWithDetails,
-    status: BookStatus,
+    newStatus: BookStatus | null,
   ) => {
     try {
       await updateStatusMutation.mutateAsync({
         isbn: book.isbn,
-        status: status,
+        status: newStatus,
       });
 
-      setBooks((prevBooks) =>
-        prevBooks.map((b) => (b.isbn === book.isbn ? { ...b, status } : b)),
-      );
+      if (newStatus === null) {
+        // Remove the book from the local state if status is set to null
+        setBooks((prevBooks) => prevBooks.filter((b) => b.isbn !== book.isbn));
+        toast({
+          title: "ステータス解除",
+          description: "本のステータスを解除し、マイブックから削除しました。",
+        });
+      } else {
+        setBooks((prevBooks) =>
+          prevBooks.map((b) =>
+            b.isbn === book.isbn ? { ...b, status: newStatus } : b,
+          ),
+        );
+        toast({
+          title: "ステータス更新",
+          description: `本のステータスを "${newStatus}" に更新しました。`,
+        });
+      }
+
+      await refetchBooks();
     } catch (error) {
       console.error("Failed to update book status:", error);
+      toast({
+        title: "エラー",
+        description: "本のステータス更新中にエラーが発生しました。",
+        variant: "destructive",
+      });
     }
   };
 
@@ -125,12 +154,11 @@ const MyBooksPage = () => {
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
           {filteredBooks.map((book) => (
-            <Link
-              href={`/books/${book.isbn}`}
+            <Card
               key={book.isbn}
-              className="block"
+              className="bg-gray-800 text-gray-100 border-none shadow-lg flex flex-col h-full transition-all duration-300 ease-in-out hover:shadow-xl hover:bg-gray-700"
             >
-              <Card className="bg-gray-800 text-gray-100 border-none shadow-lg flex flex-col h-full transition-all duration-300 ease-in-out hover:shadow-xl hover:scale-105 hover:bg-gray-700 cursor-pointer">
+              <Link href={`/books/${book.isbn}`} className="flex-grow">
                 <CardHeader className="p-2">
                   <img
                     src={book.largeImageUrl || "/api/placeholder/120/180"}
@@ -146,49 +174,17 @@ const MyBooksPage = () => {
                     {book.author || "Unknown Author"}
                   </p>
                 </CardContent>
-                <CardFooter className="flex flex-col gap-2 p-2">
-                  <Select
-                    onValueChange={(value) =>
-                      handleStatusChange(book, value as BookStatus)
-                    }
-                    defaultValue={book.status}
-                  >
-                    <SelectTrigger
-                      className="w-full bg-gray-700 text-gray-100 border-gray-600 text-xs"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <SelectValue placeholder="Change status" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-800 text-gray-100 border-gray-700">
-                      <SelectItem value={BookStatus.READING}>
-                        読んでいる本
-                      </SelectItem>
-                      <SelectItem value={BookStatus.TO_READ}>
-                        積んでいる本
-                      </SelectItem>
-                      <SelectItem value={BookStatus.INTERESTED}>
-                        気になる本
-                      </SelectItem>
-                      <SelectItem value={BookStatus.FINISHED}>
-                        読み終わった本
-                      </SelectItem>
-                      <SelectItem value={BookStatus.DNF}>
-                        途中で読むのをやめた本
-                      </SelectItem>
-                      <SelectItem value={BookStatus.REFERENCE}>
-                        参考書
-                      </SelectItem>
-                      <SelectItem value={BookStatus.FAVORITE}>
-                        お気に入り
-                      </SelectItem>
-                      <SelectItem value={BookStatus.REREADING}>
-                        再読中
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </CardFooter>
-              </Card>
-            </Link>
+              </Link>
+              <CardFooter className="flex flex-col gap-2 p-2">
+                <BookStatusDropdown
+                  currentStatus={book.status}
+                  onStatusChange={(newStatus) =>
+                    handleStatusChange(book, newStatus)
+                  }
+                  isInMyBooks={true}
+                />
+              </CardFooter>
+            </Card>
           ))}
         </div>
       )}
