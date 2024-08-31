@@ -188,7 +188,11 @@ export const noteRouter = createTRPCRouter({
           isPublic: true,
         },
         include: {
-          book: true,
+          book: {
+            include: {
+              user: true,
+            }
+          },
           attachments: true,
         },
         orderBy: {

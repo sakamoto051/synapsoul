@@ -9,10 +9,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 const PublicNotes = () => {
   const params = useParams();
   const isbn = params.isbn as string;
-  const { data: book } = api.book.getByIsbn.useQuery({ isbn });
-  const { data: publicNotes, isLoading } = api.note.getPublicNotes.useQuery({
-    bookId: book?.id ?? 0,
-  });
+  const { data: publicNotes, isLoading } =
+    api.note.getPublicNotesByIsbn.useQuery({
+      isbn: isbn,
+    });
 
   if (isLoading) return <div>読み込み中...</div>;
 
@@ -27,7 +27,7 @@ const PublicNotes = () => {
           <CardContent>
             <p>{note.content}</p>
             <p className="text-sm text-gray-500 mt-2">
-              作成者: {note.user.name}
+              作成者: {note.book.user.name}
             </p>
           </CardContent>
         </Card>
