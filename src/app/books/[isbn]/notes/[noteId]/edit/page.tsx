@@ -30,13 +30,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
-interface Attachment {
-  id: number;
-  fileName: string;
-  mimeType: string;
-  filePath: string;
-}
+import type { Attachment } from "@prisma/client";
 
 const EditNotePage = () => {
   const router = useRouter();
@@ -52,6 +46,7 @@ const EditNotePage = () => {
   const [existingAttachments, setExistingAttachments] = useState<Attachment[]>(
     [],
   );
+
   const [newAttachments, setNewAttachments] = useState<File[]>([]);
   const [removedAttachmentIds, setRemovedAttachmentIds] = useState<number[]>(
     [],

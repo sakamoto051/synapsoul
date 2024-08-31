@@ -177,15 +177,23 @@ export const noteRouter = createTRPCRouter({
       };
     }),
 
-  getPublicNotes: publicProcedure
-    .input(z.object({ bookId: z.number() }))
+  getPublicNotesByIsbn: publicProcedure
+    .input(z.object({ isbn: z.string() }))
     .query(async ({ ctx, input }) => {
       return ctx.db.note.findMany({
         where: {
-          bookId: input.bookId,
+          book: {
+            isbn: input.isbn,
+          },
           isPublic: true,
         },
-        include: { user: { select: { name: true } } },
+        include: {
+          book: true,
+          attachments: true,
+        },
+        orderBy: {
+          updatedAt: "desc",
+        },
       });
     }),
 });
