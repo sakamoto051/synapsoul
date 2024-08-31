@@ -134,7 +134,7 @@ export const bookRouter = createTRPCRouter({
     .input(
       z.object({
         isbn: z.string(),
-        status: z.nativeEnum(BookStatus),
+        status: z.nativeEnum(BookStatus).nullable(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -145,36 +145,36 @@ export const bookRouter = createTRPCRouter({
           message: "User must be logged in to perform this action",
         });
       }
-      console.log(userId);
-      console.log(input.isbn);
 
-      try {
-        const upsertedBook = await ctx.db.book.upsert({
+      if (input.status === null) {
+        // ステータスがnullの場合、本を削除しようとする
+        // しかし、本が存在しない場合はエラーを発生させずに成功として扱う
+        await ctx.db.book.deleteMany({
           where: {
-            isbn_userId: {
-              isbn: input.isbn,
-              userId: userId,
-            },
-          },
-          update: {
-            status: input.status,
-            updatedAt: new Date(),
-          },
-          create: {
             isbn: input.isbn,
-            status: input.status,
             userId: userId,
           },
         });
-
-        return upsertedBook;
-      } catch (error) {
-        console.error("Error in upsertBook:", error);
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An error occurred while upserting the book",
-        });
+        return { success: true, message: "Book status removed or not found" };
       }
+      // ステータスが設定されている場合、upsert操作を行う
+      return ctx.db.book.upsert({
+        where: {
+          isbn_userId: {
+            isbn: input.isbn,
+            userId: userId,
+          },
+        },
+        update: {
+          status: input.status,
+          updatedAt: new Date(),
+        },
+        create: {
+          isbn: input.isbn,
+          status: input.status,
+          userId: userId,
+        },
+      });
     }),
 
   getUserBooks: protectedProcedure.query(async ({ ctx }) => {
@@ -225,8 +225,8 @@ export const bookRouter = createTRPCRouter({
       return ctx.db.book.findUnique({
         where: {
           isbn_userId: {
-        isbn: input.isbn,
-        userId: Number(ctx.session.user.id),
+            isbn: input.isbn,
+            userId: Number(ctx.session.user.id),
           },
         },
         include: { notes: { orderBy: { updatedAt: "desc" } } },

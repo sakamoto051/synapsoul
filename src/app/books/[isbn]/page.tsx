@@ -4,22 +4,17 @@ import { useRouter, useParams, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import type { BookItem } from "~/types/book";
 import { api } from "~/trpc/react";
-import { BookStatus } from "@prisma/client";
+import type { BookStatus } from "@prisma/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { ToastAction } from "@/components/ui/toast";
-import {
-  ChevronLeft,
-  Book,
-  BookOpen,
-  BookMarked,
-  BookText,
-  ShoppingCart,
-} from "lucide-react";
+import { ChevronLeft, BookText, ShoppingCart } from "lucide-react";
 import BookThreadList from "~/app/_components/books/thread-list";
 import { BookStatusDropdown } from "~/app/_components/books/book-status-dropdown";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Info } from "lucide-react";
 
 const API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
 
@@ -33,7 +28,10 @@ const BookDetail = () => {
   const updateStatusMutation = api.book.updateStatus.useMutation();
   const { toast } = useToast();
 
-  const { data: currentStatus, refetch: refetchStatus } =
+  const [currentStatus, setCurrentStatus] = useState<BookStatus | null>(null);
+  const [isInMyBooks, setIsInMyBooks] = useState(false);
+
+  const { data: initialStatus, refetch: refetchStatus } =
     api.book.getStatus.useQuery({ isbn });
 
   useEffect(() => {
@@ -61,6 +59,13 @@ const BookDetail = () => {
     fetchBookDetail();
   }, [isbn]);
 
+  useEffect(() => {
+    if (initialStatus !== undefined) {
+      setCurrentStatus(initialStatus);
+      setIsInMyBooks(initialStatus !== null);
+    }
+  }, [initialStatus]);
+
   const handleBack = () => {
     const title = searchParams.get("title") || "";
     const author = searchParams.get("author") || "";
@@ -80,7 +85,7 @@ const BookDetail = () => {
 
     try {
       await updateStatusMutation.mutateAsync({
-        isbn: book?.isbn,
+        isbn: book?.isbn ?? "",
         status: status,
       });
       await refetchStatus();
@@ -99,18 +104,35 @@ const BookDetail = () => {
     }
   };
 
-  const handleStatusChange = async (newStatus: BookStatus) => {
+  const handleStatusChange = async (newStatus: BookStatus | null) => {
     try {
       await updateStatusMutation.mutateAsync({
-        isbn: book?.isbn || "",
+        isbn: book?.isbn ?? "",
         status: newStatus,
       });
-      await refetchStatus();
-      toast({
-        title: "ステータス更新",
-        description: `本のステータスを "${newStatus}" に更新しました。`,
-        action: <ToastAction altText="閉じる">閉じる</ToastAction>,
-      });
+
+      // 状態を即座に更新
+      setCurrentStatus(newStatus);
+      setIsInMyBooks(newStatus !== null);
+
+      // サーバーからの最新の状態を取得
+      const updatedStatus = await refetchStatus();
+      setCurrentStatus(updatedStatus.data ?? null);
+      setIsInMyBooks(updatedStatus.data !== null);
+
+      if (newStatus === null) {
+        toast({
+          title: "ステータス解除",
+          description: "本のステータスを解除し、マイブックから削除しました。",
+          action: <ToastAction altText="閉じる">閉じる</ToastAction>,
+        });
+      } else {
+        toast({
+          title: "ステータス更新",
+          description: `本のステータスを "${newStatus}" に更新しました。`,
+          action: <ToastAction altText="閉じる">閉じる</ToastAction>,
+        });
+      }
     } catch (error) {
       console.error("Error updating book status:", error);
       toast({
@@ -118,6 +140,9 @@ const BookDetail = () => {
         description: "本のステータス更新中にエラーが発生しました。",
         variant: "destructive",
       });
+      // エラーが発生した場合、元の状態に戻す
+      setCurrentStatus(initialStatus ?? null);
+      setIsInMyBooks(initialStatus !== null);
     }
   };
 
@@ -189,9 +214,21 @@ const BookDetail = () => {
               <p className="mt-4 text-gray-300">{book.itemCaption}</p>
               <div className="mt-6">
                 <BookStatusDropdown
-                  currentStatus={currentStatus || BookStatus.INTERESTED}
+                  currentStatus={currentStatus}
                   onStatusChange={handleStatusChange}
-                />
+                  isInMyBooks={isInMyBooks}
+                />{" "}
+                {currentStatus === null && (
+                  <Alert
+                    variant="default"
+                    className="bg-blue-900 border-blue-700 mt-1 text-white"
+                  >
+                    <Info className="h-4 w-4" />
+                    <AlertDescription>
+                      この本にはまだステータスが設定されていません。ステータスを設定すると、マイブックに追加されます。
+                    </AlertDescription>
+                  </Alert>
+                )}
               </div>
               <div className="mt-6 space-x-2">
                 <Link href={`/books/${isbn}/notes`} passHref>
