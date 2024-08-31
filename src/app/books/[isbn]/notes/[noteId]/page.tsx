@@ -55,7 +55,11 @@ const EditNotePage = () => {
     [],
   );
 
-  const { data: note, isLoading } = api.note.getById.useQuery({ id: noteId });
+  const {
+    data: note,
+    isLoading,
+    refetch,
+  } = api.note.getById.useQuery({ id: noteId });
 
   useEffect(() => {
     if (note) {
@@ -68,13 +72,13 @@ const EditNotePage = () => {
   const utils = api.useContext();
 
   const updateNoteMutation = api.note.update.useMutation({
-    onSuccess: () => {
+    onSuccess: async () => {
       toast({
         title: "Note updated",
         description: "Your note has been successfully updated.",
       });
-      utils.book.getByIsbn.invalidate({ isbn });
-      router.push(`/books/${isbn}/notes`);
+      await utils.book.getByIsbn.invalidate({ isbn });
+      await refetch(); // 注釈を更新した後、データを再取得
     },
     onError: (error) => {
       toast({
