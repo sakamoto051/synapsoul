@@ -6,7 +6,8 @@ import { api } from "~/trpc/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, ChevronLeft } from "lucide-react";
+import { Plus, ChevronLeft, Globe, Lock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const BookNotesList = () => {
   const params = useParams();
@@ -49,9 +50,27 @@ const BookNotesList = () => {
               >
                 <Card className="mb-4 bg-gray-700 hover:bg-gray-600 transition-colors duration-200">
                   <CardContent className="p-4">
-                    <h3 className="text-lg font-semibold text-blue-200">
-                      {note.title}
-                    </h3>
+                    <div className="flex justify-between items-center">
+                      <h3 className="text-lg font-semibold text-blue-200">
+                        {note.title}
+                      </h3>
+                      <Badge
+                        variant={note.isPublic ? "default" : "secondary"}
+                        className="ml-2"
+                      >
+                        {note.isPublic ? (
+                          <>
+                            <Globe className="w-3 h-3 mr-1" />
+                            公開
+                          </>
+                        ) : (
+                          <>
+                            <Lock className="w-3 h-3 mr-1" />
+                            非公開
+                          </>
+                        )}
+                      </Badge>
+                    </div>
                     <p className="text-gray-300 text-sm mt-2">
                       作成日: {new Date(note.createdAt).toLocaleDateString()}
                     </p>
