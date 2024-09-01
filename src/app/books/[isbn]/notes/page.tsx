@@ -2,12 +2,10 @@
 "use client";
 import React from "react";
 import { useParams } from "next/navigation";
-import Link from "next/link";
 import { useBookNotes } from "~/hooks/useBookNotes";
 import { NoteList } from "~/app/_components/books/notes/NoteList";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Plus, ChevronLeft } from "lucide-react";
+import { BookNotesActions } from "~/app/_components/books/notes/BookNotesActions";
 
 const BookNotesList = () => {
   const params = useParams();
@@ -30,20 +28,7 @@ const BookNotesList = () => {
               まだ読書メモがありません。
             </p>
           )}
-          <div className="mt-6 flex justify-between">
-            <Link href={`/books/${isbn}`} passHref>
-              <Button className="bg-gray-700 text-white hover:bg-gray-600">
-                <ChevronLeft className="mr-2 h-4 w-4" />
-                書籍詳細に戻る
-              </Button>
-            </Link>
-            <Link href={`/books/${isbn}/notes/create`} passHref>
-              <Button className="bg-green-600 text-white hover:bg-green-700">
-                <Plus className="mr-2 h-4 w-4" />
-                新しい読書メモ
-              </Button>
-            </Link>
-          </div>
+          <BookNotesActions isbn={isbn} />
         </CardContent>
       </Card>
     </div>

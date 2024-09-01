@@ -1,25 +1,12 @@
 // src/app/books/[isbn]/notes/[noteId]/edit/page.tsx
 "use client";
 import type React from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { useEditBookNote } from "~/hooks/useEditBookNote";
 import { EditNoteForm } from "~/app/_components/books/notes/edit/EditNoteForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Loader2 } from "lucide-react";
 
 const EditNotePage: React.FC = () => {
-  const router = useRouter();
   const params = useParams();
   const isbn = params.isbn as string;
   const noteId = Number(params.noteId);
@@ -62,31 +49,10 @@ const EditNotePage: React.FC = () => {
             onFileChange={handleFileChange}
             onRemoveNewAttachment={removeNewAttachment}
             onRemoveExistingAttachment={removeExistingAttachment}
-            onDelete={() => {}} // AlertDialogを表示するため、ここでは空の関数を渡す
+            onDelete={handleDelete}
           />
         </CardContent>
       </Card>
-      <AlertDialog>
-        <AlertDialogTrigger asChild>
-          <button type="button" className="sr-only">
-            Delete Note
-          </button>
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              本当にこのノートを削除しますか？
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              この操作は取り消せません。ノートと関連するすべての添付ファイルが完全に削除されます。
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>キャンセル</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete}>削除</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };

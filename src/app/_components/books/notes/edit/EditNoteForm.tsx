@@ -4,8 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Paperclip, X, Download, Save, Trash2 } from "lucide-react";
+import { Paperclip, X, Download, Save } from "lucide-react";
 import type { Attachment } from "@prisma/client";
+import { DeleteNoteDialog } from "./DeleteNoteDialog";
 
 interface EditNoteFormProps {
   title: string;
@@ -149,14 +150,7 @@ export const EditNoteForm: React.FC<EditNoteFormProps> = ({
       </label>
     </div>
     <div className="flex justify-between">
-      <Button
-        type="button"
-        onClick={onDelete}
-        className="bg-red-600 text-white hover:bg-red-700"
-      >
-        <Trash2 className="mr-2 h-4 w-4" />
-        削除
-      </Button>
+      <DeleteNoteDialog onDelete={onDelete} />
       <Button
         type="submit"
         className="bg-blue-600 text-white hover:bg-blue-700"
