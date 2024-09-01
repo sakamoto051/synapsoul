@@ -1,21 +1,14 @@
-export interface LikeType {
-  id: number;
-  userId: number;
-  createdAt: Date;
-}
+// src/types/thread.ts
+import type { Comment, Like } from "@prisma/client";
 
-export interface CommentType {
-  id: number;
-  content: string;
-  createdAt: Date;
-  parentId: number | null;
-  replies: CommentType[];
-  likes: LikeType[];
-}
+export type CommentWithRepliesAndLikes = Comment & {
+  replies: CommentWithRepliesAndLikes[];
+  likes: Like[];
+};
 
 export interface ThreadType {
   id: number;
   title: string;
   content: string;
-  comments: CommentType[];
+  comments: CommentWithRepliesAndLikes[];
 }
