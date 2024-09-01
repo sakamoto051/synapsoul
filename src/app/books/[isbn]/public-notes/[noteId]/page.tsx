@@ -6,8 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NoteContent } from "~/app/_components/books/notes/detail/NoteContent";
 import { AttachmentList } from "~/app/_components/books/notes/detail/AttachmentList";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Globe, Lock } from "lucide-react";
 import Link from "next/link";
+import { Badge } from "~/components/ui/badge";
 
 const PublicNoteDetailPage = () => {
   const params = useParams();
@@ -26,7 +27,25 @@ const PublicNoteDetailPage = () => {
       <Card className="w-full max-w-3xl mx-auto bg-gray-800 text-gray-100 shadow-lg border-none">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-blue-300">
-            {note.title}
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-2xl font-bold text-blue-300">{note.title}</h1>
+              <Badge
+                variant={note.isPublic ? "default" : "secondary"}
+                className="ml-2"
+              >
+                {note.isPublic ? (
+                  <>
+                    <Globe className="w-3 h-3 mr-1" />
+                    公開
+                  </>
+                ) : (
+                  <>
+                    <Lock className="w-3 h-3 mr-1" />
+                    非公開
+                  </>
+                )}
+              </Badge>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent>

@@ -43,6 +43,7 @@ const ProfileSettingsPage = () => {
     if (displayName.trim()) {
       updateDisplayNameMutation.mutate({ displayName });
     }
+    router.push("/");
   };
 
   if (status === "loading") {
