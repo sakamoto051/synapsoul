@@ -19,6 +19,7 @@ export type CommentType = {
   createdAt: Date;
   updatedAt: Date;
   threadId: number;
+  userId: number;
   parentId: number | null;
   replies: CommentType[];
   likes: Like[];

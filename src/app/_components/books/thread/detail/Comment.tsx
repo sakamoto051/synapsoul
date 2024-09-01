@@ -13,6 +13,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import type { CommentWithRepliesAndLikes } from "~/types/thread";
+import { useSession } from "next-auth/react";
 
 interface CommentProps {
   comment: CommentWithRepliesAndLikes;
@@ -39,6 +40,8 @@ export const Comment: React.FC<CommentProps> = ({
   const [editContent, setEditContent] = useState(comment.content);
   const [isExpanded, setIsExpanded] = useState(true);
   const isLiked = comment.likes.some((like) => like.userId === currentUserId);
+  const { data: session } = useSession();
+  const isCommentOwner = Number(session?.user?.id) === comment.userId;
 
   const handleLike = () => {
     if (isLiked) {
@@ -103,23 +106,27 @@ export const Comment: React.FC<CommentProps> = ({
             <Send className="h-4 w-4" />
           </Button>
         ) : (
+          isCommentOwner && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsEditing(true)}
+              className="text-yellow-400 hover:text-yellow-300 hover:bg-yellow-400/10 p-1"
+            >
+              <Edit2 className="h-4 w-4" />
+            </Button>
+          )
+        )}
+        {isCommentOwner && (
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setIsEditing(true)}
-            className="text-yellow-400 hover:text-yellow-300 hover:bg-yellow-400/10 p-1"
+            onClick={() => onDelete(comment.id)}
+            className="text-red-400 hover:text-red-300 hover:bg-red-400/10 p-1"
           >
-            <Edit2 className="h-4 w-4" />
+            <Trash2 className="h-4 w-4" />
           </Button>
         )}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onDelete(comment.id)}
-          className="text-red-400 hover:text-red-300 hover:bg-red-400/10 p-1"
-        >
-          <Trash2 className="h-4 w-4" />
-        </Button>
         {comment.replies && (
           <Button
             variant="ghost"

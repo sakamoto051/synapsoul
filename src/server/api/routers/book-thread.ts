@@ -1,4 +1,5 @@
 import { TRPCError } from "@trpc/server";
+import { use } from "react";
 import { z } from "zod";
 import {
   createTRPCRouter,
@@ -50,11 +51,11 @@ export const bookThreadRouter = createTRPCRouter({
       });
     }),
 
-  createComment: publicProcedure
+  createComment: protectedProcedure
     .input(
       z.object({
         threadId: z.number(),
-        parentId: z.number().nullable(), // parentIdを追加
+        parentId: z.number().nullable(),
         content: z.string(),
       }),
     )
@@ -63,12 +64,13 @@ export const bookThreadRouter = createTRPCRouter({
         data: {
           content: input.content,
           threadId: input.threadId,
-          parentId: input.parentId, // parentIdを設定
+          parentId: input.parentId,
+          userId: Number(ctx.session.user.id), // ユーザーIDを追加
         },
       });
     }),
 
-  createReply: publicProcedure
+  createReply: protectedProcedure
     .input(
       z.object({
         threadId: z.number(),
@@ -82,21 +84,44 @@ export const bookThreadRouter = createTRPCRouter({
           content: input.content,
           threadId: input.threadId,
           parentId: input.parentId,
+          userId: Number(ctx.session.user.id),
         },
       });
     }),
 
-  deleteComment: publicProcedure
+  deleteComment: protectedProcedure
     .input(z.object({ commentId: z.number() }))
     .mutation(async ({ ctx, input }) => {
+      const comment = await ctx.db.comment.findUnique({
+        where: { id: input.commentId },
+      });
+
+      if (!comment || comment.userId !== Number(ctx.session.user.id)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are not allowed to delete this comment",
+        });
+      }
+
       return ctx.db.comment.delete({
         where: { id: input.commentId },
       });
     }),
 
-  editComment: publicProcedure
+  editComment: protectedProcedure
     .input(z.object({ commentId: z.number(), content: z.string() }))
     .mutation(async ({ ctx, input }) => {
+      const comment = await ctx.db.comment.findUnique({
+        where: { id: input.commentId },
+      });
+
+      if (!comment || comment.userId !== Number(ctx.session.user.id)) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message: "You are not allowed to edit this comment",
+        });
+      }
+
       return ctx.db.comment.update({
         where: { id: input.commentId },
         data: { content: input.content },
