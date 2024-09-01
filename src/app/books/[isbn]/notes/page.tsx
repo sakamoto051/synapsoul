@@ -47,7 +47,7 @@ const BookNotesList = () => {
                 書籍詳細に戻る
               </Button>
             </Link>
-            <Link href={`/books/${isbn}/notes/new`} passHref>
+            <Link href={`/books/${isbn}/notes/create`} passHref>
               <Button className="bg-green-600 text-white hover:bg-green-700">
                 <Plus className="mr-2 h-4 w-4" />
                 新しい読書メモ
