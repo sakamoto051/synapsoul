@@ -2,18 +2,23 @@
 import type React from "react";
 import type { BookWithDetails } from "~/types/book";
 import BookCard from "~/app/_components/books/BookCard";
+import type { BookStatus } from "@prisma/client";
 
 interface MyBooksListProps {
   books: BookWithDetails[];
+  onStatusChange: (book: BookWithDetails, newStatus: BookStatus | null) => void;
 }
 
-export const MyBooksList: React.FC<MyBooksListProps> = ({ books }) => (
+export const MyBooksList: React.FC<MyBooksListProps> = ({
+  books,
+  onStatusChange,
+}) => (
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
     {books.map((book) => (
       <BookCard
         key={book.isbn}
         book={book}
-        onStatusChange={() => {}}
+        onStatusChange={onStatusChange}
         isInMyBooks={true}
       />
     ))}
