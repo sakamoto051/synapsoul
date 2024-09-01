@@ -191,7 +191,7 @@ export const noteRouter = createTRPCRouter({
           book: {
             include: {
               user: true,
-            }
+            },
           },
           attachments: true,
         },
@@ -199,6 +199,32 @@ export const noteRouter = createTRPCRouter({
           updatedAt: "desc",
         },
       });
+    }),
+
+  getPublicNoteById: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .query(async ({ ctx, input }) => {
+      const note = await ctx.db.note.findUnique({
+        where: { id: input.id, isPublic: true },
+        include: {
+          book: {
+            include: {
+              user: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+          attachments: true,
+        },
+      });
+
+      if (!note || !note.isPublic) {
+        throw new Error("Note not found or not public");
+      }
+
+      return note;
     }),
 });
 
