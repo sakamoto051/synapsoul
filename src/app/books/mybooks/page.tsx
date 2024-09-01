@@ -1,13 +1,7 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
 import { api } from "~/trpc/react";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -19,12 +13,11 @@ import {
 import { BookStatus } from "@prisma/client";
 import type { BookWithDetails } from "~/types/book";
 import { Skeleton } from "@/components/ui/skeleton";
-import Link from "next/link";
-import { BookStatusDropdown } from "~/app/_components/books/book-status-dropdown";
 import { useToast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { RefreshCw } from "lucide-react";
+import BookCard from "~/app/_components/books/BookCard";
 
 const MyBooksPage = () => {
   const [books, setBooks] = useState<BookWithDetails[]>([]);
@@ -181,37 +174,12 @@ const MyBooksPage = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         {filteredBooks.map((book) => (
-          <Card
+          <BookCard
             key={book.isbn}
-            className="bg-gray-800 text-gray-100 border-none shadow-lg flex flex-col h-full transition-all duration-300 ease-in-out hover:shadow-xl hover:bg-gray-700"
-          >
-            <Link href={`/books/${book.isbn}`} className="flex-grow">
-              <CardHeader className="p-4">
-                <img
-                  src={book.largeImageUrl || "/api/placeholder/120/180"}
-                  alt={book.title || "Book cover"}
-                  className="w-full h-48 object-cover rounded-t-lg"
-                />
-              </CardHeader>
-              <CardContent className="flex-grow p-4">
-                <CardTitle className="text-sm font-medium text-blue-300 line-clamp-2 mb-2">
-                  {book.title || "Unknown Title"}
-                </CardTitle>
-                <p className="text-xs text-gray-400 line-clamp-1">
-                  {book.author || "Unknown Author"}
-                </p>
-              </CardContent>
-            </Link>
-            <CardFooter className="p-4">
-              <BookStatusDropdown
-                currentStatus={book.status}
-                onStatusChange={(newStatus) =>
-                  handleStatusChange(book, newStatus)
-                }
-                isInMyBooks={true}
-              />
-            </CardFooter>
-          </Card>
+            book={book}
+            onStatusChange={handleStatusChange}
+            isInMyBooks={true}
+          />
         ))}
       </div>
       {filteredBooks.length === 0 && (
