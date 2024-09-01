@@ -11,6 +11,7 @@ import {
   ChevronUp,
   BookOpen,
   Search,
+  Settings,
 } from "lucide-react";
 import NextLink from "next/link";
 import LoginButton from "./login-button";
@@ -92,6 +93,12 @@ const Sidebar = () => {
               </Button>
             </NextLink> */}
             <SessionProvider>
+              <NextLink href="/settings" passHref>
+                <Button variant="ghost" className="w-full justify-start mb-2">
+                  <Settings className="mr-2" />
+                  Settings
+                </Button>
+              </NextLink>
               <LoginButton isOpen={isOpen} />
             </SessionProvider>
           </nav>
