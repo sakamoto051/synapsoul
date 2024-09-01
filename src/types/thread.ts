@@ -12,3 +12,14 @@ export interface ThreadType {
   content: string;
   comments: CommentWithRepliesAndLikes[];
 }
+
+export type CommentType = {
+  id: number;
+  content: string;
+  createdAt: Date;
+  updatedAt: Date;
+  threadId: number;
+  parentId: number | null;
+  replies: CommentType[];
+  likes: Like[];
+};

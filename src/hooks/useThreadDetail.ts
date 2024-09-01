@@ -1,8 +1,8 @@
 // src/hooks/useThreadDetail.ts
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { api } from "~/trpc/react";
 import { useToast } from "@/components/ui/use-toast";
-import type { ThreadType } from "~/types/thread";
+import type { ThreadType, CommentType } from "~/types/thread";
 
 export const useThreadDetail = (threadId: number) => {
   const [newComment, setNewComment] = useState("");
@@ -25,6 +25,7 @@ export const useThreadDetail = (threadId: number) => {
     try {
       await createCommentMutation.mutateAsync({
         threadId,
+        parentId, // ここにparentIdを追加
         content,
       });
       setNewComment("");
@@ -115,6 +116,35 @@ export const useThreadDetail = (threadId: number) => {
     }
   };
 
+  const structuredComments = useMemo(() => {
+    if (!thread?.comments) return [];
+
+    const commentMap = new Map<number, CommentType>();
+    const rootComments: CommentType[] = [];
+
+    // すべてのコメントをマップに追加
+    for (const comment of thread.comments) {
+      commentMap.set(comment.id, {
+        ...comment,
+        replies: [],
+      });
+    }
+
+    // 返信を適切な親コメントに追加
+    for (const comment of thread.comments) {
+      if (comment.parentId) {
+        const parentComment = commentMap.get(comment.parentId);
+        if (parentComment) {
+          parentComment.replies.push(commentMap.get(comment.id) as CommentType);
+        }
+      } else {
+        rootComments.push(commentMap.get(comment.id) as CommentType);
+      }
+    }
+
+    return rootComments;
+  }, [thread?.comments]);
+
   return {
     thread: thread as ThreadType | undefined,
     newComment,
@@ -125,5 +155,6 @@ export const useThreadDetail = (threadId: number) => {
     handleLikeComment,
     handleUnlikeComment,
     refetchThread,
+    structuredComments,
   };
 };

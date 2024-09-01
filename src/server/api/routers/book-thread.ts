@@ -51,10 +51,20 @@ export const bookThreadRouter = createTRPCRouter({
     }),
 
   createComment: publicProcedure
-    .input(z.object({ threadId: z.number(), content: z.string() }))
+    .input(
+      z.object({
+        threadId: z.number(),
+        parentId: z.number().nullable(), // parentIdを追加
+        content: z.string(),
+      }),
+    )
     .mutation(async ({ ctx, input }) => {
       return ctx.db.comment.create({
-        data: input,
+        data: {
+          content: input.content,
+          threadId: input.threadId,
+          parentId: input.parentId, // parentIdを設定
+        },
       });
     }),
 

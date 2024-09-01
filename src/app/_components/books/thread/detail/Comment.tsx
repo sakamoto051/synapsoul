@@ -33,8 +33,8 @@ export const Comment: React.FC<CommentProps> = ({
   onUnlike,
   currentUserId,
 }) => {
-  const [isReplying, setIsReplying] = useState(false);
   const [replyContent, setReplyContent] = useState("");
+  const [isReplying, setIsReplying] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editContent, setEditContent] = useState(comment.content);
   const [isExpanded, setIsExpanded] = useState(true);
@@ -49,9 +49,11 @@ export const Comment: React.FC<CommentProps> = ({
   };
 
   const handleReply = () => {
-    onReply(comment.id, replyContent);
-    setReplyContent("");
-    setIsReplying(false);
+    if (replyContent.trim()) {
+      onReply(comment.id, replyContent);
+      setReplyContent("");
+      setIsReplying(false);
+    }
   };
 
   return (
@@ -143,14 +145,14 @@ export const Comment: React.FC<CommentProps> = ({
           />
           <Button
             onClick={handleReply}
-            className="bg-indigo-600/70 hover:bg-indigo-700/70 text-gray-200 px-3 py-2"
+            className="bg-indigo-600/70 hover:bg-ind-700/70 text-gray-200 px-3 py-2"
           >
             <Send className="h-4 w-4 mr-2" />
             返信
           </Button>
         </div>
       )}
-      {isExpanded && comment.replies && (
+      {isExpanded && comment.replies && comment.replies.length > 0 && (
         <div className="mt-2 space-y-2 ml-4">
           {comment.replies.map((reply) => (
             <Comment

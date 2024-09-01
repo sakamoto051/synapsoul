@@ -22,9 +22,10 @@ const ThreadDetail: React.FC = () => {
     handleEditComment,
     handleLikeComment,
     handleUnlikeComment,
+    structuredComments,
   } = useThreadDetail(threadId);
 
-  if (!thread) return;
+  if (!thread) return <div>Loading...</div>;
 
   return (
     <div className="container mx-auto px-4 py-4 bg-gray-900 min-h-screen">
@@ -34,13 +35,11 @@ const ThreadDetail: React.FC = () => {
         </h1>
         <p className="mb-4 text-sm">{thread.content}</p>
         <div className="space-y-2 mt-4">
-          {thread.comments.map((comment) => (
+          {structuredComments.map((comment) => (
             <Comment
               key={comment.id}
               comment={comment}
-              onReply={(parentId, content) =>
-                handleCreateComment(parentId, content)
-              }
+              onReply={handleCreateComment}
               onDelete={handleDeleteComment}
               onEdit={handleEditComment}
               onLike={handleLikeComment}
