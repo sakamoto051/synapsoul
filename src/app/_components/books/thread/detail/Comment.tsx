@@ -4,6 +4,17 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
   MessageCircle,
   ThumbsUp,
   Edit2,
@@ -42,6 +53,7 @@ export const Comment: React.FC<CommentProps> = ({
   const isLiked = comment.likes.some((like) => like.userId === currentUserId);
   const { data: session } = useSession();
   const isCommentOwner = Number(session?.user?.id) === comment.userId;
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const handleLike = () => {
     if (isLiked) {
@@ -57,6 +69,15 @@ export const Comment: React.FC<CommentProps> = ({
       setReplyContent("");
       setIsReplying(false);
     }
+  };
+
+  const handleDeleteClick = () => {
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    onDelete(comment.id);
+    setIsDeleteDialogOpen(false);
   };
 
   return (
@@ -118,14 +139,35 @@ export const Comment: React.FC<CommentProps> = ({
           )
         )}
         {isCommentOwner && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onDelete(comment.id)}
-            className="text-red-400 hover:text-red-300 hover:bg-red-400/10 p-1"
+          <AlertDialog
+            open={isDeleteDialogOpen}
+            onOpenChange={setIsDeleteDialogOpen}
           >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleDeleteClick}
+                className="text-red-400 hover:text-red-300 hover:bg-red-400/10 p-1"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>コメントを削除しますか？</AlertDialogTitle>
+                <AlertDialogDescription>
+                  この操作は取り消せません。本当にこのコメントを削除しますか？
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDeleteConfirm}>
+                  削除
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         )}
         {comment.replies && (
           <Button
