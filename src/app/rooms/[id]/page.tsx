@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import { useRoomDetail } from "~/hooks/useRoomDetail";
 import { RoomInfo } from "~/app/_components/rooms/detail/RoomInfo";
 import { ChatArea } from "~/app/_components/rooms/detail/ChatArea";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const RoomDetailPage: React.FC = () => {
   const params = useParams();
