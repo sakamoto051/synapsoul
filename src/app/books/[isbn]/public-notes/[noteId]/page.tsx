@@ -44,7 +44,7 @@ const PublicNoteDetailPage = () => {
             />
           )}
           <p className="text-sm text-gray-400 mt-4">
-            作成者: {note.book.user.name}
+            作成者: {note.book.user.displayName}
           </p>
           <div className="mt-6">
             <Link href={`/books/${isbn}/public-notes`} passHref>

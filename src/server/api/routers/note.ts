@@ -212,6 +212,7 @@ export const noteRouter = createTRPCRouter({
               user: {
                 select: {
                   name: true,
+                  displayName: true,
                 },
               },
             },

@@ -24,7 +24,7 @@ const PublicNotes = () => {
             <CardContent>
               <p className="text-gray-300 line-clamp-3">{note.content}</p>
               <p className="text-sm text-gray-500 mt-2">
-                作成者: {note.book.user.name}
+                作成者: {note.book.user.displayName}
               </p>
             </CardContent>
           </Card>
