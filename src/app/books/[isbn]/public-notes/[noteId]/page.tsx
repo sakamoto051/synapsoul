@@ -1,7 +1,6 @@
 // src/app/books/[isbn]/public-notes/[noteId]/page.tsx
 "use client";
 import { useParams } from "next/navigation";
-import { api } from "~/trpc/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NoteContent } from "~/app/_components/books/notes/detail/NoteContent";
 import { AttachmentList } from "~/app/_components/books/notes/detail/AttachmentList";
@@ -9,17 +8,18 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Globe, Lock } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "~/components/ui/badge";
+import { useBookNoteDetail } from "~/hooks/useBookNoteDetail";
 
 const PublicNoteDetailPage = () => {
   const params = useParams();
   const noteId = Number(params.noteId);
   const isbn = params.isbn as string;
 
-  const { data: note, isLoading } = api.note.getPublicNoteById.useQuery({
-    id: noteId,
-  });
+  const { note, handleDownload, downloadingAttachmentId } = useBookNoteDetail(
+    isbn,
+    noteId,
+  );
 
-  if (isLoading) return <div>Loading...</div>;
   if (!note) return <div>Note not found</div>;
 
   return (
@@ -58,8 +58,8 @@ const PublicNoteDetailPage = () => {
           {note.attachments.length > 0 && (
             <AttachmentList
               attachments={note.attachments}
-              onDownload={() => {}} // 公開メモの添付ファイルはダウンロードできないようにします
-              downloadingAttachmentId={null}
+              onDownload={handleDownload}
+              downloadingAttachmentId={downloadingAttachmentId}
             />
           )}
           <p className="text-sm text-gray-400 mt-4">

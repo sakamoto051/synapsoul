@@ -36,8 +36,20 @@ export const noteRouter = createTRPCRouter({
     .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
       const note = await ctx.db.note.findUnique({
-        where: { id: input.id },
-        include: { book: true, attachments: true },
+        where: { id: input.id, isPublic: true },
+        include: {
+          book: {
+            include: {
+              user: {
+                select: {
+                  name: true,
+                  displayName: true,
+                },
+              },
+            },
+          },
+          attachments: true,
+        },
       });
       if (!note) {
         throw new TRPCError({ code: "NOT_FOUND", message: "Note not found" });

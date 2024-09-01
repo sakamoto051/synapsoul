@@ -3,12 +3,10 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { useToast } from "@/components/ui/use-toast";
-import type { Note, Attachment } from "@prisma/client";
+import type { NoteWithBook } from "~/types/note";
 
 export const useBookNoteDetail = (isbn: string, noteId: number) => {
-  const [note, setNote] = useState<
-    (Note & { attachments: Attachment[] }) | null
-  >(null);
+  const [note, setNote] = useState<NoteWithBook | null>(null);
   const [downloadingAttachmentId, setDownloadingAttachmentId] = useState<
     number | null
   >(null);
