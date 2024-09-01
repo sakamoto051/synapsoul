@@ -4,7 +4,6 @@ import React from "react";
 import { useParams } from "next/navigation";
 import { useBookDetail } from "~/hooks/useBookDetail";
 import { BookDetailCard } from "~/app/_components/books/detail/BookDetailCard";
-import BookThreadList from "~/app/_components/books/thread-list";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ChevronLeft, RefreshCw } from "lucide-react";
@@ -20,6 +19,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Card, CardContent } from "@/components/ui/card";
+import BookThreadList from "~/app/_components/books/thread/BookThreadList";
 
 const BookDetail = () => {
   const params = useParams();
