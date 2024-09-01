@@ -1,21 +1,14 @@
+// src/app/books/[isbn]/page.tsx
 "use client";
 import React from "react";
 import { useParams } from "next/navigation";
 import { useBookDetail } from "~/hooks/useBookDetail";
-import { BookDetailCard } from "~/app/_components/books/detail/BookDetailCard";
+import { BookInfo } from "~/app/_components/books/detail/BookInfo";
+import { BookActions } from "~/app/_components/books/detail/BookActions";
+import { ConfirmDialog } from "~/app/_components/books/detail/ConfirmDialog";
+import BookThreadList from "~/app/_components/books/thread/BookThreadList";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import BookThreadList from "~/app/_components/books/thread/BookThreadList";
 
 const BookDetail = () => {
   const params = useParams();
@@ -37,7 +30,8 @@ const BookDetail = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <BookDetailCard
+      <BookInfo book={book} />
+      <BookActions
         book={book}
         currentStatus={currentStatus}
         isInMyBooks={isInMyBooks}
@@ -53,22 +47,11 @@ const BookDetail = () => {
           戻る
         </Button>
       </div>
-      <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>本のステータスを解除しますか？</AlertDialogTitle>
-            <AlertDialogDescription>
-              本のステータスを解除すると、マイブックから削除されます。また、この本に関連するすべての読書メモも削除されます。この操作は取り消せません。
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>キャンセル</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmStatusChange}>
-              解除して削除する
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmDialog
+        isOpen={isConfirmOpen}
+        onClose={() => setIsConfirmOpen(false)}
+        onConfirm={confirmStatusChange}
+      />
     </div>
   );
 };
