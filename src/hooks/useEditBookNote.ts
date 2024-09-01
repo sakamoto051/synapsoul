@@ -1,9 +1,9 @@
 // src/hooks/useEditBookNote.ts
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
 import { useToast } from "@/components/ui/use-toast";
-import type { Note, Attachment } from "@prisma/client";
+import type { Attachment } from "@prisma/client";
 
 export const useEditBookNote = (isbn: string, noteId: number) => {
   const [title, setTitle] = useState("");
@@ -21,11 +21,7 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
   const { toast } = useToast();
   const utils = api.useContext();
 
-  const {
-    data: note,
-    error,
-    refetch,
-  } = api.note.getById.useQuery({ id: noteId });
+  const { data: note, refetch } = api.note.getById.useQuery({ id: noteId });
 
   const updateNoteMutation = api.note.update.useMutation({
     onSuccess: async () => {
@@ -137,7 +133,6 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
     setIsPublic,
     existingAttachments,
     newAttachments,
-    error,
     handleSubmit,
     handleDelete,
     handleFileChange,

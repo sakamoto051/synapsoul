@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useBookNotes } from "~/hooks/useBookNotes";
 import { NoteList } from "~/app/_components/books/notes/NoteList";
-import { ErrorState } from "~/app/_components/books/notes/ErrorState";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus, ChevronLeft } from "lucide-react";
@@ -13,11 +12,7 @@ import { Plus, ChevronLeft } from "lucide-react";
 const BookNotesList = () => {
   const params = useParams();
   const isbn = params.isbn as string;
-  const { book, error, handleRefetch } = useBookNotes(isbn);
-
-  if (error) {
-    return <ErrorState onRetry={handleRefetch} />;
-  }
+  const { book } = useBookNotes(isbn);
 
   return (
     <div className="container mx-auto px-4 py-8">

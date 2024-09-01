@@ -18,14 +18,8 @@ const NewBookNote: React.FC = () => {
     setContent,
     isPublic,
     setIsPublic,
-    error,
     handleSubmit,
   } = useCreateBookNote(isbn);
-
-
-  if (error) {
-    return <div>エラーが発生しました: {error.message}</div>;
-  }
 
   return (
     <div className="container mx-auto px-4 py-8">

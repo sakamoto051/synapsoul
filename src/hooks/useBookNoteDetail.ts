@@ -15,7 +15,7 @@ export const useBookNoteDetail = (isbn: string, noteId: number) => {
   const router = useRouter();
   const { toast } = useToast();
 
-  const { data, error } = api.note.getById.useQuery({
+  const { data } = api.note.getById.useQuery({
     id: noteId,
   });
   const downloadQuery = api.note.downloadAttachment.useQuery(
@@ -89,7 +89,6 @@ export const useBookNoteDetail = (isbn: string, noteId: number) => {
 
   return {
     note,
-    error,
     handleDownload,
     handleEdit,
     downloadQuery,

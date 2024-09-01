@@ -10,7 +10,7 @@ export const useRoomDetail = (roomId: number) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const { toast } = useToast();
 
-  const { data: room, error } = api.room.getById.useQuery({ id: roomId });
+  const { data: room } = api.room.getById.useQuery({ id: roomId });
 
   useEffect(() => {
     if (videoRef.current && stream) {
@@ -59,7 +59,6 @@ export const useRoomDetail = (roomId: number) => {
 
   return {
     room,
-    error,
     isSharing,
     stream,
     newMessage,

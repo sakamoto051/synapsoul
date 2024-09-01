@@ -10,7 +10,6 @@ const API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
 
 export const useBookDetail = (isbn: string) => {
   const [book, setBook] = useState<BookItem | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
   const updateStatusMutation = api.book.updateStatus.useMutation();
@@ -27,7 +26,6 @@ export const useBookDetail = (isbn: string) => {
   const fetchBookDetail = useCallback(async () => {
     if (!isbn) return;
 
-    setError(null);
     try {
       const response = await fetch(`${API_ENDPOINT}&isbn=${isbn}`);
       if (!response.ok) {
@@ -37,11 +35,9 @@ export const useBookDetail = (isbn: string) => {
       if (data.Items && data.Items.length > 0) {
         setBook(data.Items[0].Item);
       } else {
-        setError("書籍情報が見つかりませんでした。");
       }
     } catch (error) {
       console.error("Error fetching book details:", error);
-      setError("書籍情報の取得中にエラーが発生しました。");
     }
   }, [isbn]);
 
@@ -120,14 +116,12 @@ export const useBookDetail = (isbn: string) => {
   };
 
   const handleRetry = () => {
-    setError(null);
     refetchStatus();
     fetchBookDetail();
   };
 
   return {
     book,
-    error,
     currentStatus,
     isInMyBooks,
     isConfirmOpen,

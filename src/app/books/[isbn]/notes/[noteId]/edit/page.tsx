@@ -33,17 +33,12 @@ const EditNotePage: React.FC = () => {
     setIsPublic,
     existingAttachments,
     newAttachments,
-    error,
     handleSubmit,
     handleDelete,
     handleFileChange,
     removeNewAttachment,
     removeExistingAttachment,
   } = useEditBookNote(isbn, noteId);
-
-  if (error) {
-    return <div>エラーが発生しました: {error.message}</div>;
-  }
 
   return (
     <div className="container mx-auto px-4 py-8">

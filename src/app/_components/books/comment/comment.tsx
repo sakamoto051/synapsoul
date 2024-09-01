@@ -61,23 +61,23 @@ export const Comment: React.FC<CommentProps> = ({
     comment.likes.some((like) => like.userId === userId),
   );
 
-const handleLike = async () => {
-  try {
-    if (isLiked) {
-      await onUnlike(comment.id, userId);
-    } else {
-      await onLike(comment.id, userId);
+  const handleLike = async () => {
+    try {
+      if (isLiked) {
+        await onUnlike(comment.id, userId);
+      } else {
+        await onLike(comment.id, userId);
+      }
+      setIsLiked(!isLiked);
+    } catch (error) {
+      console.error("Error handling like:", error);
+      toast({
+        title: "エラー",
+        description: "いいねの処理中にエラーが発生しました。",
+        variant: "destructive",
+      });
     }
-    setIsLiked(!isLiked);
-  } catch (error) {
-    console.error("Error handling like:", error);
-    toast({
-      title: "エラー",
-      description: "いいねの処理中にエラーが発生しました。",
-      variant: "destructive",
-    });
-  }
-};
+  };
 
   const handleReply = async () => {
     if (!replyContent.trim()) return;

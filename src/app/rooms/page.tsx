@@ -11,13 +11,8 @@ const RoomListPage: React.FC = () => {
     selectedTags,
     setSelectedTags,
     filteredRooms,
-    error,
     handleCreateRoom,
   } = useRoomList();
-
-  if (error) {
-    return <div>Error loading rooms: {error.message}</div>;
-  }
 
   return (
     <div className="space-y-4">

@@ -13,7 +13,6 @@ const RoomDetailPage: React.FC = () => {
 
   const {
     room,
-    error,
     isSharing,
     newMessage,
     setNewMessage,
@@ -21,13 +20,6 @@ const RoomDetailPage: React.FC = () => {
     startScreenShare,
     handleSubmit,
   } = useRoomDetail(roomId);
-
-  if (error)
-    return (
-      <Alert variant="destructive">
-        <AlertDescription>{error.message}</AlertDescription>
-      </Alert>
-    );
 
   if (!room) return <div>Room not found</div>;
 

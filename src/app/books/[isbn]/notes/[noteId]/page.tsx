@@ -18,15 +18,10 @@ const ViewNotePage: React.FC = () => {
 
   const {
     note,
-    error,
     handleDownload,
     handleEdit,
     downloadingAttachmentId,
   } = useBookNoteDetail(isbn, noteId);
-
-  if (error) {
-    return <div>エラーが発生しました: {error.message}</div>;
-  }
 
   if (!note) {
     return <div>メモが見つかりません</div>;
