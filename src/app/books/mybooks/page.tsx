@@ -1,7 +1,6 @@
 "use client";
 import { useState, useEffect, useMemo } from "react";
 import { api } from "~/trpc/react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -10,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BookStatus } from "@prisma/client";
+import type { BookStatus } from "@prisma/client";
 import type { BookWithDetails } from "~/types/book";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
@@ -18,6 +17,8 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { RefreshCw } from "lucide-react";
 import BookCard from "~/app/_components/books/BookCard";
+import { bookStatusConfig, getStatusLabel } from "~/config/bookStatus";
+import { Card, CardContent, CardHeader } from '~/components/ui/card';
 
 const MyBooksPage = () => {
   const [books, setBooks] = useState<BookWithDetails[]>([]);
@@ -160,14 +161,11 @@ const MyBooksPage = () => {
           </SelectTrigger>
           <SelectContent className="bg-gray-800 text-gray-100 border-gray-700">
             <SelectItem value="ALL">すべて</SelectItem>
-            <SelectItem value={BookStatus.READING}>読んでいる本</SelectItem>
-            <SelectItem value={BookStatus.TO_READ}>積んでいる本</SelectItem>
-            <SelectItem value={BookStatus.INTERESTED}>気になる本</SelectItem>
-            <SelectItem value={BookStatus.FINISHED}>読み終わった本</SelectItem>
-            <SelectItem value={BookStatus.DNF}>読むのをやめた本</SelectItem>
-            <SelectItem value={BookStatus.REFERENCE}>参考書</SelectItem>
-            <SelectItem value={BookStatus.FAVORITE}>お気に入り</SelectItem>
-            <SelectItem value={BookStatus.REREADING}>再読中</SelectItem>
+            {Object.entries(bookStatusConfig).map(([status, config]) => (
+              <SelectItem key={status} value={status}>
+                {config.icon} {config.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>

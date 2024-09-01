@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BookText, Users, ShoppingCart } from "lucide-react";
 import type { BookItem } from "~/types/book";
-import { BookStatusDropdown } from "~/app/_components/books/book-status-dropdown";
+import { BookStatusDropdown } from "~/app/_components/books/BookStatusDropDown";
 import type { BookStatus } from "@prisma/client";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react";

@@ -118,7 +118,7 @@ export const Comment: React.FC<CommentProps> = ({
         >
           <Trash2 className="h-4 w-4" />
         </Button>
-        {comment.replies.length > 0 && (
+        {comment.replies && (
           <Button
             variant="ghost"
             size="sm"
@@ -150,7 +150,7 @@ export const Comment: React.FC<CommentProps> = ({
           </Button>
         </div>
       )}
-      {isExpanded && comment.replies.length > 0 && (
+      {isExpanded && comment.replies && (
         <div className="mt-2 space-y-2 ml-4">
           {comment.replies.map((reply) => (
             <Comment

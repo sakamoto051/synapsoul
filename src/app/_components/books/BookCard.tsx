@@ -7,7 +7,7 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { BookStatusDropdown } from "~/app/_components/books/book-status-dropdown";
+import { BookStatusDropdown } from "~/app/_components/books/BookStatusDropDown";
 import type { BookWithDetails } from "~/types/book";
 import type { BookStatus } from "@prisma/client";
 

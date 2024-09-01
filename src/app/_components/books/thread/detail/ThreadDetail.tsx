@@ -1,4 +1,5 @@
 // src/components/ThreadDetail.tsx
+"use client";
 import type React from "react";
 import { useParams } from "next/navigation";
 import { useThreadDetail } from "~/hooks/useThreadDetail";
