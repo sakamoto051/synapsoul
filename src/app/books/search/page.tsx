@@ -1,10 +1,10 @@
+// src/app/books/search/page.tsx
 "use client";
 import type React from "react";
 import { useBookSearch } from "~/hooks/useBookSearch";
 import { BookSearchForm } from "~/app/_components/books/search/BookSearchForm";
+import { BookSearchResults } from "~/app/_components/books/search/BookSearchResults";
 import { Pagination } from "~/app/_components/books/search/Pagination";
-import type { BookItem, BookWithDetails } from "~/types/book";
-import BookCard from "~/app/_components/books/BookCard";
 
 const BookSearchPage: React.FC = () => {
   const {
@@ -29,17 +29,7 @@ const BookSearchPage: React.FC = () => {
         onAuthorInputChange={setAuthorInput}
         onSubmit={handleSearch}
       />
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-        {books.map((book: BookItem) => (
-          <BookCard
-            key={book.isbn}
-            book={book as BookWithDetails}
-            onStatusChange={() => ({})}
-            isInMyBooks={false}
-            showStatus={false}
-          />
-        ))}
-      </div>
+      <BookSearchResults books={books} />
       <Pagination
         currentPage={currentPage}
         totalPages={totalPages}
