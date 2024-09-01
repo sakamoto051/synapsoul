@@ -18,28 +18,11 @@ const ViewNotePage: React.FC = () => {
 
   const {
     note,
-    isLoading,
     error,
     handleDownload,
     handleEdit,
-    downloadQuery,
     downloadingAttachmentId,
   } = useBookNoteDetail(isbn, noteId);
-
-  if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <Card className="w-full max-w-3xl mx-auto bg-gray-800 text-gray-100 shadow-lg border-none">
-          <CardContent className="p-6">
-            <Skeleton className="h-8 w-3/4 mb-4" />
-            <Skeleton className="h-4 w-full mb-2" />
-            <Skeleton className="h-4 w-full mb-2" />
-            <Skeleton className="h-4 w-2/3" />
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
 
   if (error) {
     return <div>エラーが発生しました: {error.message}</div>;

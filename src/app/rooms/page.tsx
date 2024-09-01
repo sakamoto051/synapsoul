@@ -11,14 +11,9 @@ const RoomListPage: React.FC = () => {
     selectedTags,
     setSelectedTags,
     filteredRooms,
-    isLoading,
     error,
     handleCreateRoom,
   } = useRoomList();
-
-  if (isLoading) {
-    return <div>Loading rooms...</div>;
-  }
 
   if (error) {
     return <div>Error loading rooms: {error.message}</div>;

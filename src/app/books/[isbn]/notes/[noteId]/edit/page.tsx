@@ -33,7 +33,6 @@ const EditNotePage: React.FC = () => {
     setIsPublic,
     existingAttachments,
     newAttachments,
-    isLoading,
     error,
     handleSubmit,
     handleDelete,
@@ -41,14 +40,6 @@ const EditNotePage: React.FC = () => {
     removeNewAttachment,
     removeExistingAttachment,
   } = useEditBookNote(isbn, noteId);
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
 
   if (error) {
     return <div>エラーが発生しました: {error.message}</div>;

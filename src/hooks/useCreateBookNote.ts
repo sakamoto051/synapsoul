@@ -13,11 +13,7 @@ export const useCreateBookNote = (isbn: string) => {
   const { toast } = useToast();
 
   const utils = api.useContext();
-  const {
-    data: book,
-    isLoading,
-    error,
-  } = api.book.getByIsbn.useQuery({ isbn });
+  const { data: book, error } = api.book.getByIsbn.useQuery({ isbn });
   const createNoteMutation = api.note.create.useMutation({
     onSuccess: () => {
       utils.book.getByIsbn.invalidate({ isbn });
@@ -63,7 +59,6 @@ export const useCreateBookNote = (isbn: string) => {
     setContent,
     isPublic,
     setIsPublic,
-    isLoading,
     error,
     handleSubmit,
   };

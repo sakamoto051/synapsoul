@@ -24,7 +24,7 @@ const ThreadDetail: React.FC = () => {
     handleUnlikeComment,
   } = useThreadDetail(threadId);
 
-  if (!thread) return <div>Loading...</div>;
+  if (!thread) return;
 
   return (
     <div className="container mx-auto px-4 py-4 bg-gray-900 min-h-screen">

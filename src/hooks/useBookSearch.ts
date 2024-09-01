@@ -13,7 +13,6 @@ export const useBookSearch = () => {
   const [authorInput, setAuthorInput] = useState(
     searchParams.get("author") || "",
   );
-  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(
     Number(searchParams.get("page")) || 1,
   );
@@ -33,7 +32,6 @@ export const useBookSearch = () => {
 
   const fetchBooks = useCallback(
     async (page: number, title: string, author: string) => {
-      setLoading(true);
       try {
         let apiUrl = `${BASE_API_ENDPOINT}&page=${page}`;
         if (title) apiUrl += `&title=${encodeURIComponent(title)}`;
@@ -47,8 +45,8 @@ export const useBookSearch = () => {
         updateUrlParams(title, author, page);
       } catch (error) {
         console.error("Error fetching books:", error);
-      } finally {
-        setLoading(false);
+        // エラーハンドリングをここで行うこともできます
+        // 例: toast.error("書籍の取得中にエラーが発生しました");
       }
     },
     [updateUrlParams],
@@ -75,7 +73,6 @@ export const useBookSearch = () => {
     setSearchTerm,
     authorInput,
     setAuthorInput,
-    loading,
     currentPage,
     totalPages,
     totalCount,

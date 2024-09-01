@@ -1,6 +1,5 @@
 "use client";
 
-import type React from "react";
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { BookItem, BookItemWrapper } from "~/types/book";
@@ -19,7 +18,6 @@ const BookList: React.FC = () => {
   const [authorInput, setAuthorInput] = useState(
     searchParams.get("author") || "",
   );
-  const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(
     Number(searchParams.get("page")) || 1,
   );
@@ -39,7 +37,6 @@ const BookList: React.FC = () => {
 
   const fetchBooks = useCallback(
     async (page: number, title: string, author: string) => {
-      setLoading(true);
       try {
         let apiUrl = `${BASE_API_ENDPOINT}&page=${page}`;
         if (title) apiUrl += `&title=${encodeURIComponent(title)}`;
@@ -53,8 +50,6 @@ const BookList: React.FC = () => {
         updateUrlParams(title, author, page);
       } catch (error) {
         console.error("Error fetching books:", error);
-      } finally {
-        setLoading(false);
       }
     },
     [updateUrlParams],
@@ -96,53 +91,49 @@ const BookList: React.FC = () => {
           検索
         </Button>
       </form>
-      {loading ? (
-        <div className="text-center">Loading books...</div>
-      ) : (
-        <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {books.map((book: BookItem) => (
-              <Link
-                key={book.isbn}
-                href={`/books/${book.isbn}?title=${encodeURIComponent(searchTerm)}&author=${encodeURIComponent(authorInput)}&page=${currentPage}`}
-                className="flex flex-col items-center p-2 rounded-md bg-gray-800 transition-colors hover:bg-gray-700"
-              >
-                <img
-                  src={book.largeImageUrl}
-                  alt={book.title}
-                  className="w-full h-auto mb-2 rounded-md"
-                />
-                <h3 className="text-sm font-semibold text-center truncate w-full">
-                  {book.title}
-                </h3>
-                <p className="text-xs text-gray-400 text-center truncate w-full">
-                  {book.author}
-                </p>
-              </Link>
-            ))}
-          </div>
-          <div className="mt-4 flex justify-center items-center gap-2">
-            <Button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="bg-gray-700 hover:bg-gray-600"
-            >
-              Previous
-            </Button>
-            <span>{`Page ${currentPage} of ${totalPages}`}</span>
-            <Button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="bg-gray-700 hover:bg-gray-600"
-            >
-              Next
-            </Button>
-          </div>
-          <div className="mt-2 text-center">
-            {`Total results: ${totalCount}`}
-          </div>
-        </>
-      )}
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        {books.map((book: BookItem) => (
+          <Link
+            key={book.isbn}
+            href={`/books/${book.isbn}?title=${encodeURIComponent(searchTerm)}&author=${encodeURIComponent(authorInput)}&page=${currentPage}`}
+            className="block"
+          >
+            <div className="flex flex-col items-center p-2 rounded-md bg-gray-800 transition-colors hover:bg-gray-700">
+              <img
+                src={book.largeImageUrl}
+                alt={book.title}
+                className="w-full h-auto mb-2 rounded-md"
+              />
+              <h3 className="text-sm font-semibold text-center truncate w-full">
+                {book.title}
+              </h3>
+              <p className="text-xs text-gray-400 text-center truncate w-full">
+                {book.author}
+              </p>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      <div className="mt-4 flex justify-center items-center gap-2">
+        <Button
+          onClick={() => handlePageChange(currentPage - 1)}
+          disabled={currentPage === 1}
+          className="bg-gray-700 hover:bg-gray-600"
+        >
+          Previous
+        </Button>
+        <span>{`Page ${currentPage} of ${totalPages}`}</span>
+        <Button
+          onClick={() => handlePageChange(currentPage + 1)}
+          disabled={currentPage === totalPages}
+          className="bg-gray-700 hover:bg-gray-600"
+        >
+          Next
+        </Button>
+      </div>
+      <div className="mt-2 text-center">{`Total results: ${totalCount}`}</div>
     </div>
   );
 };

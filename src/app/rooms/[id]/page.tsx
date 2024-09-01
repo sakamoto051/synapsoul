@@ -13,18 +13,14 @@ const RoomDetailPage: React.FC = () => {
 
   const {
     room,
-    isLoading,
     error,
     isSharing,
-    stream,
     newMessage,
     setNewMessage,
     videoRef,
     startScreenShare,
     handleSubmit,
   } = useRoomDetail(roomId);
-
-  if (isLoading) return <div>Loading...</div>;
 
   if (error)
     return (

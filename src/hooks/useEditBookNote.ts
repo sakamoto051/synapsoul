@@ -23,7 +23,6 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
 
   const {
     data: note,
-    isLoading,
     error,
     refetch,
   } = api.note.getById.useQuery({ id: noteId });
@@ -138,7 +137,6 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
     setIsPublic,
     existingAttachments,
     newAttachments,
-    isLoading,
     error,
     handleSubmit,
     handleDelete,

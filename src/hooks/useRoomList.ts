@@ -38,7 +38,6 @@ export const useRoomList = () => {
     selectedTags,
     setSelectedTags,
     filteredRooms,
-    isLoading: roomsQuery.isLoading,
     error: roomsQuery.error,
     handleCreateRoom,
   };

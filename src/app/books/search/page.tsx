@@ -1,4 +1,3 @@
-// src/app/books/search/page.tsx
 "use client";
 import type React from "react";
 import { useBookSearch } from "~/hooks/useBookSearch";
@@ -14,7 +13,6 @@ const BookSearchPage: React.FC = () => {
     setSearchTerm,
     authorInput,
     setAuthorInput,
-    loading,
     currentPage,
     totalPages,
     totalCount,
@@ -31,31 +29,23 @@ const BookSearchPage: React.FC = () => {
         onAuthorInputChange={setAuthorInput}
         onSubmit={handleSearch}
       />
-      {loading ? (
-        <div className="text-center">Loading books...</div>
-      ) : (
-        <>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-            {books.map((book: BookItem) => (
-              <BookCard
-                key={book.isbn}
-                book={book as BookWithDetails} // 型を合わせるために一時的な型変換を行っています
-                onStatusChange={() => ({})}
-                isInMyBooks={false}
-                showStatus={false}
-              />
-            ))}
-          </div>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+        {books.map((book: BookItem) => (
+          <BookCard
+            key={book.isbn}
+            book={book as BookWithDetails}
+            onStatusChange={() => ({})}
+            isInMyBooks={false}
+            showStatus={false}
           />
-          <div className="mt-2 text-center">
-            {`Total results: ${totalCount}`}
-          </div>
-        </>
-      )}
+        ))}
+      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
+      <div className="mt-2 text-center">{`Total results: ${totalCount}`}</div>
     </div>
   );
 };
