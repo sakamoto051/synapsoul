@@ -2,6 +2,7 @@
 import type React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { BookItem } from "~/types/book";
+import Image from 'next/image';
 
 interface BookInfoProps {
   book: BookItem;
@@ -16,10 +17,12 @@ export const BookInfo: React.FC<BookInfoProps> = ({ book }) => (
     </CardHeader>
     <CardContent>
       <div className="flex flex-col md:flex-row gap-6">
-        <img
-          src={book.largeImageUrl}
-          alt={book.title}
-          className="w-48 h-auto object-cover rounded-md shadow-md"
+        <Image
+          src={book.largeImageUrl || ""}
+          alt={book.title || "Book cover"}
+          width={200}
+          height={200}
+          className="object-cover rounded-md shadow-md"
         />
         <div className="flex-1">
           <p>

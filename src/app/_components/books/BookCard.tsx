@@ -31,8 +31,8 @@ const BookCard: React.FC<BookCardProps> = ({
           <Image
             src={book.largeImageUrl || "/api/placeholder/120/180"}
             alt={book.title || "Book cover"}
-            width={120}
-            height={180}
+            width={200}
+            height={200}
             className="w-full h-48 object-cover rounded-t-lg"
           />
         </CardHeader>
