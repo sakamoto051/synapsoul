@@ -1,5 +1,5 @@
-// src/components/BookCard.tsx
-import type React from "react";
+"use client";
+import Image from "next/image";
 import Link from "next/link";
 import {
   Card,
@@ -28,9 +28,11 @@ const BookCard: React.FC<BookCardProps> = ({
     <Card className="bg-gray-800 text-gray-100 border-none shadow-lg flex flex-col h-full transition-all duration-300 ease-in-out hover:shadow-xl hover:bg-gray-700">
       <Link href={`/books/${book.isbn}`} className="flex-grow">
         <CardHeader className="p-4">
-          <img
+          <Image
             src={book.largeImageUrl || "/api/placeholder/120/180"}
             alt={book.title || "Book cover"}
+            width={120}
+            height={180}
             className="w-full h-48 object-cover rounded-t-lg"
           />
         </CardHeader>
