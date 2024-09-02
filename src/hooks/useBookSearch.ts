@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import type { BookItem, BookItemWrapper } from "~/types/book";
+import type { BookItem, BookItemWrapper, BookResponse } from "~/types/book";
 
 const BASE_API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
 
@@ -9,12 +9,12 @@ export const useBookSearch = () => {
   const searchParams = useSearchParams();
 
   const [books, setBooks] = useState<BookItem[]>([]);
-  const [searchTerm, setSearchTerm] = useState(searchParams.get("title") || "");
+  const [searchTerm, setSearchTerm] = useState(searchParams.get("title") ?? "");
   const [authorInput, setAuthorInput] = useState(
-    searchParams.get("author") || "",
+    searchParams.get("author") ?? "",
   );
   const [currentPage, setCurrentPage] = useState(
-    Number(searchParams.get("page")) || 1,
+    Number(searchParams.get("page") ?? 1),
   );
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
@@ -36,15 +36,21 @@ export const useBookSearch = () => {
         let apiUrl = `${BASE_API_ENDPOINT}&page=${page}`;
         if (title) apiUrl += `&title=${encodeURIComponent(title)}`;
         if (author) apiUrl += `&author=${encodeURIComponent(author)}`;
+
         const response = await fetch(apiUrl);
-        const data = await response.json();
+        const data: BookResponse = (await response.json()) as BookResponse;
+
         setBooks(data.Items.map((item: BookItemWrapper) => item.Item));
-        setTotalPages(data.pageCount);
-        setTotalCount(data.count);
+        setTotalPages(data.pageCount || 1);
+        setTotalCount(data.count || 0);
         setCurrentPage(page);
         updateUrlParams(title, author, page);
       } catch (error) {
         console.error("Error fetching books:", error);
+        setBooks([]);
+        setTotalPages(1);
+        setTotalCount(0);
+
         // エラーハンドリングをここで行うこともできます
         // 例: toast.error("書籍の取得中にエラーが発生しました");
       }

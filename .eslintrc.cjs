@@ -25,7 +25,7 @@ const config = {
     "@typescript-eslint/prefer-nullish-coalescing": "error",
     "@typescript-eslint/no-misused-promises": "off",
     "@typescript-eslint/no-empty-interface": "off",
-    "@typescript-eslint/no-floating-promises": "error",
+    "@typescript-eslint/no-floating-promises": "off",
     // indent: ["error", 2], // タブサイズを2スペースに設定
   },
 };

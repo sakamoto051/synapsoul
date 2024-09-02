@@ -5,7 +5,7 @@ import {
   type NextAuthOptions,
 } from "next-auth";
 import type { Adapter } from "next-auth/adapters";
-import DiscordProvider from "next-auth/providers/discord";
+// import DiscordProvider from "next-auth/providers/discord";
 import GoogleProvider from "next-auth/providers/google";
 
 import { env } from "~/env";
@@ -58,7 +58,12 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,
       clientSecret: env.GOOGLE_CLIENT_SECRET,
-      profile(profile) {
+      profile: (profile: {
+        sub: string;
+        name: string;
+        email: string;
+        picture: string;
+      }) => {
         return {
           id: profile.sub,
           name: profile.name,

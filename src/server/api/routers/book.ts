@@ -83,7 +83,7 @@ async function fetchBookInfo(isbn: string): Promise<BookWithDetails | null> {
       }
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    const data: BookResponse = await response.json();
+    const data = (await response.json()) as BookResponse;
     if (data.Items && data.Items.length > 0 && data.Items[0]) {
       const bookInfo: BookWithDetails = {
         id: 0, // Add the 'id' property
@@ -127,7 +127,7 @@ export const bookRouter = createTRPCRouter({
         select: { status: true },
       });
 
-      return book?.status || null;
+      return book?.status ?? null;
     }),
 
   updateStatus: protectedProcedure

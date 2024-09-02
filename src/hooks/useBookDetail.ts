@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { api } from "~/trpc/react";
-import type { BookItem } from "~/types/book";
+import type { BookItem, BookResponse } from "~/types/book";
 import type { BookStatus } from "@prisma/client";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -31,9 +31,12 @@ export const useBookDetail = (isbn: string) => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json();
+      const data = await response.json() as BookResponse;
       if (data.Items && data.Items.length > 0) {
-        setBook(data.Items[0].Item);
+        const item = data.Items[0]?.Item;
+        if (item) {
+          setBook(item);
+        }
       } else {
       }
     } catch (error) {
@@ -42,7 +45,7 @@ export const useBookDetail = (isbn: string) => {
   }, [isbn]);
 
   useEffect(() => {
-    fetchBookDetail();
+    void fetchBookDetail();
   }, [fetchBookDetail]);
 
   useEffect(() => {
@@ -53,9 +56,9 @@ export const useBookDetail = (isbn: string) => {
   }, [initialStatus]);
 
   const handleBack = () => {
-    const title = searchParams.get("title") || "";
-    const author = searchParams.get("author") || "";
-    const page = searchParams.get("page") || "1";
+    const title = searchParams.get("title") ?? "";
+    const author = searchParams.get("author") ?? "";
+    const page = searchParams.get("page") ?? "1";
 
     const searchConditions = new URLSearchParams();
     if (title) searchConditions.append("title", title);
@@ -110,14 +113,14 @@ export const useBookDetail = (isbn: string) => {
     }
   };
 
-  const confirmStatusChange = () => {
+  const confirmStatusChange = async () => {
     setIsConfirmOpen(false);
-    updateBookStatus(pendingStatus);
+    await updateBookStatus(pendingStatus);
   };
 
-  const handleRetry = () => {
-    refetchStatus();
-    fetchBookDetail();
+  const handleRetry = async () => {
+    await refetchStatus();
+    await fetchBookDetail();
   };
 
   return {

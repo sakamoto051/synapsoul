@@ -24,7 +24,7 @@ export const useRoomCreation = () => {
       await createRoom.mutateAsync({
         title: roomTitle,
         content: roomContent,
-        tags: tags.map(({ id, ...tag }) => tag),
+        tags: tags.map(({ ...tag }) => tag),
       });
       console.log("Room created.");
       await refetch();

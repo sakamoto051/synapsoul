@@ -93,7 +93,7 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
     if (e.target.files) {
       setNewAttachments((prev) => [
         ...prev,
-        ...Array.from(e.target.files || []),
+        ...Array.from(e.target.files ?? []),
       ]);
     }
   };

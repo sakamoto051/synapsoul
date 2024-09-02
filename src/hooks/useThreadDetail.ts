@@ -135,10 +135,16 @@ export const useThreadDetail = (threadId: number) => {
       if (comment.parentId) {
         const parentComment = commentMap.get(comment.parentId);
         if (parentComment) {
-          parentComment.replies.push(commentMap.get(comment.id) as CommentType);
+          const replyComment = commentMap.get(comment.id);
+          if (replyComment) {
+            parentComment.replies.push(replyComment);
+          }
         }
       } else {
-        rootComments.push(commentMap.get(comment.id) as CommentType);
+        const rootComment = commentMap.get(comment.id);
+        if (rootComment) {
+          rootComments.push(rootComment);
+        }
       }
     }
 
