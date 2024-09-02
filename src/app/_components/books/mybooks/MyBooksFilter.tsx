@@ -13,14 +13,12 @@ import { bookStatusConfig } from "~/config/bookStatus";
 
 interface MyBooksFilterProps {
   searchTerm: string;
-  statusFilter: BookStatus | "ALL";
   onSearchTermChange: (value: string) => void;
   onStatusFilterChange: (value: BookStatus | "ALL") => void;
 }
 
 export const MyBooksFilter: React.FC<MyBooksFilterProps> = ({
   searchTerm,
-  statusFilter,
   onSearchTermChange,
   onStatusFilterChange,
 }) => (

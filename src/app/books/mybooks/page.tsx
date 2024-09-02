@@ -9,7 +9,6 @@ const MyBooksPage = () => {
     books,
     searchTerm,
     setSearchTerm,
-    statusFilter,
     setStatusFilter,
     handleStatusChange,
   } = useMyBooks();
@@ -19,7 +18,6 @@ const MyBooksPage = () => {
       <h1 className="text-2xl font-bold mb-4 text-blue-300">マイブックス</h1>
       <MyBooksFilter
         searchTerm={searchTerm}
-        statusFilter={statusFilter}
         onSearchTermChange={setSearchTerm}
         onStatusFilterChange={setStatusFilter}
       />

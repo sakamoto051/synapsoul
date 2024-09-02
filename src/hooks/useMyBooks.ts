@@ -64,7 +64,6 @@ export const useMyBooks = () => {
     books: filteredBooks,
     searchTerm,
     setSearchTerm,
-    statusFilter,
     setStatusFilter,
     handleStatusChange,
   };
