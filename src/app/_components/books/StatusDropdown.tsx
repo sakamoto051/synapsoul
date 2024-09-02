@@ -1,4 +1,3 @@
-// src/components/StatusDropdown.tsx
 import type React from "react";
 import { ChevronDown, HelpCircle, X } from "lucide-react";
 import {
@@ -10,13 +9,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
-export interface StatusConfig<T extends string> {
-  [key: string]: {
+export type StatusConfig<T extends string> = Record<
+  T,
+  {
     label: string;
     color: string;
     icon: React.ReactNode;
-  };
-}
+  }
+>;
 
 interface StatusDropdownProps<T extends string> {
   currentStatus: T | null;
@@ -58,14 +58,14 @@ export function StatusDropdown<T extends string>({
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-full min-w-[200px]">
-        {Object.entries(statusConfig).map(([status, config]) => (
+        {(Object.keys(statusConfig) as T[]).map((status) => (
           <DropdownMenuItem
             key={status}
-            onClick={() => onStatusChange(status as T)}
-            className={`${config.color} text-white hover:${config.color}/80 flex items-center`}
+            onClick={() => onStatusChange(status)}
+            className={`${statusConfig[status].color} text-white hover:${statusConfig[status].color}/80 flex items-center`}
           >
-            <span className="mr-2">{config.icon}</span>
-            <span>{config.label}</span>
+            <span className="mr-2">{statusConfig[status].icon}</span>
+            <span>{statusConfig[status].label}</span>
           </DropdownMenuItem>
         ))}
         {allowNull && (
