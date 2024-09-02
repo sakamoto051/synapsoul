@@ -5,12 +5,20 @@ import { LogIn, LogOut } from "lucide-react";
 
 const LoginButton = ({ isOpen }: { isOpen: boolean }) => {
   const { data: session } = useSession();
-  const handleSignIn = () => {
-    signIn("google", { callbackUrl: "/" });
+  const handleSignIn = async () => {
+    try {
+      await signIn("google", { callbackUrl: "/" });
+    } catch (error) {
+      throw new Error("Sign in failed");
+    }
   };
 
-  const handleSignOut = () => {
-    signOut({ callbackUrl: "/" });
+  const handleSignOut = async () => {
+    try {
+      await signOut({ callbackUrl: "/" });
+    } catch (error) {
+      throw new Error("Sign out failed");
+    }
   };
 
   return (
