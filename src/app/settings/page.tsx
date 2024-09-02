@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, Bell, Shield } from "lucide-react";
+import { User } from "lucide-react";
 
 const SettingsPage = () => {
   return (

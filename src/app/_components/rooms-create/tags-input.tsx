@@ -39,19 +39,21 @@ const TagInput = ({
           ...tag,
           id: (tag.id || crypto.randomUUID()).toString(),
         }));
-      return filteredTags || [];
+      return filteredTags ?? [];
     },
     [tagsQuery.data],
   );
 
   useEffect(() => {
-    const delayDebounceFn = setTimeout(async () => {
-      if (inputValue) {
-        const fetchedTags = await fetchTags(inputValue);
-        setSuggestions(fetchedTags);
-      } else {
-        setSuggestions([]);
-      }
+    const delayDebounceFn = setTimeout(() => {
+      void (async () => {
+        if (inputValue) {
+          const fetchedTags = await fetchTags(inputValue);
+          setSuggestions(fetchedTags);
+        } else {
+          setSuggestions([]);
+        }
+      })();
     }, 300);
 
     return () => clearTimeout(delayDebounceFn);

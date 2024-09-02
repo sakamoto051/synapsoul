@@ -36,7 +36,7 @@ export const noteRouter = createTRPCRouter({
     .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
       const note = await ctx.db.note.findUnique({
-        where: { id: input.id, isPublic: true },
+        where: { id: input.id },
         include: {
           book: {
             include: {
@@ -244,11 +244,11 @@ export const noteRouter = createTRPCRouter({
 export const fileRouter = createTRPCRouter({
   upload: protectedProcedure
     .input(z.object({ file: z.any() }))
-    .mutation(async ({ ctx, input }) => {
+    .mutation(async ({ input }) => {
       // This is a placeholder for file upload logic
       // In a real application, you would handle file upload to a storage service here
       // and return the URL of the uploaded file
-      const fileUrl = `https://example.com/uploads/${input.file.filename}`;
+      const fileUrl = `https://example.com/uploads/${(input.file as { filename: string }).filename}`;
       return { url: fileUrl };
     }),
 });

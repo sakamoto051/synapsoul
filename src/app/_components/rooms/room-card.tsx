@@ -1,5 +1,4 @@
 import React from "react";
-import { User } from "lucide-react";
 import type { Room, Tag } from "@prisma/client";
 import { formatDateInJST } from "~/utils/date";
 import {
@@ -9,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
 import { Badge } from "~/components/ui/badge";
 import Link from "next/link";
 

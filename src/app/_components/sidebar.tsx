@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import {
   ChevronLeft,
   ChevronRight,
-  Home,
+  // Home,
   LibraryBig,
-  Link,
+  // Link,
   ChevronDown,
   ChevronUp,
   BookOpen,

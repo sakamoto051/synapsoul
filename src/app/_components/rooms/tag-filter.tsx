@@ -1,12 +1,11 @@
 import type { Tag } from "@prisma/client";
 import { DialogDescription, DialogTitle } from "@radix-ui/react-dialog";
-import React, { type Dispatch, type SetStateAction, useState } from "react";
+import React, { type Dispatch, type SetStateAction } from "react";
 import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTrigger,
 } from "~/components/ui/dialog";

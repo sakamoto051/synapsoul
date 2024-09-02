@@ -8,7 +8,6 @@ import { AttachmentList } from "~/app/_components/books/notes/detail/AttachmentL
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit } from "lucide-react";
-import { Skeleton } from "~/components/ui/skeleton";
 
 const ViewNotePage: React.FC = () => {
   const router = useRouter();

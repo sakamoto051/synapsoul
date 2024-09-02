@@ -54,5 +54,5 @@ export const getStatusColor = (status: BookStatus): string => {
 };
 
 export const getStatusIcon = (status: BookStatus): React.ReactNode => {
-  return bookStatusConfig[status]?.icon || "❓";
+  return bookStatusConfig[status]?.icon ?? "❓";
 };
