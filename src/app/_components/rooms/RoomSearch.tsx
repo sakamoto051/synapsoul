@@ -30,12 +30,7 @@ export const RoomSearch: React.FC<RoomSearchProps> = ({
       className="bg-gray-700 border-none w-full sm:w-auto"
       aria-label="Search rooms"
     />
-    <TagFilter
-      selectedTags={selectedTags}
-      setSelectedTags={
-        onTagsChange as React.Dispatch<React.SetStateAction<Tag[]>>
-      }
-    />
+    <TagFilter selectedTags={selectedTags} setSelectedTags={onTagsChange} />
     <Button
       onClick={onCreateRoom}
       type="button"
