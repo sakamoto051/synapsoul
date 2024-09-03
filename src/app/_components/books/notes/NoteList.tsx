@@ -2,9 +2,8 @@
 import type React from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "~/components/ui/badge";
-import { Globe, Lock } from "lucide-react";
 import type { Note } from "@prisma/client";
+import { PublicBadge } from "./PublicBadge";
 
 interface NoteListProps {
   notes: Note[];
@@ -21,22 +20,7 @@ export const NoteList: React.FC<NoteListProps> = ({ notes, isbn }) => (
               <h3 className="text-lg font-semibold text-blue-200">
                 {note.title}
               </h3>
-              <Badge
-                variant={note.isPublic ? "default" : "secondary"}
-                className="ml-2"
-              >
-                {note.isPublic ? (
-                  <>
-                    <Globe className="w-3 h-3 mr-1" />
-                    公開
-                  </>
-                ) : (
-                  <>
-                    <Lock className="w-3 h-3 mr-1" />
-                    非公開
-                  </>
-                )}
-              </Badge>
+              <PublicBadge isPublic={note.isPublic} />
             </div>
             <p className="text-gray-300 text-sm mt-2">
               作成日: {new Date(note.createdAt).toLocaleDateString()}
