@@ -1,7 +1,7 @@
 import "~/styles/globals.css";
 import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
-
+import { Analytics } from "@vercel/analytics/react";
 import { TRPCReactProvider } from "~/trpc/react";
 import Sidebar from "./_components/sidebar";
 
@@ -51,6 +51,7 @@ export default function RootLayout({
             <main className="flex-grow p-6 bg-gray-900">{children}</main>
           </div>
         </TRPCReactProvider>
+        <Analytics />
       </body>
     </html>
   );
