@@ -13,13 +13,11 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
     [],
   );
   const [newAttachments, setNewAttachments] = useState<File[]>([]);
-  const [removedAttachmentIds, setRemovedAttachmentIds] = useState<number[]>(
-    [],
-  );
 
   const router = useRouter();
   const { toast } = useToast();
   const utils = api.useContext();
+  const [attachmentsToDelete, setAttachmentsToDelete] = useState<number[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
   const { data: note, refetch } = api.note.getById.useQuery({ id: noteId });
@@ -93,12 +91,12 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
     setIsLoading(true);
 
     try {
-      // 削除されたファイルの処理
+      // 削除予定の添付ファイルを処理
       await Promise.all(
-        removedAttachmentIds.map(async (id) => {
+        attachmentsToDelete.map(async (id) => {
           const attachment = note.attachments.find((a) => a.id === id);
           if (attachment) {
-            await handleFileDelete(attachment.filePath);
+            await deleteFileFromVercelBlob(attachment.filePath);
           }
         }),
       );
@@ -121,7 +119,7 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
         content,
         isPublic,
         attachments: uploadedAttachments,
-        removedAttachmentIds,
+        removedAttachmentIds: attachmentsToDelete,
       });
 
       setIsLoading(false);
@@ -141,6 +139,13 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
     }
   };
 
+  const markAttachmentForDeletion = (id: number) => {
+    setAttachmentsToDelete((prev) => [...prev, id]);
+    setExistingAttachments((prev) =>
+      prev.filter((attachment) => attachment.id !== id),
+    );
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setNewAttachments((prev) => [
@@ -152,26 +157,6 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
 
   const removeNewAttachment = (index: number) => {
     setNewAttachments((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const removeExistingAttachment = async (id: number) => {
-    const attachmentToRemove = existingAttachments.find((a) => a.id === id);
-    if (attachmentToRemove) {
-      try {
-        await handleFileDelete(attachmentToRemove.filePath);
-        setExistingAttachments((prev) =>
-          prev.filter((attachment) => attachment.id !== id),
-        );
-        setRemovedAttachmentIds((prev) => [...prev, id]);
-      } catch (error) {
-        console.error("Error removing attachment:", error);
-        toast({
-          title: "エラー",
-          description: "添付ファイルの削除中にエラーが発生しました。",
-          variant: "destructive",
-        });
-      }
-    }
   };
 
   const deleteNoteMutation = api.note.delete.useMutation({
@@ -215,6 +200,20 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
     }
   };
 
+  const deleteFileFromVercelBlob = async (url: string) => {
+    const response = await fetch("/api/delete-file", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ url }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to delete file from Vercel Blob");
+    }
+  };
+
   return {
     title,
     setTitle,
@@ -228,7 +227,7 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
     handleDelete,
     handleFileChange,
     removeNewAttachment,
-    removeExistingAttachment,
+    markAttachmentForDeletion,
     isLoading,
   };
 };

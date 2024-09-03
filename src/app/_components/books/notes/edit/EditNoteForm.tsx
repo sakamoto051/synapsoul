@@ -20,7 +20,7 @@ interface EditNoteFormProps {
   onSubmit: (e: React.FormEvent) => void;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onRemoveNewAttachment: (index: number) => void;
-  onRemoveExistingAttachment: (id: number) => void;
+  markAttachmentForDeletion: (id: number) => void;
   onDelete: () => void;
 }
 
@@ -36,7 +36,7 @@ export const EditNoteForm: React.FC<EditNoteFormProps> = ({
   onSubmit,
   onFileChange,
   onRemoveNewAttachment,
-  onRemoveExistingAttachment,
+  markAttachmentForDeletion,
   onDelete,
 }) => (
   <form onSubmit={onSubmit} className="space-y-4">
@@ -104,7 +104,7 @@ export const EditNoteForm: React.FC<EditNoteFormProps> = ({
             <span className="text-sm text-gray-300">{attachment.fileName}</span>
             <Button
               type="button"
-              onClick={() => onRemoveExistingAttachment(attachment.id)}
+              onClick={() => markAttachmentForDeletion(attachment.id)}
               className="rounded-full bg-red-600 hover:bg-red-700 p-1 h-5 w-5"
             >
               <X className="h-4 w-4" />

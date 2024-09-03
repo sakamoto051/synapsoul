@@ -24,7 +24,7 @@ const EditNotePage: React.FC = () => {
     handleDelete,
     handleFileChange,
     removeNewAttachment,
-    removeExistingAttachment,
+    markAttachmentForDeletion,
     isLoading,
   } = useEditBookNote(isbn, noteId);
 
@@ -50,7 +50,7 @@ const EditNotePage: React.FC = () => {
             onSubmit={handleSubmit}
             onFileChange={handleFileChange}
             onRemoveNewAttachment={removeNewAttachment}
-            onRemoveExistingAttachment={removeExistingAttachment}
+            markAttachmentForDeletion={markAttachmentForDeletion}
             onDelete={handleDelete}
           />
         </CardContent>
