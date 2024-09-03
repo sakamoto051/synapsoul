@@ -28,7 +28,12 @@ const BookNotesList = () => {
               まだ読書メモがありません。
             </p>
           )}
-          <BookNotesActions isbn={isbn} />
+          {!book && (
+            <p className="text-center text-gray-400">
+              本のステータスを設定すると読書メモを作成できます。
+            </p>
+          )}
+          <BookNotesActions isbn={isbn} book={book} />
         </CardContent>
       </Card>
     </div>

@@ -3,12 +3,17 @@ import type React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Plus } from "lucide-react";
+import type { Book } from "@prisma/client";
 
 interface BookNotesActionsProps {
   isbn: string;
+  book: Book | null;
 }
 
-export const BookNotesActions: React.FC<BookNotesActionsProps> = ({ isbn }) => (
+export const BookNotesActions: React.FC<BookNotesActionsProps> = ({
+  isbn,
+  book,
+}) => (
   <div className="mt-6 flex justify-between">
     <Link href={`/books/${isbn}`} passHref>
       <Button className="bg-gray-700 text-white hover:bg-gray-600">
@@ -16,11 +21,13 @@ export const BookNotesActions: React.FC<BookNotesActionsProps> = ({ isbn }) => (
         書籍詳細に戻る
       </Button>
     </Link>
-    <Link href={`/books/${isbn}/notes/create`} passHref>
-      <Button className="bg-green-600 text-white hover:bg-green-700">
-        <Plus className="mr-2 h-4 w-4" />
-        新しい読書メモ
-      </Button>
-    </Link>
+    {book && (
+      <Link href={`/books/${isbn}/notes/create`} passHref>
+        <Button className="bg-green-600 text-white hover:bg-green-700">
+          <Plus className="mr-2 h-4 w-4" />
+          新しい読書メモ
+        </Button>
+      </Link>
+    )}
   </div>
 );
