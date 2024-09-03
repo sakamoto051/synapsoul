@@ -1,0 +1,10 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://synapsoul.vercel.app
+
+# Sitemaps
+Sitemap: https://synapsoul.vercel.app/sitemap.xml
+Sitemap: https://synapsoul.vercel.app/server-sitemap.xml

@@ -16,6 +16,14 @@ const config = {
       },
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: "/server-sitemap.xml",
+        destination: "/api/server-sitemap",
+      },
+    ];
+  },
 };
 
 export default config;
