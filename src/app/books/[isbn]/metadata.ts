@@ -5,6 +5,11 @@ import type { BookItem, BookResponse } from "~/types/book";
 export async function generateMetadata({
   params,
 }: { params: { isbn: string } }): Promise<Metadata> {
+  if (!params?.isbn) {
+    return {
+      title: "書籍が見つかりません",
+    };
+  }
   const isbn = params.isbn;
   const book: BookItem | null = await fetchBookData(isbn);
 
