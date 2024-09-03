@@ -25,31 +25,8 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
 
   const updateNoteMutation = api.note.update.useMutation({
     onSuccess: async () => {
-      toast({
-        title: "Note updated",
-        description: "Your note has been successfully updated.",
-      });
       await utils.book.getByIsbn.invalidate({ isbn });
       await refetch();
-      router.push(`/books/${isbn}/notes/${noteId}`);
-    },
-    onError: (error) => {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    },
-  });
-
-  const deleteNoteMutation = api.note.delete.useMutation({
-    onSuccess: async () => {
-      toast({
-        title: "ノートを削除しました",
-        description: "ノートとその添付ファイルが正常に削除されました。",
-      });
-      await utils.book.getByIsbn.invalidate({ isbn });
-      router.push(`/books/${isbn}/notes`);
     },
   });
 
@@ -62,31 +39,77 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
     }
   }, [note]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const attachmentsToUpload = await Promise.all(
-      newAttachments.map(async (file) => {
-        const fileContent = await fileToBase64(file);
-        return {
-          fileName: file.name,
-          fileContent,
-          mimeType: file.type,
-        };
-      }),
+  const handleFileUpload = async (file: File): Promise<string> => {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response: Response = await fetch(
+      `/api/upload?filename=${encodeURIComponent(file.name)}`,
+      {
+        method: "POST",
+        body: formData,
+      },
     );
 
-    updateNoteMutation.mutate({
-      id: noteId,
-      title,
-      content,
-      isPublic,
-      attachments: attachmentsToUpload,
-      removedAttachmentIds,
-    });
+    if (!response.ok) {
+      throw new Error(`Upload failed: ${response.statusText}`);
+    }
+
+    const data = (await response.json()) as { url: string };
+
+    if (!data || typeof data.url !== "string") {
+      throw new Error("Invalid response from server");
+    }
+
+    return data.url;
   };
 
-  const handleDelete = () => {
-    deleteNoteMutation.mutate({ id: noteId });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!note) {
+      toast({
+        title: "エラー",
+        description: "ノート情報が見つかりません。",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const uploadedAttachments = await Promise.all(
+        newAttachments.map(async (file) => {
+          const url = await handleFileUpload(file);
+          return {
+            fileName: file.name,
+            filePath: url,
+            mimeType: file.type,
+            fileContent: "", // Add the fileContent property
+          };
+        }),
+      );
+
+      await updateNoteMutation.mutateAsync({
+        id: noteId,
+        title,
+        content,
+        isPublic,
+        attachments: uploadedAttachments,
+        removedAttachmentIds,
+      });
+
+      toast({
+        title: "ノートが更新されました",
+        description: "ノートの更新が完了しました。",
+      });
+      router.push(`/books/${isbn}/notes/${noteId}`);
+    } catch (error) {
+      console.error("Error updating note:", error);
+      toast({
+        title: "エラー",
+        description: "ノートの更新中にエラーが発生しました。",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,21 +132,6 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
     setRemovedAttachmentIds((prev) => [...prev, id]);
   };
 
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        if (typeof reader.result === "string") {
-          resolve(reader.result);
-        } else {
-          reject(new Error("Failed to convert file to base64"));
-        }
-      };
-      reader.onerror = (error) => reject(error);
-      reader.readAsDataURL(file);
-    });
-  };
-
   return {
     title,
     setTitle,
@@ -134,7 +142,6 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
     existingAttachments,
     newAttachments,
     handleSubmit,
-    handleDelete,
     handleFileChange,
     removeNewAttachment,
     removeExistingAttachment,
