@@ -36,6 +36,7 @@ yarn-error.log*
 .env
 .env*.local
 .env.develop
+.env.preview
 .env.prod
 
 # vercel
@@ -48,6 +49,7 @@ yarn-error.log*
 .idea
 
 # public
-/public/uploads
+/public/uploads/**
+!/public/uploads/.gitkeep
 
 synapsoul_project_summary.txt
