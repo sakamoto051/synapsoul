@@ -120,7 +120,7 @@ export const EditNoteForm: React.FC<EditNoteFormProps> = ({
             <Button
               type="button"
               onClick={() => onRemoveNewAttachment(index)}
-              className="bg-red-600 hover:bg-red-700 p-1"
+              className="rounded-full bg-red-600 hover:bg-red-700 p-1 h-5 w-5"
             >
               <X className="h-4 w-4" />
             </Button>

@@ -2,14 +2,13 @@
 "use client";
 import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { NoteContent } from "~/app/_components/books/notes/detail/NoteContent";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Globe, Lock } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { Badge } from "~/components/ui/badge";
 import { useBookNoteDetail } from "~/hooks/useBookNoteDetail";
 import AttachmentList from "~/app/_components/books/notes/AttachmentList";
 import { Suspense } from "react";
+import { PublicBadge } from "~/app/_components/books/notes/PublicBadge";
 
 const PublicNoteDetailPage = () => {
   const params = useParams();
@@ -27,32 +26,17 @@ const PublicNoteDetailPage = () => {
           <CardTitle className="text-2xl font-bold text-blue-300">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-2xl font-bold text-blue-300">{note.title}</h1>
-              <Badge
-                variant={note.isPublic ? "default" : "secondary"}
-                className="ml-2"
-              >
-                {note.isPublic ? (
-                  <>
-                    <Globe className="w-3 h-3 mr-1" />
-                    公開
-                  </>
-                ) : (
-                  <>
-                    <Lock className="w-3 h-3 mr-1" />
-                    非公開
-                  </>
-                )}
-              </Badge>
+              <PublicBadge isPublic={note.isPublic} />
             </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <NoteContent
-            title={note.title}
-            content={note.content}
-            isPublic={note.isPublic}
-            createdAt={note.createdAt}
-          />
+          <div className="mb-4">
+            <p className="whitespace-pre-wrap text-gray-300">{note.content}</p>
+          </div>
+          <p className="text-sm text-gray-400">
+            作成日: {new Date(note.createdAt).toLocaleString()}
+          </p>
           <Suspense>
             <AttachmentList noteId={noteId} />
           </Suspense>
