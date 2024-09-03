@@ -20,6 +20,7 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
   const router = useRouter();
   const { toast } = useToast();
   const utils = api.useContext();
+  const [isLoading, setIsLoading] = useState(false);
 
   const { data: note, refetch } = api.note.getById.useQuery({ id: noteId });
 
@@ -89,6 +90,8 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
       return;
     }
 
+    setIsLoading(true);
+
     try {
       // 削除されたファイルの処理
       await Promise.all(
@@ -121,12 +124,14 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
         removedAttachmentIds,
       });
 
+      setIsLoading(false);
       toast({
         title: "ノートが更新されました",
         description: "ノートの更新が完了しました。",
       });
       router.push(`/books/${isbn}/notes/${noteId}`);
     } catch (error) {
+      setIsLoading(false);
       console.error("Error updating note:", error);
       toast({
         title: "エラー",
@@ -224,5 +229,6 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
     handleFileChange,
     removeNewAttachment,
     removeExistingAttachment,
+    isLoading,
   };
 };

@@ -1,10 +1,10 @@
-// src/app/books/[isbn]/notes/[noteId]/edit/page.tsx
 "use client";
 import type React from "react";
 import { useParams } from "next/navigation";
 import { useEditBookNote } from "~/hooks/useEditBookNote";
 import { EditNoteForm } from "~/app/_components/books/notes/edit/EditNoteForm";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import LoadingOverlay from "~/components/ui/loading-overlay";
 
 const EditNotePage: React.FC = () => {
   const params = useParams();
@@ -25,10 +25,12 @@ const EditNotePage: React.FC = () => {
     handleFileChange,
     removeNewAttachment,
     removeExistingAttachment,
+    isLoading,
   } = useEditBookNote(isbn, noteId);
 
   return (
     <div className="container mx-auto px-4 py-8">
+      <LoadingOverlay isLoading={isLoading} />
       <Card className="w-full max-w-3xl mx-auto bg-gray-800 text-gray-100 shadow-lg border-none">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-blue-300">
