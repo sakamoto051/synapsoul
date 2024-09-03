@@ -7,7 +7,6 @@ import {
 } from "~/server/api/trpc";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { v4 as uuidv4 } from "uuid";
 
 export const noteRouter = createTRPCRouter({
   create: protectedProcedure
@@ -64,15 +63,13 @@ export const noteRouter = createTRPCRouter({
         title: z.string(),
         content: z.string(),
         isPublic: z.boolean(),
-        attachments: z
-          .array(
-            z.object({
-              fileName: z.string(),
-              fileContent: z.string(),
-              mimeType: z.string(),
-            }),
-          )
-          .optional(),
+        attachments: z.array(
+          z.object({
+            fileName: z.string(),
+            filePath: z.string(),
+            mimeType: z.string(),
+          }),
+        ),
         removedAttachmentIds: z.array(z.number()).optional(),
       }),
     )
@@ -90,31 +87,15 @@ export const noteRouter = createTRPCRouter({
         });
       }
 
-      // 新しい添付ファイルの処理
-      const newAttachments = await Promise.all(
-        (input.attachments ?? []).map(async (attachment) => {
-          const fileName = `${uuidv4()}-${attachment.fileName}`;
-          const filePath = path.join(
-            process.cwd(),
-            "public",
-            "uploads",
-            fileName,
-          );
-
-          // Base64デコードしてファイルを保存
-          const fileBuffer = Buffer.from(
-            attachment.fileContent?.split(",")[1] ?? "",
-            "base64",
-          );
-          await fs.writeFile(filePath, fileBuffer);
-
-          return {
-            fileName: attachment.fileName,
-            filePath: `/uploads/${fileName}`,
-            mimeType: attachment.mimeType,
-          };
-        }),
-      );
+      // 削除対象の添付ファイルを取得
+      if (input.removedAttachmentIds && input.removedAttachmentIds.length > 0) {
+        await ctx.db.attachment.deleteMany({
+          where: {
+            id: { in: input.removedAttachmentIds },
+            noteId: input.id,
+          },
+        });
+      }
 
       return ctx.db.note.update({
         where: { id: input.id },
@@ -123,10 +104,7 @@ export const noteRouter = createTRPCRouter({
           content: input.content,
           isPublic: input.isPublic,
           attachments: {
-            create: newAttachments,
-            deleteMany: input.removedAttachmentIds
-              ? { id: { in: input.removedAttachmentIds } }
-              : undefined,
+            create: input.attachments,
           },
         },
         include: { attachments: true },

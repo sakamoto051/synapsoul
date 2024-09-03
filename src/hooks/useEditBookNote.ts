@@ -64,6 +64,20 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
     return data.url;
   };
 
+  const handleFileDelete = async (url: string): Promise<void> => {
+    const response = await fetch("/api/delete-file", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ url }),
+    });
+
+    if (!response.ok) {
+      throw new Error("Delete failed");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!note) {
@@ -76,6 +90,17 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
     }
 
     try {
+      // 削除されたファイルの処理
+      await Promise.all(
+        removedAttachmentIds.map(async (id) => {
+          const attachment = note.attachments.find((a) => a.id === id);
+          if (attachment) {
+            await handleFileDelete(attachment.filePath);
+          }
+        }),
+      );
+
+      // 新しいファイルのアップロード
       const uploadedAttachments = await Promise.all(
         newAttachments.map(async (file) => {
           const url = await handleFileUpload(file);
@@ -83,7 +108,6 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
             fileName: file.name,
             filePath: url,
             mimeType: file.type,
-            fileContent: "", // Add the fileContent property
           };
         }),
       );
@@ -125,11 +149,65 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
     setNewAttachments((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const removeExistingAttachment = (id: number) => {
-    setExistingAttachments((prev) =>
-      prev.filter((attachment) => attachment.id !== id),
-    );
-    setRemovedAttachmentIds((prev) => [...prev, id]);
+  const removeExistingAttachment = async (id: number) => {
+    const attachmentToRemove = existingAttachments.find((a) => a.id === id);
+    if (attachmentToRemove) {
+      try {
+        await handleFileDelete(attachmentToRemove.filePath);
+        setExistingAttachments((prev) =>
+          prev.filter((attachment) => attachment.id !== id),
+        );
+        setRemovedAttachmentIds((prev) => [...prev, id]);
+      } catch (error) {
+        console.error("Error removing attachment:", error);
+        toast({
+          title: "エラー",
+          description: "添付ファイルの削除中にエラーが発生しました。",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const deleteNoteMutation = api.note.delete.useMutation({
+    onSuccess: async () => {
+      await utils.book.getByIsbn.invalidate({ isbn });
+    },
+  });
+
+  const handleDelete = async () => {
+    if (!note) {
+      toast({
+        title: "エラー",
+        description: "ノート情報が見つかりません。",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      // 全ての添付ファイルを削除
+      await Promise.all(
+        note.attachments.map(async (attachment) => {
+          await handleFileDelete(attachment.filePath);
+        }),
+      );
+
+      await deleteNoteMutation.mutateAsync({ id: noteId });
+
+      toast({
+        title: "ノートを削除しました",
+        description: "ノートとその添付ファイルが正常に削除されました。",
+      });
+      router.push(`/books/${isbn}/notes`);
+    } catch (error) {
+      console.error("Error deleting note:", error);
+      toast({
+        title: "エラー",
+        description: "ノートの削除中にエラーが発生しました。",
+        variant: "destructive",
+      });
+    }
   };
 
   return {
@@ -142,6 +220,7 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
     existingAttachments,
     newAttachments,
     handleSubmit,
+    handleDelete,
     handleFileChange,
     removeNewAttachment,
     removeExistingAttachment,
