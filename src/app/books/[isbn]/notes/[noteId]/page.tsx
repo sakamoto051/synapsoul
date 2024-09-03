@@ -1,26 +1,17 @@
-// src/app/books/[isbn]/notes/[noteId]/page.tsx
-"use client";
-import type React from "react";
-import { useParams, useRouter } from "next/navigation";
-import { useBookNoteDetail } from "~/hooks/useBookNoteDetail";
+import React from "react";
+import Link from "next/link";
+import { api } from "~/trpc/server";
 import { NoteContent } from "~/app/_components/books/notes/detail/NoteContent";
-import { AttachmentList } from "~/app/_components/books/notes/detail/AttachmentList";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Edit } from "lucide-react";
+import AttachmentList from "~/app/_components/books/notes/AttachmentList";
 
-const ViewNotePage: React.FC = () => {
-  const router = useRouter();
-  const params = useParams();
-  const isbn = params.isbn as string;
+export default async function ViewNotePage({
+  params,
+}: { params: { isbn: string; noteId: string } }) {
   const noteId = Number(params.noteId);
-
-  const {
-    note,
-    handleDownload,
-    handleEdit,
-    downloadingAttachmentId,
-  } = useBookNoteDetail(isbn, noteId);
+  const note = await api.note.getById({ id: noteId });
 
   if (!note) {
     return <div>メモが見つかりません</div>;
@@ -36,34 +27,29 @@ const ViewNotePage: React.FC = () => {
             isPublic={note.isPublic}
             createdAt={note.createdAt}
           />
-          {note.attachments.length > 0 && (
-            <AttachmentList
-              attachments={note.attachments}
-              onDownload={handleDownload}
-              downloadingAttachmentId={downloadingAttachmentId}
-            />
-          )}
+          <AttachmentList noteId={noteId} />
           <div className="flex justify-between mt-6">
-            <Button
-              onClick={() => router.push(`/books/${isbn}/notes`)}
-              variant="outline"
-              className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+            <Link href={`/books/${params.isbn}/notes`} passHref>
+              <Button
+                variant="outline"
+                className="bg-gray-700 hover:bg-gray-600 text-white border-gray-600"
+              >
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                メモ一覧に戻る
+              </Button>
+            </Link>
+            <Link
+              href={`/books/${params.isbn}/notes/${params.noteId}/edit`}
+              passHref
             >
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              メモ一覧に戻る
-            </Button>
-            <Button
-              onClick={handleEdit}
-              className="bg-green-600 hover:bg-green-700 text-white"
-            >
-              <Edit className="h-4 w-4 mr-1" />
-              メモを編集
-            </Button>
+              <Button className="bg-green-600 hover:bg-green-700 text-white">
+                <Edit className="h-4 w-4 mr-1" />
+                メモを編集
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>
     </div>
   );
-};
-
-export default ViewNotePage;
+}

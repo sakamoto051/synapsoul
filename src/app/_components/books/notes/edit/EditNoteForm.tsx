@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Paperclip, X, Download, Save } from "lucide-react";
+import { Paperclip, X, Save } from "lucide-react";
 import type { Attachment } from "@prisma/client";
 import { DeleteNoteDialog } from "./DeleteNoteDialog";
 
@@ -102,24 +102,13 @@ export const EditNoteForm: React.FC<EditNoteFormProps> = ({
             className="flex items-center justify-between bg-gray-700 p-2 rounded"
           >
             <span className="text-sm text-gray-300">{attachment.fileName}</span>
-            <div>
-              <Button
-                type="button"
-                onClick={() => {
-                  /* ダウンロード処理 */
-                }}
-                className="bg-blue-600 hover:bg-blue-700 p-1 mr-2"
-              >
-                <Download className="h-4 w-4" />
-              </Button>
-              <Button
-                type="button"
-                onClick={() => onRemoveExistingAttachment(attachment.id)}
-                className="bg-red-600 hover:bg-red-700 p-1"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
+            <Button
+              type="button"
+              onClick={() => onRemoveExistingAttachment(attachment.id)}
+              className="rounded-full bg-red-600 hover:bg-red-700 p-1 h-5 w-5"
+            >
+              <X className="h-4 w-4" />
+            </Button>
           </div>
         ))}
         {newAttachments.map((file, index) => (

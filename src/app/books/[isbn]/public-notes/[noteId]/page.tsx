@@ -3,22 +3,20 @@
 import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { NoteContent } from "~/app/_components/books/notes/detail/NoteContent";
-import { AttachmentList } from "~/app/_components/books/notes/detail/AttachmentList";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Globe, Lock } from "lucide-react";
 import Link from "next/link";
 import { Badge } from "~/components/ui/badge";
 import { useBookNoteDetail } from "~/hooks/useBookNoteDetail";
+import AttachmentList from "~/app/_components/books/notes/AttachmentList";
+import { Suspense } from "react";
 
 const PublicNoteDetailPage = () => {
   const params = useParams();
   const noteId = Number(params.noteId);
   const isbn = params.isbn as string;
 
-  const { note, handleDownload, downloadingAttachmentId } = useBookNoteDetail(
-    isbn,
-    noteId,
-  );
+  const { note } = useBookNoteDetail(isbn, noteId);
 
   if (!note) return <div>Note not found</div>;
 
@@ -55,13 +53,9 @@ const PublicNoteDetailPage = () => {
             isPublic={note.isPublic}
             createdAt={note.createdAt}
           />
-          {note.attachments.length > 0 && (
-            <AttachmentList
-              attachments={note.attachments}
-              onDownload={handleDownload}
-              downloadingAttachmentId={downloadingAttachmentId}
-            />
-          )}
+          <Suspense>
+            <AttachmentList noteId={noteId} />
+          </Suspense>
           <p className="text-sm text-gray-400 mt-4">
             作成者: {note.book.user.displayName}
           </p>
