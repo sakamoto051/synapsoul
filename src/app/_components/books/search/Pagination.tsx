@@ -1,4 +1,3 @@
-// src/components/Pagination.tsx
 import type React from "react";
 import { Button } from "@/components/ui/button";
 
@@ -13,21 +12,21 @@ export const Pagination: React.FC<PaginationProps> = ({
   totalPages,
   onPageChange,
 }) => (
-  <div className="mt-4 flex justify-center items-center gap-2">
+  <div className="mt-6 flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-2">
     <Button
       onClick={() => onPageChange(currentPage - 1)}
       disabled={currentPage === 1}
-      className="bg-gray-700 hover:bg-gray-600"
+      className="bg-gray-700 hover:bg-gray-600 w-full sm:w-auto"
     >
-      Previous
+      前へ
     </Button>
-    <span>{`Page ${currentPage} of ${totalPages}`}</span>
+    <span className="text-sm sm:text-base">{` ${currentPage} of ${totalPages}`}</span>
     <Button
       onClick={() => onPageChange(currentPage + 1)}
       disabled={currentPage === totalPages}
-      className="bg-gray-700 hover:bg-gray-600"
+      className="bg-gray-700 hover:bg-gray-600 w-full sm:w-auto"
     >
-      Next
+      次へ
     </Button>
   </div>
 );

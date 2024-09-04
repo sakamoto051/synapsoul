@@ -1,7 +1,7 @@
-// src/components/BookSearchForm.tsx
 import type React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Search, Grid, List } from "lucide-react";
 
 interface BookSearchFormProps {
   searchTerm: string;
@@ -9,6 +9,8 @@ interface BookSearchFormProps {
   onSearchTermChange: (value: string) => void;
   onAuthorInputChange: (value: string) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  onViewChange: (view: "grid" | "list") => void;
+  view: "grid" | "list";
 }
 
 export const BookSearchForm: React.FC<BookSearchFormProps> = ({
@@ -17,26 +19,63 @@ export const BookSearchForm: React.FC<BookSearchFormProps> = ({
   onSearchTermChange,
   onAuthorInputChange,
   onSubmit,
-}) => (
-  <form onSubmit={onSubmit} className="mb-4 flex flex-col gap-2">
-    <Input
-      type="text"
-      placeholder="タイトルで検索"
-      value={searchTerm}
-      onChange={(e) => onSearchTermChange(e.target.value)}
-      className="bg-gray-800 text-gray-100 border-gray-700"
-    />
-    <Input
-      type="text"
-      placeholder="著者名で検索"
-      value={authorInput}
-      onChange={(e) => onAuthorInputChange(e.target.value)}
-      className="bg-gray-800 text-gray-100 border-gray-700"
-    />
-    <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
-      検索
-    </Button>
-  </form>
-);
+  onViewChange,
+  view,
+}) => {
+  return (
+    <form onSubmit={onSubmit} className="mb-4 space-y-4">
+      <div className="flex flex-col space-y-2">
+        <Input
+          type="text"
+          placeholder="タイトルで検索"
+          value={searchTerm}
+          onChange={(e) => onSearchTermChange(e.target.value)}
+          className="w-full bg-gray-800 text-gray-100 border-gray-700"
+          list="recent-searches"
+        />
+        <Input
+          type="text"
+          placeholder="著者名で検索"
+          value={authorInput}
+          onChange={(e) => onAuthorInputChange(e.target.value)}
+          className="w-full bg-gray-800 text-gray-100 border-gray-700"
+        />
+      </div>
+      <div className="flex items-center space-x-2">
+        <Button
+          type="submit"
+          className="flex-grow bg-blue-600 hover:bg-blue-700"
+        >
+          <Search className="mr-2 h-4 w-4" />
+          <span>検索</span>
+        </Button>
+        <div className="flex border border-gray-700 rounded-md">
+          <Button
+            type="button"
+            onClick={() => onViewChange("grid")}
+            variant="ghost"
+            size="icon"
+            className={`rounded-r-none ${
+              view === "grid" ? "bg-gray-700" : "hover:bg-gray-700"
+            }`}
+          >
+            <Grid className="h-4 w-4" />
+          </Button>
+          <Button
+            type="button"
+            onClick={() => onViewChange("list")}
+            variant="ghost"
+            size="icon"
+            className={`rounded-l-none border-l border-gray-700 ${
+              view === "list" ? "bg-gray-700" : "hover:bg-gray-700"
+            }`}
+          >
+            <List className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </form>
+  );
+};
 
 export default BookSearchForm;
