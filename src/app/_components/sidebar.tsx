@@ -1,35 +1,42 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ChevronLeft,
   ChevronRight,
-  // Home,
   LibraryBig,
-  // Link,
   ChevronDown,
   ChevronUp,
   BookOpen,
   Search,
   Settings,
+  Menu,
 } from "lucide-react";
 import NextLink from "next/link";
 import LoginButton from "./login-button";
 import { SessionProvider } from "next-auth/react";
+import { useMediaQuery } from "~/hooks/useMediaQuery";
 
 const Sidebar = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [isBooksOpen, setIsBooksOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const isDesktop = useMediaQuery("(min-width: 768px)");
 
   const toggleSidebar = () => setIsOpen(!isOpen);
   const toggleBooks = () => setIsBooksOpen(!isBooksOpen);
+  const toggleMobileMenu = () => setIsMobileMenuOpen(!isMobileMenuOpen);
 
-  return (
-    <div
-      className={`flex h-screen bg-gray-900 text-white transition-all duration-300 ${isOpen ? "w-40" : "w-16"}`}
-    >
-      <div className="flex flex-col flex-grow">
-        <div className="p-4">
+  useEffect(() => {
+    if (isDesktop) {
+      setIsMobileMenuOpen(false);
+    }
+  }, [isDesktop]);
+
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full">
+      <div className="p-4">
+        {isDesktop && (
           <Button
             variant="ghost"
             size="icon"
@@ -38,73 +45,86 @@ const Sidebar = () => {
           >
             {isOpen ? <ChevronLeft /> : <ChevronRight />}
           </Button>
-          <nav>
-            {/* <NextLink href="/rooms">
-              <Button variant="ghost" className="w-full justify-start mb-2">
-                <Home className="mr-2" />
-                {isOpen && "Rooms"}
-              </Button>
-            </NextLink> */}
-            <div>
-              <Button
-                variant="ghost"
-                className="w-full justify-start mb-2"
-                onClick={toggleBooks}
-              >
-                <LibraryBig className="mr-2" />
-                {isOpen && (
-                  <>
-                    Books
-                    {isBooksOpen ? (
-                      <ChevronUp className="ml-auto" />
-                    ) : (
-                      <ChevronDown className="ml-auto" />
-                    )}
-                  </>
-                )}
-              </Button>
-              {isOpen && isBooksOpen && (
-                <div className="ml-4">
-                  <NextLink href="/books/search">
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start mb-2"
-                    >
-                      <Search className="mr-2" />
-                      Search
-                    </Button>
-                  </NextLink>
-                  <NextLink href="/books/mybooks">
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start mb-2"
-                    >
-                      <BookOpen className="mr-2" />
-                      My Books
-                    </Button>
-                  </NextLink>
-                </div>
+        )}
+        <nav>
+          <div>
+            <Button
+              variant="ghost"
+              className="w-full justify-start mb-2"
+              onClick={toggleBooks}
+            >
+              <LibraryBig className="mr-2" />
+              {(isOpen || !isDesktop) && (
+                <>
+                  Books
+                  {isBooksOpen ? (
+                    <ChevronUp className="ml-auto" />
+                  ) : (
+                    <ChevronDown className="ml-auto" />
+                  )}
+                </>
               )}
-            </div>
-            {/* <NextLink href="/">
+            </Button>
+            {(isOpen || !isDesktop) && isBooksOpen && (
+              <div className="ml-4">
+                <NextLink href="/books/search">
+                  <Button variant="ghost" className="w-full justify-start mb-2">
+                    <Search className="mr-2" />
+                    Search
+                  </Button>
+                </NextLink>
+                <NextLink href="/books/mybooks">
+                  <Button variant="ghost" className="w-full justify-start mb-2">
+                    <BookOpen className="mr-2" />
+                    My Books
+                  </Button>
+                </NextLink>
+              </div>
+            )}
+          </div>
+          <SessionProvider>
+            <NextLink href="/settings" passHref>
               <Button variant="ghost" className="w-full justify-start mb-2">
-                <Link className="mr-2" />
-                {isOpen && "Links"}
+                <Settings className="mr-2" />
+                {(isOpen || !isDesktop) && "Settings"}
               </Button>
-            </NextLink> */}
-            <SessionProvider>
-              <NextLink href="/settings" passHref>
-                <Button variant="ghost" className="w-full justify-start mb-2">
-                  <Settings className="mr-2" />
-                  Settings
-                </Button>
-              </NextLink>
-              <LoginButton isOpen={isOpen} />
-            </SessionProvider>
-          </nav>
-        </div>
+            </NextLink>
+            <LoginButton isOpen={isOpen || !isDesktop} />
+          </SessionProvider>
+        </nav>
       </div>
     </div>
+  );
+
+  return (
+    <>
+      {!isDesktop && (
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleMobileMenu}
+          className="fixed top-4 left-4 z-50"
+        >
+          <Menu />
+        </Button>
+      )}
+      <div
+        className={`
+          ${isDesktop ? "relative" : "fixed inset-y-0 left-0 z-40"}
+          ${isDesktop && isOpen ? "w-64" : isDesktop ? "w-20" : "w-64"}
+          ${!isDesktop && (isMobileMenuOpen ? "translate-x-0" : "-translate-x-full")}
+          flex h-screen bg-gray-900 text-white transition-all duration-300 ease-in-out
+        `}
+      >
+        <SidebarContent />
+      </div>
+      {!isDesktop && isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-30"
+          onKeyUp={toggleMobileMenu}
+        />
+      )}
+    </>
   );
 };
 
