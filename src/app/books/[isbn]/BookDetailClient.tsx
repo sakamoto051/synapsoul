@@ -8,8 +8,12 @@ import BookThreadList from "~/app/_components/books/thread/BookThreadList";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, MessageCircle } from "lucide-react";
 import Script from "next/script";
+import type { BookItem } from "~/types/book";
 
-const BookDetailClient = ({ isbn }: { isbn: string }) => {
+const BookDetailClient = ({
+  isbn,
+  initialBook,
+}: { isbn: string; initialBook: BookItem }) => {
   const {
     book,
     currentStatus,
@@ -19,7 +23,7 @@ const BookDetailClient = ({ isbn }: { isbn: string }) => {
     handleBack,
     handleStatusChange,
     confirmStatusChange,
-  } = useBookDetail(isbn);
+  } = useBookDetail(isbn, initialBook);
   const [showThreads, setShowThreads] = useState(false);
 
   if (!book) return null;

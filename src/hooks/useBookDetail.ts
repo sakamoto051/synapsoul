@@ -8,8 +8,8 @@ import { useToast } from "@/components/ui/use-toast";
 
 const API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
 
-export const useBookDetail = (isbn: string) => {
-  const [book, setBook] = useState<BookItem | null>(null);
+export const useBookDetail = (isbn: string, initialBook: BookItem) => {
+  const [book, setBook] = useState<BookItem>(initialBook);
   const router = useRouter();
   const searchParams = useSearchParams();
   const updateStatusMutation = api.book.updateStatus.useMutation();
@@ -31,7 +31,7 @@ export const useBookDetail = (isbn: string) => {
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-      const data = await response.json() as BookResponse;
+      const data = (await response.json()) as BookResponse;
       if (data.Items && data.Items.length > 0) {
         const item = data.Items[0]?.Item;
         if (item) {
@@ -118,11 +118,6 @@ export const useBookDetail = (isbn: string) => {
     await updateBookStatus(pendingStatus);
   };
 
-  const handleRetry = async () => {
-    await refetchStatus();
-    await fetchBookDetail();
-  };
-
   return {
     book,
     currentStatus,
@@ -132,6 +127,5 @@ export const useBookDetail = (isbn: string) => {
     handleBack,
     handleStatusChange,
     confirmStatusChange,
-    handleRetry,
   };
 };
