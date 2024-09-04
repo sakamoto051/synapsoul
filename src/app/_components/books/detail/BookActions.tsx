@@ -1,4 +1,3 @@
-// src/app/_components/books/detail/BookActions.tsx
 import type React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -22,7 +21,7 @@ export const BookActions: React.FC<BookActionsProps> = ({
   isInMyBooks,
   onStatusChange,
 }) => (
-  <div className="mt-6">
+  <div className="flex flex-col gap-4">
     <BookStatusDropdown
       currentStatus={currentStatus}
       onStatusChange={onStatusChange}
@@ -31,7 +30,7 @@ export const BookActions: React.FC<BookActionsProps> = ({
     {currentStatus === null && (
       <Alert
         variant="default"
-        className="bg-blue-900 border-blue-700 mt-1 text-white"
+        className="bg-blue-900 border-blue-700 text-white"
       >
         <Info className="h-4 w-4" />
         <AlertDescription>
@@ -39,21 +38,29 @@ export const BookActions: React.FC<BookActionsProps> = ({
         </AlertDescription>
       </Alert>
     )}
-    <div className="mt-6 space-x-2">
-      <Link href={`/books/${book.isbn}/notes`} passHref>
-        <Button className="bg-teal-600 hover:bg-teal-700 text-white">
+    <div className="flex flex-wrap gap-2">
+      <Link
+        href={`/books/${book.isbn}/notes`}
+        passHref
+        className="flex-1 min-w-[120px]"
+      >
+        <Button className="w-full bg-teal-600 hover:bg-teal-700 text-white">
           <BookText className="mr-2 h-4 w-4" />
           読書メモ
         </Button>
       </Link>
-      <Link href={`/books/${book.isbn}/public-notes`} passHref>
-        <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+      <Link
+        href={`/books/${book.isbn}/public-notes`}
+        passHref
+        className="flex-1 min-w-[120px]"
+      >
+        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
           <Users className="mr-2 h-4 w-4" />
           公開メモを見る
         </Button>
       </Link>
-      <Link href={book.affiliateUrl} passHref>
-        <Button className="bg-red-600 hover:bg-red-700 text-white">
+      <Link href={book.affiliateUrl} passHref className="flex-1 min-w-[120px]">
+        <Button className="w-full bg-red-600 hover:bg-red-700 text-white">
           <ShoppingCart className="mr-2 h-4 w-4" />
           楽天で購入
         </Button>
