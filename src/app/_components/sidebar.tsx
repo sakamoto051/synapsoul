@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   ChevronLeft,
@@ -22,6 +22,7 @@ const Sidebar = () => {
   const [isBooksOpen, setIsBooksOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
   const toggleSidebar = () => setIsOpen(!isOpen);
   const toggleBooks = () => setIsBooksOpen(!isBooksOpen);
@@ -33,9 +34,25 @@ const Sidebar = () => {
     }
   }, [isDesktop]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   const SidebarContent = () => (
     <div className="flex flex-col h-full">
-      <div className="p-4">
+      <div className="p-4 pt-12">
         {isDesktop && (
           <Button
             variant="ghost"
@@ -103,17 +120,18 @@ const Sidebar = () => {
           variant="ghost"
           size="icon"
           onClick={toggleMobileMenu}
-          className="fixed top-4 left-4 z-50"
+          className="fixed top-4 left-4 z-50 text-gray-400 hover:text-white hover:bg-gray-800"
         >
           <Menu />
         </Button>
       )}
       <div
+        ref={sidebarRef}
         className={`
           ${isDesktop ? "relative" : "fixed inset-y-0 left-0 z-40"}
-          ${isDesktop && isOpen ? "w-64" : isDesktop ? "w-20" : "w-64"}
+          ${isDesktop && isOpen ? "w-52" : isDesktop ? "w-20" : "w-52"}
           ${!isDesktop && (isMobileMenuOpen ? "translate-x-0" : "-translate-x-full")}
-          flex h-screen bg-gray-900 text-white transition-all duration-300 ease-in-out
+          flex h-screen bg-gray-900 text-white transition-all duration-1000 ease-in-out
         `}
       >
         <SidebarContent />
@@ -121,7 +139,7 @@ const Sidebar = () => {
       {!isDesktop && isMobileMenuOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-30"
-          onKeyUp={toggleMobileMenu}
+          onMouseUp={toggleMobileMenu}
         />
       )}
     </>
