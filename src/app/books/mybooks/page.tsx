@@ -14,8 +14,10 @@ const MyBooksPage = () => {
   } = useMyBooks();
 
   return (
-    <div className="container mx-auto p-4 bg-gray-900 text-gray-100">
-      <h1 className="text-2xl font-bold mb-4 text-blue-300">マイブックス</h1>
+    <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 bg-gray-900 text-gray-100">
+      <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 text-blue-300">
+        マイブックス
+      </h1>
       <MyBooksFilter
         searchTerm={searchTerm}
         onSearchTermChange={setSearchTerm}

@@ -22,7 +22,7 @@ export const MyBooksFilter: React.FC<MyBooksFilterProps> = ({
   onSearchTermChange,
   onStatusFilterChange,
 }) => (
-  <div className="flex mb-4 gap-2">
+  <div className="flex flex-col sm:flex-row mb-6 gap-4">
     <Input
       type="text"
       placeholder="本を検索..."
@@ -35,7 +35,7 @@ export const MyBooksFilter: React.FC<MyBooksFilterProps> = ({
         onStatusFilterChange(value as BookStatus | "ALL")
       }
     >
-      <SelectTrigger className="w-[180px] bg-gray-800 text-gray-100 border-gray-700">
+      <SelectTrigger className="w-full sm:w-[200px] bg-gray-800 text-gray-100 border-gray-700">
         <SelectValue placeholder="ステータス" />
       </SelectTrigger>
       <SelectContent className="bg-gray-800 text-gray-100 border-gray-700">
