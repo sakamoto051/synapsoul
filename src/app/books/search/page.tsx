@@ -13,6 +13,10 @@ const BookSearchPage: React.FC = () => {
     setSearchTerm,
     authorInput,
     setAuthorInput,
+    publisherInput,
+    setPublisherInput,
+    genreInput,
+    setGenreInput,
     currentPage,
     totalPages,
     totalCount,
@@ -22,13 +26,11 @@ const BookSearchPage: React.FC = () => {
 
   const [view, setView] = useState<"grid" | "list">("grid");
 
-  // debounce関数をuseMemoでメモ化
   const debouncedSearch = useMemo(
     () => debounce(handleSearch, 300),
     [handleSearch],
   );
 
-  // コンポーネントのアンマウント時にdebounceをキャンセル
   React.useEffect(() => {
     return () => {
       debouncedSearch.cancel();
@@ -51,6 +53,22 @@ const BookSearchPage: React.FC = () => {
     [setAuthorInput, debouncedSearch],
   );
 
+  const handlePublisherInputChange = useCallback(
+    (value: string) => {
+      setPublisherInput(value);
+      debouncedSearch({} as React.FormEvent<HTMLFormElement>);
+    },
+    [setPublisherInput, debouncedSearch],
+  );
+
+  const handleGenreInputChange = useCallback(
+    (value: string) => {
+      setGenreInput(value);
+      debouncedSearch({} as React.FormEvent<HTMLFormElement>);
+    },
+    [setGenreInput, debouncedSearch],
+  );
+
   return (
     <div className="container mx-auto px-2 sm:px-4 py-4 bg-gray-900 text-gray-100 min-h-screen">
       <h1 className="text-xl font-bold mb-4 text-center">本を探す</h1>
@@ -58,8 +76,12 @@ const BookSearchPage: React.FC = () => {
         <BookSearchForm
           searchTerm={searchTerm}
           authorInput={authorInput}
+          publisherInput={publisherInput}
+          genreInput={genreInput}
           onSearchTermChange={handleSearchTermChange}
           onAuthorInputChange={handleAuthorInputChange}
+          onPublisherInputChange={handlePublisherInputChange}
+          onGenreInputChange={handleGenreInputChange}
           onSubmit={handleSearch}
           onViewChange={setView}
           view={view}

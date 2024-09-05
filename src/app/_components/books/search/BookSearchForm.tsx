@@ -1,13 +1,25 @@
 import type React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Grid, List } from "lucide-react";
+import { Search, Grid, List, X } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { booksGenreId } from "~/hooks/useBookSearch";
 
 interface BookSearchFormProps {
   searchTerm: string;
   authorInput: string;
+  publisherInput: string;
+  genreInput: string;
   onSearchTermChange: (value: string) => void;
   onAuthorInputChange: (value: string) => void;
+  onPublisherInputChange: (value: string) => void;
+  onGenreInputChange: (value: string) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   onViewChange: (view: "grid" | "list") => void;
   view: "grid" | "list";
@@ -16,8 +28,12 @@ interface BookSearchFormProps {
 export const BookSearchForm: React.FC<BookSearchFormProps> = ({
   searchTerm,
   authorInput,
+  publisherInput,
+  genreInput,
   onSearchTermChange,
   onAuthorInputChange,
+  onPublisherInputChange,
+  onGenreInputChange,
   onSubmit,
   onViewChange,
   view,
@@ -31,7 +47,6 @@ export const BookSearchForm: React.FC<BookSearchFormProps> = ({
           value={searchTerm}
           onChange={(e) => onSearchTermChange(e.target.value)}
           className="w-full bg-gray-800 text-gray-100 border-gray-700"
-          list="recent-searches"
         />
         <Input
           type="text"
@@ -40,6 +55,38 @@ export const BookSearchForm: React.FC<BookSearchFormProps> = ({
           onChange={(e) => onAuthorInputChange(e.target.value)}
           className="w-full bg-gray-800 text-gray-100 border-gray-700"
         />
+        <Input
+          type="text"
+          placeholder="出版社で検索"
+          value={publisherInput}
+          onChange={(e) => onPublisherInputChange(e.target.value)}
+          className="w-full bg-gray-800 text-gray-100 border-gray-700"
+        />
+        <div className="relative">
+          <Select value={genreInput} onValueChange={onGenreInputChange}>
+            <SelectTrigger className="w-full bg-gray-800 text-gray-100 border-gray-700">
+              <SelectValue placeholder="ジャンルを選択" />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(booksGenreId).map(([id, name]) => (
+                <SelectItem key={id} value={id}>
+                  {name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {genreInput && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-gray-100"
+              onClick={() => onGenreInputChange("")}
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </div>
       <div className="flex items-center space-x-2">
         <Button
