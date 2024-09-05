@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+// import { useEffect } from "react";
 import { Button } from "~/components/ui/button";
 import { AlertCircle } from "lucide-react";
 
 export default function CustomError({
-  error,
+  // error,
   reset,
 }: {
   error: Error & { digest?: string };
