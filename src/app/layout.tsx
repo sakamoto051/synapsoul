@@ -48,7 +48,7 @@ export default function RootLayout({
         <TRPCReactProvider>
           <div className="flex text-white min-h-screen">
             <Sidebar />
-            <main className="flex-grow p-6 bg-gray-900">{children}</main>
+            <main className="flex-grow bg-gray-900">{children}</main>
           </div>
         </TRPCReactProvider>
         <Analytics />

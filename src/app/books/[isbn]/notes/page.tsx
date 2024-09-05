@@ -13,14 +13,14 @@ const BookNotesList = () => {
   const { book } = useBookNotes(isbn);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Card className="w-full max-w-3xl mx-auto bg-gray-800 text-gray-100 shadow-lg border-none">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-blue-300">
+    <div className="mx-auto p-4 mt-12">
+      <Card className="w-full mx-auto bg-gray-800 text-gray-100 shadow-lg border-none">
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-xl sm:text-2xl font-bold text-blue-300">
             読書メモ一覧
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6">
           {book?.notes && book.notes.length > 0 ? (
             <NoteList notes={book.notes} isbn={isbn} />
           ) : (
