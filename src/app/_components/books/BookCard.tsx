@@ -31,16 +31,7 @@ const BookCard: React.FC<BookCardProps> = ({
       className={`
         bg-gray-900 text-gray-100 border-none shadow-lg flex flex-col 
         transition-all duration-300 ease-in-out hover:shadow-xl hover:bg-gray-800 
-        w-full
-        ${
-          isLarge
-            ? showStatusDropdown
-              ? "h-[320px]"
-              : "h-[280px]"
-            : showStatusDropdown
-              ? "h-[240px]"
-              : "h-[200px]"
-        }
+        w-full h-full
       `}
     >
       <Link href={`/books/${book.isbn}`} className="flex-grow flex flex-col">
@@ -56,16 +47,18 @@ const BookCard: React.FC<BookCardProps> = ({
           />
         </div>
         <CardContent className="p-2 flex-grow flex flex-col justify-between">
-          <h3
-            className={`font-medium text-blue-300 line-clamp-2 ${isLarge ? "text-sm" : "text-xs"}`}
-          >
-            {book.title || "Unknown Title"}
-          </h3>
-          <p
-            className={`text-gray-400 line-clamp-1 ${isLarge ? "text-xs" : "text-[10px]"}`}
-          >
-            {book.author || "Unknown Author"}
-          </p>
+          <div>
+            <h3
+              className={`font-medium text-blue-300 line-clamp-2 ${isLarge ? "text-sm" : "text-xs"}`}
+            >
+              {book.title || "Unknown Title"}
+            </h3>
+            <p
+              className={`text-gray-400 line-clamp-1 ${isLarge ? "text-xs" : "text-[10px]"}`}
+            >
+              {book.author || "Unknown Author"}
+            </p>
+          </div>
         </CardContent>
       </Link>
       {showStatusDropdown && (
