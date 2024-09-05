@@ -85,6 +85,8 @@ export const useBookSearch = () => {
   );
   const [totalPages, setTotalPages] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+
   const updateUrlParams = useCallback(
     (
       title: string,
@@ -93,7 +95,7 @@ export const useBookSearch = () => {
       genre: string,
       page: number,
     ) => {
-      const params = new URLSearchParams(searchParams);
+      const params = new URLSearchParams(searchParams.toString());
       if (title) params.set("title", title);
       if (author) params.set("author", author);
       if (publisher) params.set("publisherName", publisher);
@@ -112,6 +114,7 @@ export const useBookSearch = () => {
       publisher: string,
       genre: string,
     ) => {
+      setIsLoading(true);
       try {
         let apiUrl = `${BASE_API_ENDPOINT}&page=${page}`;
         if (title) apiUrl += `&title=${encodeURIComponent(title)}`;
@@ -120,8 +123,12 @@ export const useBookSearch = () => {
           apiUrl += `&publisherName=${encodeURIComponent(publisher)}`;
         if (genre) apiUrl += `&booksGenreId=${encodeURIComponent(genre)}`;
 
+        console.log("Fetching books with URL:", apiUrl); // デバッグ用ログ
+
         const response = await fetch(apiUrl);
         const data: BookResponse = (await response.json()) as BookResponse;
+
+        console.log("API Response:", data); // デバッグ用ログ
 
         setBooks(data.Items.map((item: BookItemWrapper) => item.Item));
         setTotalPages(data.pageCount || 1);
@@ -129,9 +136,12 @@ export const useBookSearch = () => {
         setCurrentPage(page);
         updateUrlParams(title, author, publisher, genre, page);
       } catch (error) {
+        console.error("Error fetching books:", error);
         setBooks([]);
         setTotalPages(1);
         setTotalCount(0);
+      } finally {
+        setIsLoading(false);
       }
     },
     [updateUrlParams],
@@ -160,10 +170,15 @@ export const useBookSearch = () => {
     }
   };
 
-  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    fetchBooks(1, searchTerm, authorInput, publisherInput, genreInput);
-  };
+  const handleSearch = useCallback(
+    (e?: React.FormEvent<HTMLFormElement>) => {
+      if (e) {
+        e.preventDefault();
+      }
+      fetchBooks(1, searchTerm, authorInput, publisherInput, genreInput);
+    },
+    [fetchBooks, searchTerm, authorInput, publisherInput, genreInput],
+  );
 
   return {
     books,
@@ -180,6 +195,7 @@ export const useBookSearch = () => {
     totalCount,
     handlePageChange,
     handleSearch,
+    isLoading,
   };
 };
 

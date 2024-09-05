@@ -22,12 +22,13 @@ const BookSearchPage: React.FC = () => {
     totalCount,
     handlePageChange,
     handleSearch,
+    isLoading,
   } = useBookSearch();
 
   const [view, setView] = useState<"grid" | "list">("grid");
 
   const debouncedSearch = useMemo(
-    () => debounce(handleSearch, 300),
+    () => debounce(handleSearch, 500),
     [handleSearch],
   );
 
@@ -37,36 +38,13 @@ const BookSearchPage: React.FC = () => {
     };
   }, [debouncedSearch]);
 
-  const handleSearchTermChange = useCallback(
-    (value: string) => {
-      setSearchTerm(value);
-      debouncedSearch({} as React.FormEvent<HTMLFormElement>);
-    },
-    [setSearchTerm, debouncedSearch],
-  );
-
-  const handleAuthorInputChange = useCallback(
-    (value: string) => {
-      setAuthorInput(value);
-      debouncedSearch({} as React.FormEvent<HTMLFormElement>);
-    },
-    [setAuthorInput, debouncedSearch],
-  );
-
-  const handlePublisherInputChange = useCallback(
-    (value: string) => {
-      setPublisherInput(value);
-      debouncedSearch({} as React.FormEvent<HTMLFormElement>);
-    },
-    [setPublisherInput, debouncedSearch],
-  );
-
-  const handleGenreInputChange = useCallback(
-    (value: string) => {
-      setGenreInput(value);
-      debouncedSearch({} as React.FormEvent<HTMLFormElement>);
-    },
-    [setGenreInput, debouncedSearch],
+  const handleInputChange = useCallback(
+    (setter: React.Dispatch<React.SetStateAction<string>>) =>
+      (value: string) => {
+        setter(value);
+        debouncedSearch();
+      },
+    [debouncedSearch],
   );
 
   return (
@@ -78,26 +56,32 @@ const BookSearchPage: React.FC = () => {
           authorInput={authorInput}
           publisherInput={publisherInput}
           genreInput={genreInput}
-          onSearchTermChange={handleSearchTermChange}
-          onAuthorInputChange={handleAuthorInputChange}
-          onPublisherInputChange={handlePublisherInputChange}
-          onGenreInputChange={handleGenreInputChange}
+          onSearchTermChange={handleInputChange(setSearchTerm)}
+          onAuthorInputChange={handleInputChange(setAuthorInput)}
+          onPublisherInputChange={handleInputChange(setPublisherInput)}
+          onGenreInputChange={handleInputChange(setGenreInput)}
           onSubmit={handleSearch}
           onViewChange={setView}
           view={view}
         />
       </div>
-      <BookSearchResults books={books} view={view} />
-      <div className="mt-4">
-        <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={handlePageChange}
-        />
-        <div className="mt-2 text-center text-sm">
-          {`検索結果: ${totalCount}`}
-        </div>
-      </div>
+      {isLoading ? (
+        <div className="text-center mt-4">読み込み中...</div>
+      ) : (
+        <>
+          <BookSearchResults books={books} view={view} />
+          <div className="mt-4">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+            <div className="mt-2 text-center text-sm">
+              {`検索結果: ${totalCount}`}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 };
