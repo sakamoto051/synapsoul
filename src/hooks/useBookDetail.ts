@@ -40,7 +40,7 @@ export const useBookDetail = (isbn: string, initialBook: BookItem) => {
       } else {
       }
     } catch (error) {
-      console.error("Error fetching book details:", error);
+      // console.error("Error fetching book details:", error);
     }
   }, [isbn]);
 
@@ -95,7 +95,7 @@ export const useBookDetail = (isbn: string, initialBook: BookItem) => {
         });
       }
     } catch (error) {
-      console.error("Error updating book status:", error);
+      // console.error("Error updating book status:", error);
       toast({
         title: "エラー",
         description: "本のステータス更新中にエラーが発生しました。",

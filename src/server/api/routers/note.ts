@@ -132,7 +132,7 @@ export const noteRouter = createTRPCRouter({
         try {
           await fs.unlink(filePath);
         } catch (error) {
-          console.error(`Failed to delete file: ${filePath}`, error);
+          // console.error(`Failed to delete file: ${filePath}`, error);
         }
       }
 

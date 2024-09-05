@@ -38,7 +38,7 @@ export const useRoomDetail = (roomId: number) => {
         };
       }
     } catch (error) {
-      console.error("Error starting screen share:", error);
+      // console.error("Error starting screen share:", error);
       toast({
         title: "Error",
         description: "Failed to start screen sharing",

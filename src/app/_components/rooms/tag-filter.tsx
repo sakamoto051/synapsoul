@@ -23,10 +23,10 @@ const TagFilter = ({
   const handleTagClick = (tag: Tag) => {
     if (selectedTags.includes(tag)) {
       setSelectedTags(selectedTags.filter((t) => t !== tag));
-      console.log(selectedTags);
+      // console.log(selectedTags);
     } else {
       setSelectedTags([...selectedTags, tag]);
-      console.log(selectedTags);
+      // console.log(selectedTags);
     }
   };
 

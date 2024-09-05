@@ -77,7 +77,7 @@ async function fetchBookInfo(isbn: string): Promise<BookWithDetails | null> {
     const response = await fetchWithTimeout(`${API_ENDPOINT}&isbn=${isbn}`);
     if (!response.ok) {
       if (response.status === 429) {
-        console.warn("Rate limit exceeded. Waiting before retry...");
+        // console.warn("Rate limit exceeded. Waiting before retry...");
         await new Promise((resolve) => setTimeout(resolve, 5000));
         return fetchBookInfo(isbn); // Retry after waiting
       }
@@ -97,10 +97,10 @@ async function fetchBookInfo(isbn: string): Promise<BookWithDetails | null> {
       bookCache.set(isbn, bookInfo);
       return bookInfo;
     }
-    console.warn(`No book info found for ISBN: ${isbn}`);
+    // console.warn(`No book info found for ISBN: ${isbn}`);
     return null;
   } catch (error) {
-    console.error(`Error fetching book info for ISBN ${isbn}:`, error);
+    // console.error(`Error fetching book info for ISBN ${isbn}:`, error);
     return null;
   }
 }
@@ -183,7 +183,7 @@ export const bookRouter = createTRPCRouter({
 
           return { success: true, message: "Book and related notes removed" };
         } catch (error) {
-          console.error("Error removing book and notes:", error);
+          // console.error("Error removing book and notes:", error);
           throw new TRPCError({
             code: "INTERNAL_SERVER_ERROR",
             message: "Failed to remove book and related notes",
@@ -222,9 +222,9 @@ export const bookRouter = createTRPCRouter({
         books.map(async (book) => {
           const bookInfo = await fetchBookInfo(book.isbn);
           if (!bookInfo) {
-            console.warn(
-              `Failed to fetch info for book with ISBN: ${book.isbn}`,
-            );
+            // console.warn(
+            //   `Failed to fetch info for book with ISBN: ${book.isbn}`,
+            // );
             return null;
           }
           return {
@@ -238,17 +238,17 @@ export const bookRouter = createTRPCRouter({
         (book): book is BookWithDetails => book !== null,
       );
 
-      console.log(
-        `Successfully fetched info for ${validBooks.length} out of ${books.length} books`,
-      );
+      // console.log(
+      //   `Successfully fetched info for ${validBooks.length} out of ${books.length} books`,
+      // );
 
       return validBooks;
     } catch (error) {
-      console.error("Error in getUserBooks:", error);
-      throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "An error occurred while fetching user books",
-      });
+      // console.error("Error in getUserBooks:", error);
+      // throw new TRPCError({
+      //   code: "INTERNAL_SERVER_ERROR",
+      //   message: "An error occurred while fetching user books",
+      // });
     }
   }),
 

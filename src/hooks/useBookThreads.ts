@@ -32,7 +32,7 @@ export const useBookThreads = (isbn: string) => {
       });
       router.push(`/books/${isbn}/threads/${thread.id}`);
     } catch (error) {
-      console.error("Error creating thread:", error);
+      // console.error("Error creating thread:", error);
       toast({
         title: "エラー",
         description: "スレッドの作成中にエラーが発生しました。",

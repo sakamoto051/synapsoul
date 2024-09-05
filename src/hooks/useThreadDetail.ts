@@ -35,7 +35,7 @@ export const useThreadDetail = (threadId: number) => {
         description: "コメントが投稿されました。",
       });
     } catch (error) {
-      console.error("Error creating comment:", error);
+      // console.error("Error creating comment:", error);
       toast({
         title: "エラー",
         description: "コメントの投稿中にエラーが発生しました。",
@@ -53,7 +53,7 @@ export const useThreadDetail = (threadId: number) => {
         description: "コメントが削除されました。",
       });
     } catch (error) {
-      console.error("Error deleting comment:", error);
+      // console.error("Error deleting comment:", error);
       toast({
         title: "エラー",
         description: "コメントの削除中にエラーが発生しました。",
@@ -71,7 +71,7 @@ export const useThreadDetail = (threadId: number) => {
         description: "コメントが編集されました。",
       });
     } catch (error) {
-      console.error("Error editing comment:", error);
+      // console.error("Error editing comment:", error);
       toast({
         title: "エラー",
         description: "コメントの編集中にエラーが発生しました。",
@@ -89,7 +89,7 @@ export const useThreadDetail = (threadId: number) => {
         description: "コメントにいいねしました。",
       });
     } catch (error) {
-      console.error("Error liking comment:", error);
+      // console.error("Error liking comment:", error);
       toast({
         title: "エラー",
         description: "いいねの処理中にエラーが発生しました。",
@@ -107,7 +107,7 @@ export const useThreadDetail = (threadId: number) => {
         description: "コメントのいいねを取り消しました。",
       });
     } catch (error) {
-      console.error("Error unliking comment:", error);
+      // console.error("Error unliking comment:", error);
       toast({
         title: "エラー",
         description: "いいね取り消しの処理中にエラーが発生しました。",

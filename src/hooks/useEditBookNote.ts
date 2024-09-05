@@ -130,7 +130,7 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
       router.push(`/books/${isbn}/notes/${noteId}`);
     } catch (error) {
       setIsLoading(false);
-      console.error("Error updating note:", error);
+      // console.error("Error updating note:", error);
       toast({
         title: "エラー",
         description: "ノートの更新中にエラーが発生しました。",
@@ -191,7 +191,7 @@ export const useEditBookNote = (isbn: string, noteId: number) => {
       });
       router.push(`/books/${isbn}/notes`);
     } catch (error) {
-      console.error("Error deleting note:", error);
+      // console.error("Error deleting note:", error);
       toast({
         title: "エラー",
         description: "ノートの削除中にエラーが発生しました。",

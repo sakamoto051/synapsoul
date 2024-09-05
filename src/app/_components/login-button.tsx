@@ -13,7 +13,7 @@ const LoginButton = ({ isOpen }: { isOpen: boolean }) => {
     try {
       await signIn("google", { callbackUrl: "/" });
     } catch (error) {
-      console.error("Sign in failed", error);
+      // console.error("Sign in failed", error);
     } finally {
       setIsLoading(false);
     }
@@ -24,7 +24,7 @@ const LoginButton = ({ isOpen }: { isOpen: boolean }) => {
     try {
       await signOut({ callbackUrl: "/" });
     } catch (error) {
-      console.error("Sign out failed", error);
+      // console.error("Sign out failed", error);
     } finally {
       setIsLoading(false);
     }

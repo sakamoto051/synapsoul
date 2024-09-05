@@ -26,11 +26,11 @@ export const useRoomCreation = () => {
         content: roomContent,
         tags: tags.map(({ ...tag }) => tag),
       });
-      console.log("Room created.");
+      // console.log("Room created.");
       await refetch();
       router.push("/rooms");
     } catch (error) {
-      console.error("Room create error:", error);
+      // console.error("Room create error:", error);
     }
   };
 

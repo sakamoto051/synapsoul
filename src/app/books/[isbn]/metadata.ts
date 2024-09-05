@@ -11,7 +11,7 @@ export async function fetchBookData(isbn: string): Promise<BookItem | null> {
     const data = (await response.json()) as BookResponse;
     return data.Items?.[0]?.Item ?? null;
   } catch (error) {
-    console.error("Error fetching book details:", error);
+    // console.error("Error fetching book details:", error);
     return null;
   }
 }

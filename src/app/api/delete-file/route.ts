@@ -12,7 +12,7 @@ export async function POST(request: Request): Promise<NextResponse> {
     await del(url);
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error deleting file:", error);
+    // console.error("Error deleting file:", error);
     return NextResponse.json({ error: "Delete failed" }, { status: 500 });
   }
 }

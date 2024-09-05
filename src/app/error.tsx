@@ -11,9 +11,9 @@ export default function CustomError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  useEffect(() => {
-    console.error(error);
-  }, [error]);
+  // useEffect(() => {
+  //   console.error(error);
+  // }, [error]);
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">

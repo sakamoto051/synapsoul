@@ -42,7 +42,7 @@ export const useMyBooks = () => {
             : `"${book.title}" をマイブックから削除しました。`,
         });
       } catch (error) {
-        console.error("Error updating book status:", error);
+        // console.error("Error updating book status:", error);
         toast({
           title: "エラー",
           description: "ステータスの更新中にエラーが発生しました。",

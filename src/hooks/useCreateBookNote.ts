@@ -43,7 +43,7 @@ export const useCreateBookNote = (isbn: string) => {
       });
       router.push(`/books/${isbn}/notes`);
     } catch (error) {
-      console.error("Error creating note:", error);
+      // console.error("Error creating note:", error);
       toast({
         title: "エラー",
         description: "読書メモの作成中にエラーが発生しました。",
