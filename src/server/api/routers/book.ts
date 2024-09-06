@@ -8,6 +8,7 @@ import { BookStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import type { BookResponse, BookWithDetails } from "~/types/book";
 import NodeCache from "node-cache";
+import { importUserBooks } from '~/lib/bookImportService';
 
 const API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
 const CACHE_TTL = 60 * 60 * 24; // 24 hours
@@ -264,5 +265,14 @@ export const bookRouter = createTRPCRouter({
         },
         include: { notes: { orderBy: { updatedAt: "desc" } } },
       });
+    }),
+
+  importBooks: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const bookMakerId = Number(input.userId);
+      const userId = Number(ctx.session.user.id);
+      const result = await importUserBooks(bookMakerId, userId);
+      return result;
     }),
 });

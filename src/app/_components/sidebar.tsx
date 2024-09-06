@@ -96,6 +96,12 @@ const Sidebar = () => {
                     My Books
                   </Button>
                 </NextLink>
+                <NextLink href="/books/data-import">
+                  <Button variant="ghost" className="w-full justify-start mb-2">
+                    <BookOpen className="mr-2" />
+                    データインポート
+                  </Button>
+                </NextLink>
               </div>
             )}
           </div>

@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { TRPCReactProvider } from "~/trpc/react";
 import Sidebar from "./_components/sidebar";
+import { Toaster } from '~/components/ui/toaster';
 
 export const metadata: Metadata = {
   title: {
@@ -50,6 +51,7 @@ export default function RootLayout({
             <Sidebar />
             <main className="flex-grow bg-gray-900 p-2 sm:p-4">{children}</main>
           </div>
+          <Toaster />
         </TRPCReactProvider>
         <Analytics />
       </body>
