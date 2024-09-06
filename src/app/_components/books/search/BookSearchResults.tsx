@@ -16,8 +16,8 @@ export const BookSearchResults: React.FC<BookSearchResultsProps> = ({
   <div
     className={
       view === "grid"
-        ? "grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-2 sm:gap-3 md:gap-4"
-        : "space-y-3"
+        ? "grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 2xl:grid-cols-10 gap-2"
+        : "space-y-2"
     }
   >
     {books.map((book) =>

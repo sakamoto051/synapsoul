@@ -39,7 +39,7 @@ export const BookSearchForm: React.FC<BookSearchFormProps> = ({
   view,
 }) => {
   return (
-    <form onSubmit={onSubmit} className="mb-4 space-y-4">
+    <form onSubmit={onSubmit} className="mb-3 space-y-2">
       <div className="flex flex-col space-y-2">
         <Input
           type="text"

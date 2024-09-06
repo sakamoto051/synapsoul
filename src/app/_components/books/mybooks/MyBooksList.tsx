@@ -12,7 +12,7 @@ export const MyBooksList: React.FC<MyBooksListProps> = ({
   books,
   onStatusChange,
 }) => (
-  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2 sm:gap-3">
     {books.map((book) => (
       <BookCard
         key={book.isbn}
@@ -20,11 +20,11 @@ export const MyBooksList: React.FC<MyBooksListProps> = ({
         onStatusChange={onStatusChange}
         isInMyBooks={true}
         showStatus={true}
-        size="large"
+        size="small"
       />
     ))}
     {books.length === 0 && (
-      <div className="col-span-full text-center py-10 text-gray-400">
+      <div className="col-span-full text-center py-6 text-gray-400">
         <p className="text-lg">条件に一致する本が見つかりません。</p>
         <p className="mt-2">
           検索条件を変更するか、新しい本を追加してください。

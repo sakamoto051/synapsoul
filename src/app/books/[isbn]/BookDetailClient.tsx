@@ -49,16 +49,16 @@ const BookDetailClient = ({
       >
         {JSON.stringify(structuredData)}
       </Script>
-      <div className="container mx-auto px-4 py-4 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-2 py-2 sm:px-4 sm:py-4">
         <Button
           onClick={handleBack}
-          className="mb-4 bg-gray-700 text-white hover:bg-gray-600"
+          className="mb-2 bg-gray-700 text-white hover:bg-gray-600"
         >
           <ChevronLeft className="mr-2 h-4 w-4" />
           戻る
         </Button>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="md:col-span-2">
             <BookInfo book={book} />
           </div>
@@ -72,7 +72,7 @@ const BookDetailClient = ({
           </div>
         </div>
 
-        <div className="mt-6">
+        <div className="mt-4">
           <Button
             onClick={() => setShowThreads(!showThreads)}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white"
@@ -81,7 +81,7 @@ const BookDetailClient = ({
             {showThreads ? "スレッド一覧を隠す" : "スレッド一覧を表示"}
           </Button>
           {showThreads && (
-            <div className="mt-4">
+            <div className="mt-3">
               <BookThreadList />
             </div>
           )}

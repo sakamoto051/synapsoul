@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { BookStatusDropdown } from "~/app/_components/books/BookStatusDropDown";
 import type { BookWithDetails } from "~/types/book";
 import type { BookStatus } from "@prisma/client";
@@ -29,46 +29,47 @@ const BookCard: React.FC<BookCardProps> = ({
   return (
     <Card
       className={`
-        bg-gray-900 text-gray-100 border-none shadow-lg flex flex-col 
-        transition-all duration-300 ease-in-out hover:shadow-xl hover:bg-gray-800 
-        w-full h-full
-      `}
+  bg-gray-900 text-gray-100 border-none shadow-sm hover:shadow-md
+  transition-all duration-300 ease-in-out hover:bg-gray-800 
+  w-full h-full flex flex-col
+`}
     >
-      <Link href={`/books/${book.isbn}`} className="flex-grow flex flex-col">
+      <Link
+        href={`/books/${book.isbn}`}
+        className="flex-grow flex flex-col p-2"
+      >
         <div
-          className={`pt-2 ${isLarge ? "h-[180px]" : "h-[140px]"} flex items-center justify-center`}
+          className={`${isLarge ? "h-[160px]" : "h-[120px]"} flex items-center justify-center`}
         >
           <Image
-            src={book.largeImageUrl || "/api/placeholder/120/180"}
+            src={book.largeImageUrl || "/api/placeholder/100/150"}
             alt={book.title || "Book cover"}
-            width={isLarge ? 120 : 80}
-            height={isLarge ? 180 : 120}
+            width={isLarge ? 100 : 80}
+            height={isLarge ? 150 : 120}
             className="object-contain max-h-full"
           />
         </div>
-        <CardContent className="p-2 flex-grow flex flex-col justify-between">
-          <div>
-            <h3
-              className={`font-medium text-blue-300 line-clamp-2 ${isLarge ? "text-sm" : "text-xs"}`}
-            >
-              {book.title || "Unknown Title"}
-            </h3>
-            <p
-              className={`text-gray-400 line-clamp-1 ${isLarge ? "text-xs" : "text-[10px]"}`}
-            >
-              {book.author || "Unknown Author"}
-            </p>
-          </div>
-        </CardContent>
+        <div className="flex-grow flex flex-col justify-between mt-2">
+          <h3
+            className={`font-medium text-blue-300 line-clamp-2 ${isLarge ? "text-sm" : "text-xs"}`}
+          >
+            {book.title || "Unknown Title"}
+          </h3>
+          <p
+            className={`text-gray-400 line-clamp-1 ${isLarge ? "text-xs" : "text-[10px]"}`}
+          >
+            {book.author || "Unknown Author"}
+          </p>
+        </div>
       </Link>
       {showStatusDropdown && (
-        <CardFooter className="p-2 mt-auto">
+        <div className="p-2 mt-auto">
           <BookStatusDropdown
             currentStatus={book.status}
             onStatusChange={(newStatus) => onStatusChange(book, newStatus)}
             isInMyBooks={isInMyBooks}
           />
-        </CardFooter>
+        </div>
       )}
     </Card>
   );
