@@ -1,4 +1,5 @@
-// lib/bookImportService.ts (サーバーサイド)
+// src/lib/bookImportService.ts
+
 import fetch from "node-fetch";
 import { JSDOM } from "jsdom";
 import { BookStatus, PrismaClient } from "@prisma/client";
@@ -7,6 +8,13 @@ import type {
   ExternalBookStoresResponse,
   ImportBooksResult,
 } from "@/types/bookMeter";
+
+const BOOK_TYPES = [
+  { url: "read", status: BookStatus.FINISHED },
+  { url: "reading", status: BookStatus.READING },
+  { url: "stacked", status: BookStatus.TO_READ },
+  { url: "wish", status: BookStatus.INTERESTED },
+];
 
 export async function importUserBooks(
   bookMakerId: number,
@@ -19,8 +27,46 @@ export async function importUserBooks(
   let failedImports = 0;
 
   try {
-    // 総本数を取得
-    const firstPageUrl = `https://bookmeter.com/users/${bookMakerId}/books/read?page=1`;
+    for (const bookType of BOOK_TYPES) {
+      const { count, processed, successful, failed } = await importBooksByType(
+        bookMakerId,
+        userId,
+        bookType.url,
+        bookType.status,
+        progressCallback,
+      );
+      totalBooks += count;
+      processedBooks += processed;
+      successfulImports += successful;
+      failedImports += failed;
+    }
+
+    return { totalBooks, processedBooks, successfulImports, failedImports };
+  } catch (error) {
+    console.error("Error in importUserBooks:", error);
+    throw error;
+  }
+}
+
+async function importBooksByType(
+  bookMakerId: number,
+  userId: number,
+  bookTypeUrl: string,
+  bookStatus: BookStatus,
+  progressCallback: (progress: number) => void,
+): Promise<{
+  count: number;
+  processed: number;
+  successful: number;
+  failed: number;
+}> {
+  let count = 0;
+  let processed = 0;
+  let successful = 0;
+  let failed = 0;
+
+  try {
+    const firstPageUrl = `https://bookmeter.com/users/${bookMakerId}/books/${bookTypeUrl}?page=1`;
     const firstPageResponse = await fetch(firstPageUrl);
     if (!firstPageResponse.ok) {
       throw new Error(`HTTP error! status: ${firstPageResponse.status}`);
@@ -34,7 +80,7 @@ export async function importUserBooks(
     if (totalBooksElement) {
       const match = totalBooksElement.textContent?.match(/全(\d+)件/);
       if (match) {
-        totalBooks = Number.parseInt(match[1] ?? "", 10);
+        count = Number.parseInt(match[1] ?? "", 10);
       }
     }
 
@@ -42,7 +88,7 @@ export async function importUserBooks(
     let hasNextPage = true;
 
     while (hasNextPage) {
-      const url = `https://bookmeter.com/users/${bookMakerId}/books/read?page=${page}`;
+      const url = `https://bookmeter.com/users/${bookMakerId}/books/${bookTypeUrl}?page=${page}`;
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -57,15 +103,14 @@ export async function importUserBooks(
       for (const link of bookLinks) {
         const bookId = link.getAttribute("href")?.split("/")[2];
         if (bookId) {
-          const result = await processBook(bookId, userId);
-          processedBooks++;
+          const result = await processBook(bookId, userId, bookStatus);
+          processed++;
           if (result) {
-            successfulImports++;
+            successful++;
           } else {
-            failedImports++;
+            failed++;
           }
-          // 進捗を報告
-          progressCallback(Math.round((processedBooks / totalBooks) * 100));
+          progressCallback(Math.round((processed / count) * 100));
         }
       }
 
@@ -76,14 +121,18 @@ export async function importUserBooks(
       page++;
     }
 
-    return { totalBooks, processedBooks, successfulImports, failedImports };
+    return { count, processed, successful, failed };
   } catch (error) {
-    console.error("Error in importUserBooks:", error);
+    console.error(`Error in importBooksByType (${bookTypeUrl}):`, error);
     throw error;
   }
 }
 
-async function processBook(bookId: string, userId: number): Promise<boolean> {
+async function processBook(
+  bookId: string,
+  userId: number,
+  status: BookStatus,
+): Promise<boolean> {
   try {
     const url = `https://bookmeter.com/api/v1/books/${bookId}/external_book_stores.json`;
     const response = await fetch(url);
@@ -97,7 +146,7 @@ async function processBook(bookId: string, userId: number): Promise<boolean> {
     if (kinokuniyaStore) {
       const isbn = extractIsbnFromUrl(kinokuniyaStore.url);
       if (isbn) {
-        await saveBookToDatabase(isbn, userId);
+        await saveBookToDatabase(isbn, userId, status);
         return true;
       }
     }
@@ -113,7 +162,11 @@ function extractIsbnFromUrl(url: string): string | null | undefined {
   return match ? match[1] : null;
 }
 
-async function saveBookToDatabase(isbn: string, userId: number): Promise<void> {
+async function saveBookToDatabase(
+  isbn: string,
+  userId: number,
+  status: BookStatus,
+): Promise<void> {
   try {
     await prisma.book.upsert({
       where: {
@@ -122,11 +175,11 @@ async function saveBookToDatabase(isbn: string, userId: number): Promise<void> {
           userId: userId,
         },
       },
-      update: { status: "FINISHED" },
+      update: { status: status },
       create: {
         isbn: isbn,
         userId: userId,
-        status: BookStatus.FINISHED,
+        status: status,
       },
     });
   } catch (error) {
