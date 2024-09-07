@@ -6,6 +6,7 @@ import { bookRouter } from "./routers/book";
 import { bookThreadRouter } from "./routers/book-thread";
 import { noteRouter } from "./routers/note";
 import { userRouter } from "./routers/user";
+import { feedbackRouter } from "./routers/feedback";
 
 /**
  * This is the primary router for your server.
@@ -20,6 +21,7 @@ export const appRouter = createTRPCRouter({
   bookThread: bookThreadRouter,
   note: noteRouter,
   user: userRouter,
+  feedback: feedbackRouter,
 });
 
 // export type definition of API

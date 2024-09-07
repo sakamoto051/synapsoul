@@ -12,6 +12,7 @@ import {
   Settings,
   Menu,
   Download,
+  MessageSquare,
 } from "lucide-react";
 import NextLink from "next/link";
 import LoginButton from "./login-button";
@@ -106,6 +107,12 @@ const Sidebar = () => {
               </div>
             )}
           </div>
+          <NextLink href="/feedback">
+            <Button variant="ghost" className="w-full justify-start mb-2">
+              <MessageSquare className="mr-2" />
+              {(isOpen || !isDesktop) && "フィードバック"}
+            </Button>
+          </NextLink>
           <SessionProvider>
             <NextLink href="/settings" passHref>
               <Button variant="ghost" className="w-full justify-start mb-2">
