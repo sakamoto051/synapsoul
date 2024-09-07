@@ -5,11 +5,15 @@ import { api } from "~/trpc/react";
 import { Button } from "~/components/ui/button";
 import { Textarea } from "~/components/ui/textarea";
 import { useToast } from "~/components/ui/use-toast";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export function FeedbackForm() {
   const [content, setContent] = useState("");
   const { toast } = useToast();
   const utils = api.useUtils();
+  const session = useSession();
+  const router = useRouter();
 
   const createFeedback = api.feedback.create.useMutation({
     onSuccess: async () => {
@@ -39,9 +43,24 @@ export function FeedbackForm() {
         placeholder="フィードバックを入力してください"
         className="min-h-[100px] bg-gray-700 border-none text-white"
       />
-      <Button type="submit" disabled={createFeedback.isPending}>
-        {createFeedback.isPending ? "送信中..." : "フィードバックを送信"}
-      </Button>
+      {session.data?.user?.id ? (
+        <Button
+          type="submit"
+          disabled={createFeedback.isPending}
+          className="bg-gray-700 hover:bg-gray-800 text-white"
+        >
+          {createFeedback.isPending ? "送信中..." : "フィードバックを送信"}
+        </Button>
+      ) : (
+        <Button
+          className="w-full bg-gray-600 text-white"
+          onClick={() => {
+            router.push("/api/auth/signin");
+          }}
+        >
+          ログインしてフィードバックを投稿する
+        </Button>
+      )}
     </form>
   );
 }
