@@ -49,7 +49,9 @@ export async function importUserBooks(
       const dom = new JSDOM(html);
       const document = dom.window.document;
 
-      const bookLinks = document.querySelectorAll('a[href^="/books/"]');
+      const bookLinks = document.querySelectorAll(
+        '.book__detail .detail__title a[href^="/books/"]',
+      );
       for (const link of bookLinks) {
         const bookId = link.getAttribute("href")?.split("/")[2];
         if (bookId) {
