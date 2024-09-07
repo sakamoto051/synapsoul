@@ -123,12 +123,12 @@ export const useBookSearch = () => {
           apiUrl += `&publisherName=${encodeURIComponent(publisher)}`;
         if (genre) apiUrl += `&booksGenreId=${encodeURIComponent(genre)}`;
 
-        console.log("Fetching books with URL:", apiUrl); // デバッグ用ログ
+        // console.log("Fetching books with URL:", apiUrl); // デバッグ用ログ
 
         const response = await fetch(apiUrl);
         const data: BookResponse = (await response.json()) as BookResponse;
 
-        console.log("API Response:", data); // デバッグ用ログ
+        // console.log("API Response:", data); // デバッグ用ログ
 
         setBooks(data.Items.map((item: BookItemWrapper) => item.Item));
         setTotalPages(data.pageCount || 1);
@@ -136,7 +136,7 @@ export const useBookSearch = () => {
         setCurrentPage(page);
         updateUrlParams(title, author, publisher, genre, page);
       } catch (error) {
-        console.error("Error fetching books:", error);
+        // console.error("Error fetching books:", error);
         setBooks([]);
         setTotalPages(1);
         setTotalCount(0);

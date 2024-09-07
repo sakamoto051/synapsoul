@@ -1,5 +1,4 @@
 "use client";
-// components/DataImportForm.tsx
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,7 +43,24 @@ export default function DataImportForm() {
 
     setIsLoading(true);
     setProgress(0);
-    importBooksMutation.mutate({ userId });
+
+    // WebSocketやServer-Sent Eventsを使用して進捗を受け取る
+    // ここでは簡単のため、setIntervalを使用してシミュレート
+    const progressInterval = setInterval(() => {
+      setProgress((prevProgress) => {
+        if (prevProgress >= 100) {
+          clearInterval(progressInterval);
+          return 100;
+        }
+        return prevProgress + 1;
+      });
+    }, 100);
+
+    try {
+      await importBooksMutation.mutateAsync({ userId });
+    } finally {
+      clearInterval(progressInterval);
+    }
   };
 
   return (

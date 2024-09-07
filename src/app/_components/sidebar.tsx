@@ -11,6 +11,7 @@ import {
   Search,
   Settings,
   Menu,
+  Download,
 } from "lucide-react";
 import NextLink from "next/link";
 import LoginButton from "./login-button";
@@ -98,7 +99,7 @@ const Sidebar = () => {
                 </NextLink>
                 <NextLink href="/books/data-import">
                   <Button variant="ghost" className="w-full justify-start mb-2">
-                    <BookOpen className="mr-2" />
+                    <Download className="mr-2" />
                     データインポート
                   </Button>
                 </NextLink>

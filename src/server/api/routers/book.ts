@@ -8,7 +8,7 @@ import { BookStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import type { BookResponse, BookWithDetails } from "~/types/book";
 import NodeCache from "node-cache";
-import { importUserBooks } from '~/lib/bookImportService';
+import { importUserBooks } from "~/lib/bookImportService";
 
 const API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
 const CACHE_TTL = 60 * 60 * 24; // 24 hours
@@ -272,7 +272,19 @@ export const bookRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const bookMakerId = Number(input.userId);
       const userId = Number(ctx.session.user.id);
-      const result = await importUserBooks(bookMakerId, userId);
+
+      // 進捗を追跡するための関数を作成
+      const progressCallback = (progress: number) => {
+        // WebSocketやServer-Sent Eventsを使用して、クライアントに進捗を送信
+        // ここでは簡単のため、コンソールにログを出力
+        console.log(`Import progress: ${progress}%`);
+      };
+
+      const result = await importUserBooks(
+        bookMakerId,
+        userId,
+        progressCallback,
+      );
       return result;
     }),
 });

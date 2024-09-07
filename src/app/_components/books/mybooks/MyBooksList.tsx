@@ -29,6 +29,9 @@ export const MyBooksList: React.FC<MyBooksListProps> = ({
         <p className="mt-2">
           検索条件を変更するか、新しい本を追加してください。
         </p>
+        <p className="mt-2">
+          ※反映まで数分かかる可能性があります。
+        </p>
       </div>
     )}
   </div>

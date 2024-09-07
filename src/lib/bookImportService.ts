@@ -11,9 +11,8 @@ import type {
 export async function importUserBooks(
   bookMakerId: number,
   userId: number,
+  progressCallback: (progress: number) => void,
 ): Promise<ImportBooksResult> {
-  let page = 1;
-  let hasNextPage = true;
   let totalBooks = 0;
   let processedBooks = 0;
   let successfulImports = 0;
@@ -39,6 +38,9 @@ export async function importUserBooks(
       }
     }
 
+    let page = 1;
+    let hasNextPage = true;
+
     while (hasNextPage) {
       const url = `https://bookmeter.com/users/${bookMakerId}/books/read?page=${page}`;
       const response = await fetch(url);
@@ -62,6 +64,8 @@ export async function importUserBooks(
           } else {
             failedImports++;
           }
+          // 進捗を報告
+          progressCallback(Math.round((processedBooks / totalBooks) * 100));
         }
       }
 
