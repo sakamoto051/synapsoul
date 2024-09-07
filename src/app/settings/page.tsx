@@ -1,11 +1,52 @@
-// src/app/settings/page.tsx
 "use client";
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User } from "lucide-react";
+import { User, Trash2 } from "lucide-react";
+import { api } from "~/trpc/react";
+import { useToast } from "@/components/ui/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const SettingsPage = () => {
+  const [isDeleting, setIsDeleting] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
+  const deleteAccountMutation = api.user.deleteAccount.useMutation();
+
+  const handleDeleteAccount = async () => {
+    setIsDeleting(true);
+    try {
+      await deleteAccountMutation.mutateAsync();
+      toast({
+        title: "アカウントが削除されました",
+        description: "ご利用ありがとうございました。",
+      });
+      await signOut({ redirect: false });
+      router.push("/");
+    } catch (error) {
+      toast({
+        title: "エラー",
+        description: "アカウントの削除中にエラーが発生しました。",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <Card className="max-w-2xl mx-auto">
@@ -20,18 +61,33 @@ const SettingsPage = () => {
                 プロフィール設定
               </Button>
             </Link>
-            {/* <Link href="/settings/notifications" passHref>
-              <Button variant="outline" className="w-full justify-start">
-                <Bell className="mr-2" />
-                通知設定
-              </Button>
-            </Link> */}
-            {/* <Link href="/settings/security" passHref>
-              <Button variant="outline" className="w-full justify-start">
-                <Shield className="mr-2" />
-                セキュリティ設定
-              </Button>
-            </Link> */}
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" className="w-full justify-start">
+                  <Trash2 className="mr-2" />
+                  アカウントを削除
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    本当にアカウントを削除しますか？
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    この操作は取り消せません。全てのデータが完全に削除されます。
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={handleDeleteAccount}
+                    disabled={isDeleting}
+                  >
+                    {isDeleting ? "削除中..." : "削除する"}
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </nav>
         </CardContent>
       </Card>
