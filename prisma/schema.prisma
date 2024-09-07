@@ -114,8 +114,43 @@ model Tag {
   room      Room[]
 }
 
+model BookAPI {
+  isbn            String   @unique @id
+  affiliateUrl    String
+  author          String
+  authorKana      String
+  availability    String
+  booksGenreId    String
+  chirayomiUrl    String
+  contents        String
+  discountPrice   Int
+  discountRate    Int
+  itemCaption     String
+  itemPrice       Int
+  itemUrl         String
+  largeImageUrl   String
+  limitedFlag     Int
+  listPrice       Int
+  mediumImageUrl  String
+  postageFlag     Int
+  publisherName   String
+  reviewAverage   String
+  reviewCount     Int
+  salesDate       String
+  seriesName      String
+  seriesNameKana  String
+  size            String
+  smallImageUrl   String
+  subTitle        String
+  subTitleKana    String
+  title           String
+  titleKana       String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
 model Book {
-  id        Int    @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   isbn      String
   userId    Int
   status    BookStatus

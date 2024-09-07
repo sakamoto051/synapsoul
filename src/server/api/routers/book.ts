@@ -4,15 +4,13 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { BookStatus } from "@prisma/client";
+import { type BookAPI, BookStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
 import type { BookResponse, BookWithDetails } from "~/types/book";
-import NodeCache from "node-cache";
 import { importUserBooks } from "~/lib/bookImportService";
+import { db } from "~/server/db";
 
 const API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
-const CACHE_TTL = 60 * 60 * 24; // 24 hours
-const bookCache = new NodeCache({ stdTTL: CACHE_TTL });
 
 class RateLimiter {
   private tokenBucket: number;
@@ -66,44 +64,91 @@ async function fetchWithTimeout(
   return response;
 }
 
-async function fetchBookInfo(isbn: string): Promise<BookWithDetails | null> {
-  const cachedBook = bookCache.get<BookWithDetails>(isbn);
-  if (cachedBook) {
-    return cachedBook;
-  }
+async function fetchBookInfo(isbn: string): Promise<BookAPI | null> {
+  // First, check if the book exists in the BookAPI table
+  let bookAPI: BookAPI | null = await db.bookAPI.findUnique({
+    where: { isbn },
+  });
 
-  await rateLimiter.waitForToken();
+  if (!bookAPI) {
+    // If not in DB, fetch from API
+    await rateLimiter.waitForToken();
 
-  try {
-    const response = await fetchWithTimeout(`${API_ENDPOINT}&isbn=${isbn}`);
-    if (!response.ok) {
-      if (response.status === 429) {
-        // console.warn("Rate limit exceeded. Waiting before retry...");
-        await new Promise((resolve) => setTimeout(resolve, 5000));
-        return fetchBookInfo(isbn); // Retry after waiting
+    try {
+      const response = await fetchWithTimeout(`${API_ENDPOINT}&isbn=${isbn}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const data = (await response.json()) as BookResponse;
+      if (data.Items && data.Items.length > 0 && data.Items[0]) {
+        const apiBookInfo = data.Items[0].Item;
+
+        // Save the API data to BookAPI table
+        bookAPI = await db.bookAPI.create({
+          data: {
+            isbn: isbn,
+            affiliateUrl: apiBookInfo.affiliateUrl,
+            author: apiBookInfo.author,
+            authorKana: apiBookInfo.authorKana,
+            availability: apiBookInfo.availability,
+            booksGenreId: apiBookInfo.booksGenreId,
+            chirayomiUrl: apiBookInfo.chirayomiUrl,
+            contents: apiBookInfo.contents,
+            discountPrice: apiBookInfo.discountPrice,
+            discountRate: apiBookInfo.discountRate,
+            itemCaption: apiBookInfo.itemCaption,
+            itemPrice: apiBookInfo.itemPrice,
+            itemUrl: apiBookInfo.itemUrl,
+            largeImageUrl: apiBookInfo.largeImageUrl,
+            limitedFlag: apiBookInfo.limitedFlag,
+            listPrice: apiBookInfo.listPrice,
+            mediumImageUrl: apiBookInfo.mediumImageUrl,
+            postageFlag: apiBookInfo.postageFlag,
+            publisherName: apiBookInfo.publisherName,
+            reviewAverage: apiBookInfo.reviewAverage,
+            reviewCount: apiBookInfo.reviewCount,
+            salesDate: apiBookInfo.salesDate,
+            seriesName: apiBookInfo.seriesName,
+            seriesNameKana: apiBookInfo.seriesNameKana,
+            size: apiBookInfo.size,
+            smallImageUrl: apiBookInfo.smallImageUrl,
+            subTitle: apiBookInfo.subTitle,
+            subTitleKana: apiBookInfo.subTitleKana,
+            title: apiBookInfo.title,
+            titleKana: apiBookInfo.titleKana,
+          },
+        });
+      }
+    } catch (error) {
+      console.error(`Error fetching book info for ISBN ${isbn}:`, error);
+      return null;
     }
-    const data = (await response.json()) as BookResponse;
-    if (data.Items && data.Items.length > 0 && data.Items[0]) {
-      const bookInfo: BookWithDetails = {
-        id: 0, // Add the 'id' property
-        ...data.Items[0].Item,
-        isbn: isbn,
-        status: "INTERESTED", // Default status, adjust as needed
-        userId: 0, // This will be set later
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      bookCache.set(isbn, bookInfo);
-      return bookInfo;
-    }
-    // console.warn(`No book info found for ISBN: ${isbn}`);
-    return null;
-  } catch (error) {
-    // console.error(`Error fetching book info for ISBN ${isbn}:`, error);
+  }
+
+  if (!bookAPI) {
     return null;
   }
+
+  return bookAPI;
+
+  // // Convert BookAPI to BookWithDetails
+  // const bookWithDetails: BookWithDetails = {
+  //   id: 0, // This will be set when creating a user's book
+  //   isbn: bookAPI.isbn,
+  //   title: bookAPI.title,
+  //   author: bookAPI.author ?? "",
+  //   publisherName: bookAPI.publisherName ?? "",
+  //   largeImageUrl: bookAPI.largeImageUrl ?? "",
+  //   itemCaption: bookAPI.itemCaption ?? "",
+  //   salesDate: bookAPI.salesDate ?? "",
+  //   itemPrice: bookAPI.itemPrice ?? 0,
+  //   status: "INTERESTED", // Default status
+  //   userId: 0, // This will be set when creating a user's book
+  //   createdAt: new Date(),
+  //   updatedAt: new Date(),
+  // };
+
+  // return bookWithDetails;
 }
 
 export const bookRouter = createTRPCRouter({
@@ -148,51 +193,20 @@ export const bookRouter = createTRPCRouter({
       }
 
       if (input.status === null) {
-        // ステータスがnullの場合、本を削除
-        try {
-          // トランザクションを使用して、本と関連する読書メモを一括で削除
-          await ctx.db.$transaction(async (prisma) => {
-            // まず、本を取得
-            const book = await prisma.book.findUnique({
-              where: {
-                isbn_userId: {
-                  isbn: input.isbn,
-                  userId: userId,
-                },
-              },
-            });
-
-            if (book) {
-              // 本が存在する場合、関連する読書メモを削除
-              await prisma.note.deleteMany({
-                where: {
-                  bookId: book.id,
-                },
-              });
-
-              // 本を削除
-              await prisma.book.delete({
-                where: {
-                  isbn_userId: {
-                    isbn: input.isbn,
-                    userId: userId,
-                  },
-                },
-              });
-            }
-          });
-
-          return { success: true, message: "Book and related notes removed" };
-        } catch (error) {
-          // console.error("Error removing book and notes:", error);
-          throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to remove book and related notes",
-          });
-        }
+        // Remove the book from user's books
+        await ctx.db.book.delete({
+          where: {
+            isbn_userId: {
+              isbn: input.isbn,
+              userId: userId,
+            },
+          },
+        });
+        return { success: true, message: "Book removed from user's books" };
       }
-      // ステータスが設定されている場合、upsert操作を行う
-      return ctx.db.book.upsert({
+
+      // Create or update the user's book
+      const updatedBook = await ctx.db.book.upsert({
         where: {
           isbn_userId: {
             isbn: input.isbn,
@@ -201,14 +215,15 @@ export const bookRouter = createTRPCRouter({
         },
         update: {
           status: input.status,
-          updatedAt: new Date(),
         },
         create: {
           isbn: input.isbn,
-          status: input.status,
           userId: userId,
+          status: input.status,
         },
       });
+
+      return updatedBook;
     }),
 
   getUserBooks: protectedProcedure.query(async ({ ctx }) => {
