@@ -72,6 +72,7 @@ model User {
   notes         Note[]
   comments      Comment[]
   feedbacks     Feedback[]
+  feedbackReactions FeedbackReaction[]
 }
 
 model VerificationToken {
@@ -203,7 +204,26 @@ model Feedback {
   id        Int      @id @default(autoincrement())
   content   String
   userId    Int
+  feedbackReactions FeedbackReaction[]
   user      User     @relation(fields: [userId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model FeedbackReaction {
+  id         Int      @id @default(autoincrement())
+  feedbackId Int
+  userId     Int
+  type       ReactionType
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  feedback   Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([feedbackId, userId])
+}
+
+enum ReactionType {
+  LIKE
+  DISLIKE
 }

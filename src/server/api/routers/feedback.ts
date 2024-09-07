@@ -20,7 +20,7 @@ export const feedbackRouter = createTRPCRouter({
 
   getAll: publicProcedure.query(({ ctx }) => {
     return ctx.db.feedback.findMany({
-      include: { user: true },
+      include: { user: true, feedbackReactions: true },
       orderBy: { createdAt: "desc" },
     });
   }),
@@ -49,6 +49,68 @@ export const feedbackRouter = createTRPCRouter({
 
       return ctx.db.feedback.delete({
         where: { id: input.id },
+      });
+    }),
+
+  upsertReaction: protectedProcedure
+    .input(
+      z.object({
+        feedbackId: z.number(),
+        type: z.union([z.literal("LIKE"), z.literal("DISLIKE")]),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.feedbackReaction.upsert({
+        where: {
+          feedbackId_userId: {
+            feedbackId: input.feedbackId,
+            userId: Number(ctx.session.user.id),
+          },
+        },
+        update: {
+          type: input.type,
+        },
+        create: {
+          feedbackId: input.feedbackId,
+          userId: Number(ctx.session.user.id),
+          type: input.type,
+        },
+      });
+    }),
+
+  addReaction: protectedProcedure
+    .input(
+      z.object({ feedbackId: z.number(), type: z.enum(["LIKE", "DISLIKE"]) }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { feedbackId, type } = input;
+      const userId = Number(ctx.session.user.id);
+
+      return ctx.db.feedbackReaction.upsert({
+        where: {
+          feedbackId_userId: {
+            feedbackId,
+            userId,
+          },
+        },
+        update: { type },
+        create: { feedbackId, userId, type },
+      });
+    }),
+
+  removeReaction: protectedProcedure
+    .input(z.object({ feedbackId: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      const { feedbackId } = input;
+      const userId = Number(ctx.session.user.id);
+
+      return ctx.db.feedbackReaction.delete({
+        where: {
+          feedbackId_userId: {
+            feedbackId,
+            userId,
+          },
+        },
       });
     }),
 });

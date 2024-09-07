@@ -2,17 +2,13 @@
 import { api } from "~/trpc/react";
 import { Card } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { ThumbsDown, ThumbsUp, Trash2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useToast } from "~/components/ui/use-toast";
 
 export function FeedbackList() {
   const { data: session } = useSession();
-  const {
-    data: feedbacks,
-    isLoading,
-    refetch,
-  } = api.feedback.getAll.useQuery();
+  const { data: feedbacks, refetch } = api.feedback.getAll.useQuery();
   const { toast } = useToast();
 
   const deleteFeedback = api.feedback.delete.useMutation({
@@ -28,10 +24,49 @@ export function FeedbackList() {
       });
     },
   });
-  console.log(session?.user.id);
-  console.log(feedbacks);
 
-  if (isLoading) return <div>読み込み中...</div>;
+  const addReaction = api.feedback.addReaction.useMutation({
+    onSuccess: () => refetch(),
+    onError: (error) => {
+      toast({
+        title: "エラー",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const removeReaction = api.feedback.removeReaction.useMutation({
+    onSuccess: () => refetch(),
+    onError: (error) => {
+      toast({
+        title: "エラー",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleReaction = (feedbackId: number, type: "LIKE" | "DISLIKE") => {
+    if (!session) {
+      toast({
+        title: "エラー",
+        description: "リアクションするにはログインが必要です。",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const existingReaction = feedbacks
+      ?.find((f) => f.id === feedbackId)
+      ?.feedbackReactions.find((r) => r.userId === Number(session.user.id));
+
+    if (existingReaction && existingReaction.type === type) {
+      removeReaction.mutate({ feedbackId });
+    } else {
+      addReaction.mutate({ feedbackId, type });
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -43,6 +78,49 @@ export function FeedbackList() {
               <p className="text-sm text-gray-500">
                 {new Date(feedback.createdAt).toLocaleString()}
               </p>
+              <div className="flex mt-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleReaction(feedback.id, "LIKE")}
+                  className={
+                    feedback?.feedbackReactions.some(
+                      (r) =>
+                        r.userId === Number(session?.user.id) &&
+                        r.type === "LIKE",
+                    )
+                      ? "text-blue-500"
+                      : ""
+                  }
+                >
+                  <ThumbsUp className="mr-2 h-4 w-4" />
+                  {
+                    feedback?.feedbackReactions.filter((r) => r.type === "LIKE")
+                      .length
+                  }
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleReaction(feedback.id, "DISLIKE")}
+                  className={
+                    feedback?.feedbackReactions.some(
+                      (r) =>
+                        r.userId === Number(session?.user.id) &&
+                        r.type === "DISLIKE",
+                    )
+                      ? "text-red-500"
+                      : ""
+                  }
+                >
+                  <ThumbsDown className="mr-2 h-4 w-4" />
+                  {
+                    feedback?.feedbackReactions.filter(
+                      (r) => r.type === "DISLIKE",
+                    ).length
+                  }
+                </Button>
+              </div>
             </div>
             <div className="flex items-center">
               {Number(session?.user.id) === Number(feedback.userId) && (
