@@ -9,6 +9,8 @@ import { TRPCError } from "@trpc/server";
 import type { BookResponse, BookWithDetails } from "~/types/book";
 import { importUserBooks } from "~/lib/bookImportService";
 import { db } from "~/server/db";
+import { kv } from "@vercel/kv";
+import type { ImportJobStatus } from '~/types/importJob';
 
 const API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
 
@@ -302,4 +304,49 @@ export const bookRouter = createTRPCRouter({
       );
       return result;
     }),
+
+  startImportBooks: protectedProcedure
+    .input(z.object({ userId: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const jobId = `import-${ctx.session.user.id}-${Date.now()}`;
+      await kv.set(jobId, { status: "started", progress: 0 });
+
+      // バックグラウンドでインポート処理を開始
+      void importBooksBackground(
+        jobId,
+        input.userId,
+        Number(ctx.session.user.id),
+      );
+
+      return { jobId };
+    }),
+
+  getImportStatus: protectedProcedure
+    .input(z.object({ jobId: z.string() }))
+    .query(async ({ input }): Promise<ImportJobStatus | null> => {
+      const status = await kv.get<ImportJobStatus>(input.jobId);
+      return status;
+    }),
 });
+
+async function importBooksBackground(
+  jobId: string,
+  bookMakerId: string,
+  userId: number,
+) {
+  try {
+    const result = await importUserBooks(
+      Number(bookMakerId),
+      userId,
+      async (progress) => {
+        await kv.set(jobId, { status: "processing", progress });
+      },
+    );
+    await kv.set(jobId, { status: "completed", result });
+  } catch (error) {
+    await kv.set(jobId, {
+      status: "failed",
+      error: error instanceof Error ? error.message : String(error),
+    });
+  }
+}

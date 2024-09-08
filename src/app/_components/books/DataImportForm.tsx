@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
@@ -10,26 +10,50 @@ export default function DataImportForm() {
   const [userId, setUserId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [jobId, setJobId] = useState<string | null>(null);
   const { toast } = useToast();
 
-  const importBooksMutation = api.book.importBooks.useMutation({
+  const startImportMutation = api.book.startImportBooks.useMutation({
     onSuccess: (data) => {
-      toast({
-        title: "成功",
-        description: `${data.processedBooks}冊の書籍データをインポートしました。`,
-      });
-      setIsLoading(false);
-      setProgress(100);
+      setJobId(data.jobId);
+      setIsLoading(true);
     },
     onError: (error) => {
       toast({
         title: "エラー",
-        description: `インポート中にエラーが発生しました: ${error.message}`,
+        description: `インポート開始時にエラーが発生しました: ${error.message}`,
         variant: "destructive",
       });
-      setIsLoading(false);
     },
   });
+
+  const { data: importStatus } = api.book.getImportStatus.useQuery(
+    { jobId: jobId ?? "" },
+    { enabled: !!jobId, refetchInterval: 1000 },
+  );
+
+  useEffect(() => {
+    if (importStatus) {
+      if (importStatus.status === "processing") {
+        setProgress(importStatus.progress);
+      } else if (importStatus.status === "completed") {
+        setIsLoading(false);
+        setJobId(null);
+        toast({
+          title: "成功",
+          description: `${importStatus.result.processedBooks}冊の書籍データをインポートしました。`,
+        });
+      } else if (importStatus.status === "failed") {
+        setIsLoading(false);
+        setJobId(null);
+        toast({
+          title: "エラー",
+          description: `インポート中にエラーが発生しました: ${importStatus.error}`,
+          variant: "destructive",
+        });
+      }
+    }
+  }, [importStatus, toast]);
 
   const handleImport = async () => {
     if (!userId) {
@@ -41,26 +65,7 @@ export default function DataImportForm() {
       return;
     }
 
-    setIsLoading(true);
-    setProgress(0);
-
-    // WebSocketやServer-Sent Eventsを使用して進捗を受け取る
-    // ここでは簡単のため、setIntervalを使用してシミュレート
-    const progressInterval = setInterval(() => {
-      setProgress((prevProgress) => {
-        if (prevProgress >= 100) {
-          clearInterval(progressInterval);
-          return 100;
-        }
-        return prevProgress + 1;
-      });
-    }, 100);
-
-    try {
-      await importBooksMutation.mutateAsync({ userId });
-    } finally {
-      clearInterval(progressInterval);
-    }
+    startImportMutation.mutate({ userId });
   };
 
   return (
