@@ -35,9 +35,7 @@ export const BookStatusDropdown: React.FC<BookStatusDropdownProps> = ({
         onClick={() => {
           router.push("/api/auth/signin");
         }}
-      >
-        ログインして本を管理する
-      </Button>
+      />
     );
   }
 

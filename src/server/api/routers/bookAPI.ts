@@ -16,33 +16,49 @@ export const bookAPIRouter = createTRPCRouter({
         where: { isbn: input.isbn },
       });
 
-      if (bookAPI) {
+      if (!bookAPI) {
+        // If not in DB, fetch from API
+        const apiData = await fetchBookInfoFromAPI(input.isbn);
+        if (apiData) {
+          try {
+            bookAPI = await ctx.db.bookAPI.create({
+              data: apiData,
+            });
+          } catch (error) {
+            // If creation fails due to unique constraint, try to fetch again
+            bookAPI = await ctx.db.bookAPI.findUnique({
+              where: { isbn: input.isbn },
+            });
+            if (!bookAPI) {
+              throw new TRPCError({
+                code: "INTERNAL_SERVER_ERROR",
+                message: "Failed to create or retrieve book data",
+              });
+            }
+          }
+        } else {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Book not found in API",
+          });
+        }
+      } else {
         // If book exists in DB, fetch from API asynchronously and update DB
-        const data = await fetchAndFormatBookInfo(input.isbn);
-        if (!data) return bookAPI;
-
-        ctx.db.bookAPI
-          .update({
-            where: { isbn: input.isbn },
-            data: data,
+        fetchBookInfoFromAPI(input.isbn)
+          .then((apiData) => {
+            if (apiData) {
+              ctx.db.bookAPI
+                .update({
+                  where: { isbn: input.isbn },
+                  data: apiData,
+                })
+                .catch(console.error);
+            }
           })
-          .catch(console.error); // Log any errors but don't wait for completion
-        return bookAPI;
+          .catch(console.error);
       }
 
-      // If not in DB, fetch from API
-      const apiData = await fetchAndFormatBookInfo(input.isbn);
-      if (apiData) {
-        bookAPI = await ctx.db.bookAPI.create({
-          data: apiData,
-        });
-        return bookAPI;
-      }
-
-      throw new TRPCError({
-        code: "NOT_FOUND",
-        message: "Book not found in API",
-      });
+      return bookAPI;
     }),
 
   update: protectedProcedure
@@ -88,42 +104,3 @@ export const bookAPIRouter = createTRPCRouter({
       return updatedBookAPI;
     }),
 });
-
-async function fetchAndFormatBookInfo(isbn: string) {
-  const apiData = await fetchBookInfoFromAPI(isbn);
-  if (!apiData) return null;
-  console.log(apiData);
-
-  return {
-    isbn: isbn,
-    affiliateUrl: apiData.affiliateUrl,
-    author: apiData.author,
-    authorKana: apiData.authorKana,
-    availability: apiData.availability,
-    booksGenreId: apiData.booksGenreId,
-    chirayomiUrl: apiData.chirayomiUrl,
-    contents: apiData.contents,
-    discountPrice: apiData.discountPrice,
-    discountRate: apiData.discountRate,
-    itemCaption: apiData.itemCaption,
-    itemPrice: apiData.itemPrice,
-    itemUrl: apiData.itemUrl,
-    largeImageUrl: apiData.largeImageUrl,
-    limitedFlag: apiData.limitedFlag,
-    listPrice: apiData.listPrice,
-    mediumImageUrl: apiData.mediumImageUrl,
-    postageFlag: apiData.postageFlag,
-    publisherName: apiData.publisherName,
-    reviewAverage: apiData.reviewAverage,
-    reviewCount: apiData.reviewCount,
-    salesDate: apiData.salesDate,
-    seriesName: apiData.seriesName,
-    seriesNameKana: apiData.seriesNameKana,
-    size: apiData.size,
-    smallImageUrl: apiData.smallImageUrl,
-    subTitle: apiData.subTitle,
-    subTitleKana: apiData.subTitleKana,
-    title: apiData.title,
-    titleKana: apiData.titleKana,
-  };
-}
