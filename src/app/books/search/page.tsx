@@ -69,7 +69,15 @@ const BookSearchPage: React.FC = () => {
         <div className="text-center mt-4">読み込み中...</div>
       ) : (
         <>
-          <BookSearchResults books={books} view={view} />
+          <BookSearchResults
+            books={books}
+            view={view}
+            searchTerm={searchTerm}
+            authorInput={authorInput}
+            publisherInput={publisherInput}
+            genreInput={genreInput}
+            currentPage={currentPage}
+          />
           <div className="mt-4">
             <Pagination
               currentPage={currentPage}

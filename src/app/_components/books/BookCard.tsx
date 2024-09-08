@@ -14,6 +14,11 @@ interface BookCardProps {
   isInMyBooks: boolean;
   showStatus?: boolean;
   size?: "small" | "large";
+  searchTerm?: string;
+  authorInput?: string;
+  publisherInput?: string;
+  genreInput?: string;
+  currentPage?: number;
 }
 
 const BookCard: React.FC<BookCardProps> = ({
@@ -22,6 +27,11 @@ const BookCard: React.FC<BookCardProps> = ({
   isInMyBooks,
   showStatus = true,
   size = "small",
+  searchTerm,
+  authorInput,
+  publisherInput,
+  genreInput,
+  currentPage,
 }) => {
   const isLarge = size === "large";
   const showStatusDropdown = showStatus && onStatusChange;
@@ -35,7 +45,7 @@ const BookCard: React.FC<BookCardProps> = ({
 `}
     >
       <Link
-        href={`/books/${book.isbn}`}
+        href={`/books/${book.isbn}?from=${isInMyBooks ? "mybooks" : "search"}&title=${searchTerm}&author=${authorInput}&publisherName=${publisherInput}&booksGenreId=${genreInput}&page=${currentPage}`}
         className="flex-grow flex flex-col p-2"
       >
         <div

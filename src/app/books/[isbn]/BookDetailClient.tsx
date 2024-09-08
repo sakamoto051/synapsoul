@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useBookDetail } from "~/hooks/useBookDetail";
 import { BookInfo } from "~/app/_components/books/detail/BookInfo";
 import { BookActions } from "~/app/_components/books/detail/BookActions";
@@ -13,14 +14,18 @@ import type { BookItem } from "~/types/book";
 const BookDetailClient = ({
   isbn,
   initialBook,
-}: { isbn: string; initialBook: BookItem }) => {
+}: {
+  isbn: string;
+  initialBook: BookItem;
+}) => {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const {
     book,
     currentStatus,
     isInMyBooks,
     isConfirmOpen,
     setIsConfirmOpen,
-    handleBack,
     handleStatusChange,
     confirmStatusChange,
   } = useBookDetail(isbn, initialBook);
@@ -38,6 +43,34 @@ const BookDetailClient = ({
     datePublished: book.salesDate,
     description: book.itemCaption,
     image: book.largeImageUrl,
+  };
+
+  const handleBack = () => {
+    const from = searchParams.get("from");
+    if (from === "mybooks") {
+      router.push("/books/mybooks");
+    } else {
+      const title = searchParams.get("title") ?? "";
+      const author = searchParams.get("author") ?? "";
+      const publisherName = searchParams.get("publisherName") ?? "";
+      const booksGenreId = searchParams.get("booksGenreId") ?? "";
+      const page = searchParams.get("page") ?? "1";
+      console.log(title)
+      console.log(author)
+      console.log(publisherName)
+      console.log(booksGenreId)
+
+      const searchConditions = new URLSearchParams();
+      if (title) searchConditions.append("title", title);
+      if (author) searchConditions.append("author", author);
+      if (publisherName)
+        searchConditions.append("publisherName", publisherName);
+      if (booksGenreId) searchConditions.append("booksGenreId", booksGenreId);
+      if (page !== "1") searchConditions.append("page", page);
+
+      const searchString = searchConditions.toString();
+      router.push(`/books/search?${searchString}`);
+    }
   };
 
   return (

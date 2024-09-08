@@ -7,11 +7,21 @@ import Link from "next/link";
 interface BookSearchResultsProps {
   books: BookItem[];
   view: "grid" | "list";
+  searchTerm: string;
+  authorInput: string;
+  publisherInput: string;
+  genreInput: string;
+  currentPage: number;
 }
 
 export const BookSearchResults: React.FC<BookSearchResultsProps> = ({
   books,
   view,
+  searchTerm,
+  authorInput,
+  publisherInput,
+  genreInput,
+  currentPage,
 }) => (
   <div
     className={
@@ -28,6 +38,11 @@ export const BookSearchResults: React.FC<BookSearchResultsProps> = ({
           isInMyBooks={false}
           showStatus={false}
           size="small"
+          searchTerm={searchTerm}
+          authorInput={authorInput}
+          publisherInput={publisherInput}
+          genreInput={genreInput}
+          currentPage={currentPage}
         />
       ) : (
         <div
@@ -46,7 +61,7 @@ export const BookSearchResults: React.FC<BookSearchResultsProps> = ({
           <div className="ml-3 flex flex-col justify-between flex-grow">
             <div>
               <Link
-                href={`/books/${book.isbn}`}
+                href={`/books/${book.isbn}?from=search&title=${searchTerm}&author=${authorInput}&publisherName=${publisherInput}&booksGenreId=${genreInput}&page=${currentPage}`}
                 className="text-blue-300 hover:text-blue-200 font-medium text-sm"
               >
                 {book.title || "Unknown Title"}
