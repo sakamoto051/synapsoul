@@ -50,7 +50,6 @@ export const BookStatusDropdownInner: React.FC<BookStatusDropdownProps> = ({
           router.push("/api/auth/signin");
         }}
       >
-        ログインしてステータスを設定
       </Button>
     );
   }
