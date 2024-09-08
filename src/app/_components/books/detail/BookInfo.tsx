@@ -1,6 +1,7 @@
 import type React from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { BookItem } from "~/types/book";
+import Link from "next/link";
 // import Image from "next/image";
 
 interface BookInfoProps {
@@ -31,19 +32,31 @@ export const BookInfo: React.FC<BookInfoProps> = ({ book }) => (
         <div className="flex-grow">
           <h1 className="text-xl font-bold text-blue-300 mb-2">{book.title}</h1>
           <p className="text-sm mb-1">
-            <span className="text-blue-300">著者:</span> {book.author}
+            <span className="text-blue-300">著者: </span>
+            <Link
+              href={`/books/search?author=${book.author}`}
+              className="text-blue-400 hover:text-blue-400 underline"
+            >
+              {book.author}
+            </Link>
           </p>
           <p className="text-sm mb-1">
-            <span className="text-blue-300">出版社:</span> {book.publisherName}
+            <span className="text-blue-300">出版社: </span>
+            <Link
+              href={`/books/search?publisherName=${book.publisherName}`}
+              className="text-blue-400 hover:text-blue-400 underline"
+            >
+              {book.publisherName}
+            </Link>
           </p>
           <p className="text-sm mb-1">
-            <span className="text-blue-300">発売日:</span> {book.salesDate}
+            <span className="text-blue-300">発売日: </span> {book.salesDate}
           </p>
           <p className="text-sm mb-1">
-            <span className="text-blue-300">ISBN:</span> {book.isbn}
+            <span className="text-blue-300">ISBN: </span> {book.isbn}
           </p>
           <p className="text-sm mb-2">
-            <span className="text-blue-300">価格:</span> {book.itemPrice}円
+            <span className="text-blue-300">価格: </span> {book.itemPrice}円
           </p>
           <p className="text-xs text-gray-300 line-clamp-3">
             {book.itemCaption}
