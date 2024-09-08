@@ -10,7 +10,7 @@ import type { BookResponse, BookWithDetails } from "~/types/book";
 import { importUserBooks } from "~/lib/bookImportService";
 import { db } from "~/server/db";
 import { kv } from "@vercel/kv";
-import type { ImportJobStatus } from '~/types/importJob';
+import type { ImportJobStatus } from "~/types/importJob";
 
 const API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
 
@@ -233,6 +233,9 @@ export const bookRouter = createTRPCRouter({
       const books = await ctx.db.book.findMany({
         where: {
           userId: Number(ctx.session.user.id),
+        },
+        orderBy: {
+          updatedAt: "desc",
         },
       });
 
