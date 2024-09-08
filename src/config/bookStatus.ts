@@ -3,13 +3,23 @@ import { BookStatus } from "@prisma/client";
 import type { StatusConfig } from "~/app/_components/books/StatusDropdown";
 
 export const bookStatusConfig: StatusConfig<BookStatus> = {
+  [BookStatus.FAVORITE]: {
+    label: "お気に入り",
+    color: "bg-pink-600",
+    icon: "⭐",
+  },
+  [BookStatus.FINISHED]: {
+    label: "読んだ本",
+    color: "bg-purple-600",
+    icon: "✅",
+  },
   [BookStatus.READING]: {
-    label: "読んでいる本",
+    label: "読んでる本",
     color: "bg-blue-600",
     icon: "📖",
   },
   [BookStatus.TO_READ]: {
-    label: "積んでいる本",
+    label: "積んでる本",
     color: "bg-green-600",
     icon: "📚",
   },
@@ -18,13 +28,8 @@ export const bookStatusConfig: StatusConfig<BookStatus> = {
     color: "bg-yellow-600",
     icon: "🤔",
   },
-  [BookStatus.FINISHED]: {
-    label: "読み終わった本",
-    color: "bg-purple-600",
-    icon: "✅",
-  },
   [BookStatus.DNF]: {
-    label: "読むのをやめた本",
+    label: "読まなかった本",
     color: "bg-red-600",
     icon: "🛑",
   },
@@ -32,11 +37,6 @@ export const bookStatusConfig: StatusConfig<BookStatus> = {
     label: "参考書",
     color: "bg-indigo-600",
     icon: "📘",
-  },
-  [BookStatus.FAVORITE]: {
-    label: "お気に入り",
-    color: "bg-pink-600",
-    icon: "⭐",
   },
   [BookStatus.REREADING]: {
     label: "再読中",
