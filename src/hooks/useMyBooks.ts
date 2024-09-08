@@ -3,6 +3,7 @@ import { api } from "~/trpc/react";
 import type { BookStatus } from "@prisma/client";
 import type { BookWithDetails } from "~/types/book";
 import { useToast } from "@/components/ui/use-toast";
+import { bookStatusConfig } from "~/config/bookStatus";
 
 export const useMyBooks = () => {
   const [books, setBooks] = useState<BookWithDetails[]>([]);
@@ -43,7 +44,7 @@ export const useMyBooks = () => {
       toast({
         title: "ステータス更新",
         description: newStatus
-          ? `"${book.title}" のステータスを "${newStatus}" に更新しました。`
+          ? `"${book.title}" を"${bookStatusConfig[newStatus]?.label}"に更新しました。`
           : `"${book.title}" をマイブックから削除しました。`,
       });
     } catch (error) {
