@@ -15,6 +15,7 @@ const config = {
         pathname: "/**",
       },
     ],
+    disableStaticImages: true,
   },
   async rewrites() {
     return [
