@@ -1,5 +1,5 @@
 import BookDetailClient from "./BookDetailClient";
-import { fetchBookData } from "./metadata";
+import { api } from "~/trpc/server";
 import type { Metadata } from "next";
 
 export const generateMetadata = async ({
@@ -7,7 +7,7 @@ export const generateMetadata = async ({
 }: {
   params: { isbn: string };
 }): Promise<Metadata> => {
-  const book = await fetchBookData(params.isbn);
+  const book = await api.bookAPI.getByIsbn({ isbn: params.isbn });
 
   if (!book) {
     return {
@@ -17,11 +17,11 @@ export const generateMetadata = async ({
 
   return {
     title: `${book.title} | 書籍詳細`,
-    description: book.itemCaption || `${book.title}の詳細情報と読書ノート`,
+    description: book.itemCaption ?? `${book.title}の詳細情報と読書ノート`,
     openGraph: {
       title: `${book.title} | SynapsoulBooks`,
       description:
-        book.itemCaption ||
+        book.itemCaption ??
         `${book.title}の詳細情報と読書ノート - SynapsoulBooks`,
       images: [
         {
@@ -40,7 +40,7 @@ export default async function BookDetailPage({
 }: {
   params: { isbn: string };
 }) {
-  const book = await fetchBookData(params.isbn);
+  const book = await api.bookAPI.getByIsbn({ isbn: params.isbn });
 
   if (!book) {
     return <div>書籍が見つかりません</div>;

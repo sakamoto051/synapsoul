@@ -11,57 +11,38 @@ export const bookAPIRouter = createTRPCRouter({
   getByIsbn: publicProcedure
     .input(z.object({ isbn: z.string() }))
     .query(async ({ ctx, input }) => {
+      // First, check if the book exists in the BookAPI table
       let bookAPI = await ctx.db.bookAPI.findUnique({
         where: { isbn: input.isbn },
       });
 
-      if (!bookAPI) {
-        // If not in DB, fetch from API
-        const apiData = await fetchBookInfoFromAPI(input.isbn);
-        if (apiData) {
-          bookAPI = await ctx.db.bookAPI.create({
-            data: {
-              isbn: input.isbn,
-              affiliateUrl: apiData.affiliateUrl,
-              author: apiData.author,
-              authorKana: apiData.authorKana,
-              availability: apiData.availability,
-              booksGenreId: apiData.booksGenreId,
-              chirayomiUrl: apiData.chirayomiUrl,
-              contents: apiData.contents,
-              discountPrice: apiData.discountPrice,
-              discountRate: apiData.discountRate,
-              itemCaption: apiData.itemCaption,
-              itemPrice: apiData.itemPrice,
-              itemUrl: apiData.itemUrl,
-              largeImageUrl: apiData.largeImageUrl,
-              limitedFlag: apiData.limitedFlag,
-              listPrice: apiData.listPrice,
-              mediumImageUrl: apiData.mediumImageUrl,
-              postageFlag: apiData.postageFlag,
-              publisherName: apiData.publisherName,
-              reviewAverage: apiData.reviewAverage,
-              reviewCount: apiData.reviewCount,
-              salesDate: apiData.salesDate,
-              seriesName: apiData.seriesName,
-              seriesNameKana: apiData.seriesNameKana,
-              size: apiData.size,
-              smallImageUrl: apiData.smallImageUrl,
-              subTitle: apiData.subTitle,
-              subTitleKana: apiData.subTitleKana,
-              title: apiData.title,
-              titleKana: apiData.titleKana,
-            },
-          });
-        } else {
-          throw new TRPCError({
-            code: "NOT_FOUND",
-            message: "Book not found in API",
-          });
-        }
+      if (bookAPI) {
+        // If book exists in DB, fetch from API asynchronously and update DB
+        const data = await fetchAndFormatBookInfo(input.isbn);
+        if (!data) return bookAPI;
+
+        ctx.db.bookAPI
+          .update({
+            where: { isbn: input.isbn },
+            data: data,
+          })
+          .catch(console.error); // Log any errors but don't wait for completion
+        return bookAPI;
       }
 
-      return bookAPI;
+      // If not in DB, fetch from API
+      const apiData = await fetchAndFormatBookInfo(input.isbn);
+      if (apiData) {
+        bookAPI = await ctx.db.bookAPI.create({
+          data: apiData,
+        });
+        return bookAPI;
+      }
+
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Book not found in API",
+      });
     }),
 
   update: protectedProcedure
@@ -107,3 +88,42 @@ export const bookAPIRouter = createTRPCRouter({
       return updatedBookAPI;
     }),
 });
+
+async function fetchAndFormatBookInfo(isbn: string) {
+  const apiData = await fetchBookInfoFromAPI(isbn);
+  if (!apiData) return null;
+  console.log(apiData);
+
+  return {
+    isbn: isbn,
+    affiliateUrl: apiData.affiliateUrl,
+    author: apiData.author,
+    authorKana: apiData.authorKana,
+    availability: apiData.availability,
+    booksGenreId: apiData.booksGenreId,
+    chirayomiUrl: apiData.chirayomiUrl,
+    contents: apiData.contents,
+    discountPrice: apiData.discountPrice,
+    discountRate: apiData.discountRate,
+    itemCaption: apiData.itemCaption,
+    itemPrice: apiData.itemPrice,
+    itemUrl: apiData.itemUrl,
+    largeImageUrl: apiData.largeImageUrl,
+    limitedFlag: apiData.limitedFlag,
+    listPrice: apiData.listPrice,
+    mediumImageUrl: apiData.mediumImageUrl,
+    postageFlag: apiData.postageFlag,
+    publisherName: apiData.publisherName,
+    reviewAverage: apiData.reviewAverage,
+    reviewCount: apiData.reviewCount,
+    salesDate: apiData.salesDate,
+    seriesName: apiData.seriesName,
+    seriesNameKana: apiData.seriesNameKana,
+    size: apiData.size,
+    smallImageUrl: apiData.smallImageUrl,
+    subTitle: apiData.subTitle,
+    subTitleKana: apiData.subTitleKana,
+    title: apiData.title,
+    titleKana: apiData.titleKana,
+  };
+}
