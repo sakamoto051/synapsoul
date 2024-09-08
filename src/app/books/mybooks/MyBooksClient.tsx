@@ -3,6 +3,7 @@
 import { useMyBooks } from "~/hooks/useMyBooks";
 import { MyBooksFilter } from "~/app/_components/books/mybooks/MyBooksFilter";
 import { MyBooksList } from "~/app/_components/books/mybooks/MyBooksList";
+import { Loader2 } from "lucide-react";
 
 const MyBooksClient = () => {
   const {
@@ -11,6 +12,7 @@ const MyBooksClient = () => {
     setSearchTerm,
     setStatusFilter,
     handleStatusChange,
+    isLoading,
   } = useMyBooks();
 
   return (
@@ -23,7 +25,13 @@ const MyBooksClient = () => {
         onSearchTermChange={setSearchTerm}
         onStatusFilterChange={setStatusFilter}
       />
-      <MyBooksList books={books} onStatusChange={handleStatusChange} />
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        </div>
+      ) : (
+        <MyBooksList books={books} onStatusChange={handleStatusChange} />
+      )}
     </div>
   );
 };

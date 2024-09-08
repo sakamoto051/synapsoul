@@ -8,7 +8,11 @@ export const useMyBooks = () => {
   const [books, setBooks] = useState<BookWithDetails[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<BookStatus | "ALL">("ALL");
-  const { data: userBooks, refetch } = api.book.getUserBooks.useQuery();
+  const {
+    data: userBooks,
+    refetch,
+    isLoading,
+  } = api.book.getUserBooks.useQuery();
   const { toast } = useToast();
 
   const utils = api.useUtils();
@@ -64,5 +68,6 @@ export const useMyBooks = () => {
     setSearchTerm,
     setStatusFilter,
     handleStatusChange,
+    isLoading,
   };
 };
