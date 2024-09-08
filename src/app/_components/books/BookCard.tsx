@@ -46,7 +46,7 @@ const BookCard: React.FC<BookCardProps> = ({
             alt={book.title || "Book cover"}
             width={isLarge ? 100 : 80}
             height={isLarge ? 150 : 120}
-            className="object-contain max-h-full"
+            className="object-contain w-auto h-auto"
           />
         </div>
         <div className="flex-grow flex flex-col justify-between mt-2">

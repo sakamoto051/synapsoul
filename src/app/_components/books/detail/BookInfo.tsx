@@ -12,13 +12,16 @@ export const BookInfo: React.FC<BookInfoProps> = ({ book }) => (
     <CardContent className="p-4">
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-shrink-0 flex justify-center sm:justify-start">
-          <Image
-            src={book.largeImageUrl || "/api/placeholder/150/225"}
-            alt={book.title || "Book cover"}
-            width={150}
-            height={225}
-            className="object-contain rounded-md shadow-md"
-          />
+          <div className="w-[150px] h-[225px] relative">
+            <Image
+              src={book.largeImageUrl || "/api/placeholder/150/225"}
+              alt={book.title || "Book cover"}
+              fill={true}
+              sizes="100%, 100%"
+              className="object-contain rounded-md shadow-md"
+              priority={true}
+            />
+          </div>
         </div>
         <div className="flex-grow">
           <h1 className="text-xl font-bold text-blue-300 mb-2">{book.title}</h1>
