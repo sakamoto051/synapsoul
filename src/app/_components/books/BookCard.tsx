@@ -1,4 +1,4 @@
-import Image from "next/image";
+// import Image from "next/image";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { BookStatusDropdown } from "~/app/_components/books/BookStatusDropDown";
@@ -41,12 +41,19 @@ const BookCard: React.FC<BookCardProps> = ({
         <div
           className={`${isLarge ? "h-[160px]" : "h-[120px]"} flex items-center justify-center`}
         >
-          <Image
+          {/* <Image
             src={book.largeImageUrl || "/api/placeholder/100/150"}
             alt={book.title || "Book cover"}
             width={isLarge ? 100 : 80}
             height={isLarge ? 150 : 120}
             className="object-contain w-auto h-auto"
+          /> */}
+          <img
+            src={book.largeImageUrl || "/api/placeholder/100/150"}
+            alt={book.title || "Book cover"}
+            width={isLarge ? 100 : 80}
+            height={isLarge ? 150 : 120}
+            className="object-contain"
           />
         </div>
         <div className="flex-grow flex flex-col justify-between mt-2">
