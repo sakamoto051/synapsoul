@@ -26,17 +26,25 @@ export async function importUserBooks(
   let successfulImports = 0;
   let failedImports = 0;
 
+  // First, calculate the total number of books
+  for (const bookType of BOOK_TYPES) {
+    const count = await getBookCount(bookMakerId, bookType.url);
+    totalBooks += count;
+  }
+
   try {
     for (const bookType of BOOK_TYPES) {
-      const { count, processed, successful, failed } = await importBooksByType(
+      const { successful, failed } = await importBooksByType(
         bookMakerId,
         userId,
         bookType.url,
         bookType.status,
-        progressCallback,
+        () => {
+          processedBooks++;
+          const overallProgress = (processedBooks / totalBooks) * 100;
+          progressCallback(Math.round(overallProgress));
+        },
       );
-      totalBooks += count;
-      processedBooks += processed;
       successfulImports += successful;
       failedImports += failed;
     }
@@ -48,6 +56,30 @@ export async function importUserBooks(
   }
 }
 
+async function getBookCount(
+  bookMakerId: number,
+  bookTypeUrl: string,
+): Promise<number> {
+  const firstPageUrl = `https://bookmeter.com/users/${bookMakerId}/books/${bookTypeUrl}?page=1`;
+  const firstPageResponse = await fetch(firstPageUrl);
+  if (!firstPageResponse.ok) {
+    throw new Error(`HTTP error! status: ${firstPageResponse.status}`);
+  }
+  const firstPageHtml = await firstPageResponse.text();
+  const firstPageDom = new JSDOM(firstPageHtml);
+  const firstPageDocument = firstPageDom.window.document;
+  const totalBooksElement = firstPageDocument.querySelector(
+    ".bm-pagination-notice",
+  );
+  if (totalBooksElement) {
+    const match = totalBooksElement.textContent?.match(/全(\d+)件/);
+    if (match) {
+      return Number.parseInt(match[1] ?? "", 10);
+    }
+  }
+  return 0;
+}
+
 async function importBooksByType(
   bookMakerId: number,
   userId: number,
@@ -55,35 +87,15 @@ async function importBooksByType(
   bookStatus: BookStatus,
   progressCallback: (progress: number) => void,
 ): Promise<{
-  count: number;
   processed: number;
   successful: number;
   failed: number;
 }> {
-  let count = 0;
   let processed = 0;
   let successful = 0;
   let failed = 0;
 
   try {
-    const firstPageUrl = `https://bookmeter.com/users/${bookMakerId}/books/${bookTypeUrl}?page=1`;
-    const firstPageResponse = await fetch(firstPageUrl);
-    if (!firstPageResponse.ok) {
-      throw new Error(`HTTP error! status: ${firstPageResponse.status}`);
-    }
-    const firstPageHtml = await firstPageResponse.text();
-    const firstPageDom = new JSDOM(firstPageHtml);
-    const firstPageDocument = firstPageDom.window.document;
-    const totalBooksElement = firstPageDocument.querySelector(
-      ".bm-pagination-notice",
-    );
-    if (totalBooksElement) {
-      const match = totalBooksElement.textContent?.match(/全(\d+)件/);
-      if (match) {
-        count = Number.parseInt(match[1] ?? "", 10);
-      }
-    }
-
     let page = 1;
     let hasNextPage = true;
 
@@ -110,7 +122,7 @@ async function importBooksByType(
           } else {
             failed++;
           }
-          progressCallback(Math.round((processed / count) * 100));
+          progressCallback(processed);
         }
       }
 
@@ -121,7 +133,7 @@ async function importBooksByType(
       page++;
     }
 
-    return { count, processed, successful, failed };
+    return { processed, successful, failed };
   } catch (error) {
     console.error(`Error in importBooksByType (${bookTypeUrl}):`, error);
     throw error;
