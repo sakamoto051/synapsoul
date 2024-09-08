@@ -1,6 +1,7 @@
 import BookDetailClient from "./BookDetailClient";
 import { api } from "~/trpc/server";
 import type { Metadata } from "next";
+import { initializeAuthStore } from "~/utils/authInitializer";
 
 export const generateMetadata = async ({
   params,
@@ -40,6 +41,8 @@ export default async function BookDetailPage({
 }: {
   params: { isbn: string };
 }) {
+  await initializeAuthStore();
+
   const book = await api.bookAPI.getByIsbn({ isbn: params.isbn });
 
   if (!book) {

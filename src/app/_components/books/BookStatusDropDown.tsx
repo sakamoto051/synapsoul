@@ -6,11 +6,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import type { BookStatus } from "@prisma/client";
 import { bookStatusConfig } from "~/config/bookStatus";
-import { SessionProvider, useSession } from "next-auth/react";
+import useAuthStore from "~/store/useAuthStore";
 import { useRouter } from "next/navigation";
 
 interface BookStatusDropdownProps {
@@ -24,25 +25,10 @@ export const BookStatusDropdown: React.FC<BookStatusDropdownProps> = ({
   onStatusChange,
   isInMyBooks,
 }) => {
-  return (
-    <SessionProvider>
-      <BookStatusDropdownInner
-        currentStatus={currentStatus}
-        onStatusChange={onStatusChange}
-        isInMyBooks={isInMyBooks}
-      />
-    </SessionProvider>
-  );
-};
-
-export const BookStatusDropdownInner: React.FC<BookStatusDropdownProps> = ({
-  currentStatus,
-  onStatusChange,
-  isInMyBooks,
-}) => {
-  const { data: session } = useSession();
+  const { isAuthenticated } = useAuthStore();
   const router = useRouter();
-  if (!session) {
+
+  if (!isAuthenticated) {
     return (
       <Button
         className="w-full bg-gray-600 text-white"
@@ -50,6 +36,7 @@ export const BookStatusDropdownInner: React.FC<BookStatusDropdownProps> = ({
           router.push("/api/auth/signin");
         }}
       >
+        ログインして本を管理する
       </Button>
     );
   }
@@ -94,13 +81,16 @@ export const BookStatusDropdownInner: React.FC<BookStatusDropdownProps> = ({
           </DropdownMenuItem>
         ))}
         {isInMyBooks && (
-          <DropdownMenuItem
-            onClick={() => onStatusChange(null)}
-            className="bg-gray-600 text-white hover:bg-gray-700 flex items-center"
-          >
-            <X className="h-4 w-4 mr-2" />
-            <span>ステータスを解除</span>
-          </DropdownMenuItem>
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={() => onStatusChange(null)}
+              className="bg-gray-600 text-white hover:bg-gray-700 flex items-center"
+            >
+              <X className="h-4 w-4 mr-2" />
+              <span>ステータスを解除</span>
+            </DropdownMenuItem>
+          </>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

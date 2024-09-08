@@ -40,14 +40,13 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-        displayName: user.displayName,
-      },
-    }),
+    session: ({ session, user }) => {
+      if (session.user) {
+        session.user.id = user.id;
+        session.user.displayName = user.displayName ?? null;
+      }
+      return session;
+    },
   },
   adapter: PrismaAdapter(db) as Adapter,
   providers: [

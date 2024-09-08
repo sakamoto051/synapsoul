@@ -1,11 +1,14 @@
-import { getServerAuthSession } from "~/server/auth";
 import { redirect } from "next/navigation";
+import { initializeAuthStore } from "~/utils/authInitializer";
 import MyBooksClient from "./MyBooksClient";
+import useAuthStore from "~/store/useAuthStore";
 
 export default async function MyBooksPage() {
-  const session = await getServerAuthSession();
+  await initializeAuthStore();
 
-  if (!session) {
+  const isAuthenticated = useAuthStore.getState().isAuthenticated;
+
+  if (!isAuthenticated) {
     redirect("/api/auth/signin");
   }
 
