@@ -1,5 +1,4 @@
-// src/hooks/useMyBooks.ts
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { api } from "~/trpc/react";
 import type { BookStatus } from "@prisma/client";
 import type { BookWithDetails } from "~/types/book";
@@ -28,30 +27,29 @@ export const useMyBooks = () => {
     }
   }, [userBooks]);
 
-  const handleStatusChange = useCallback(
-    async (book: BookWithDetails, newStatus: BookStatus | null) => {
-      try {
-        await updateStatusMutation.mutateAsync({
-          isbn: book.isbn,
-          status: newStatus,
-        });
-        toast({
-          title: "ステータス更新",
-          description: newStatus
-            ? `"${book.title}" のステータスを "${newStatus}" に更新しました。`
-            : `"${book.title}" をマイブックから削除しました。`,
-        });
-      } catch (error) {
-        // console.error("Error updating book status:", error);
-        toast({
-          title: "エラー",
-          description: "ステータスの更新中にエラーが発生しました。",
-          variant: "destructive",
-        });
-      }
-    },
-    [updateStatusMutation, toast],
-  );
+  const handleStatusChange = async (
+    book: BookWithDetails,
+    newStatus: BookStatus | null,
+  ) => {
+    try {
+      await updateStatusMutation.mutateAsync({
+        isbn: book.isbn,
+        status: newStatus,
+      });
+      toast({
+        title: "ステータス更新",
+        description: newStatus
+          ? `"${book.title}" のステータスを "${newStatus}" に更新しました。`
+          : `"${book.title}" をマイブックから削除しました。`,
+      });
+    } catch (error) {
+      toast({
+        title: "エラー",
+        description: "ステータスの更新中にエラーが発生しました。",
+        variant: "destructive",
+      });
+    }
+  };
 
   const filteredBooks = books.filter(
     (book: BookWithDetails) =>
