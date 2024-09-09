@@ -22,7 +22,6 @@ export default function PopularBookBar({ genre }: { genre: string }) {
                 book={book as BookWithDetails}
                 isInMyBooks={false}
                 showStatus={false}
-                size="small"
               />
             ))}
           </div>

@@ -1,4 +1,6 @@
-// import Image from "next/image";
+// src/app/_components/books/BookCard.tsx
+
+import type React from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { BookStatusDropdown } from "~/app/_components/books/BookStatusDropDown";
@@ -37,43 +39,28 @@ const BookCard: React.FC<BookCardProps> = ({
   const showStatusDropdown = showStatus && onStatusChange;
 
   return (
-    <Card
-      className={`
-  bg-gray-900 text-gray-100 border-none shadow-sm hover:shadow-md
-  transition-all duration-300 ease-in-out hover:bg-gray-800 
-  w-full h-full flex flex-col
-`}
-    >
+    <Card className="flex flex-col bg-gray-900 text-gray-100 border-none shadow-sm hover:shadow-md transition-all duration-300 ease-in-out hover:bg-gray-800">
       <Link
         href={`/books/${book.isbn}?from=${isInMyBooks ? "mybooks" : "search"}&title=${searchTerm}&author=${authorInput}&publisherName=${publisherInput}&booksGenreId=${genreInput}&page=${currentPage}`}
-        className="flex-grow flex flex-col p-2"
+        className="flex-grow flex flex-col p-2 w-32"
       >
         <div
-          className={`${isLarge ? "h-[160px]" : "h-[120px]"} flex items-center justify-center`}
+          className={`flex items-center justify-center ${isLarge ? "h-48" : "h-40"}`}
         >
-          {/* <Image
-            src={book.largeImageUrl || "/api/placeholder/100/150"}
-            alt={book.title || "Book cover"}
-            width={isLarge ? 100 : 80}
-            height={isLarge ? 150 : 120}
-            className="object-contain w-auto h-auto"
-          /> */}
           <img
             src={book.largeImageUrl || "/api/placeholder/100/150"}
             alt={book.title || "Book cover"}
-            width={isLarge ? 100 : 80}
-            height={isLarge ? 150 : 120}
-            className="object-contain"
+            className="object-contain max-h-full max-w-full"
           />
         </div>
         <div className="flex-grow flex flex-col justify-between mt-2">
           <h3
-            className={`font-medium text-blue-300 line-clamp-2 ${isLarge ? "text-sm" : "text-xs"}`}
+            className={`font-medium text-blue-300"truncate" ${isLarge ? "text-sm" : "text-xs"} leading-tight line-clamp-2`}
           >
             {book.title || "Unknown Title"}
           </h3>
           <p
-            className={`text-gray-400 line-clamp-1 ${isLarge ? "text-xs" : "text-[10px]"}`}
+            className={`text-gray-400 truncate ${isLarge ? "text-xs" : "text-[10px]"} mt-1`}
           >
             {book.author || "Unknown Author"}
           </p>
