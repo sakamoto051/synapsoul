@@ -115,7 +115,7 @@ export const useBookSearch = () => {
       if (publisher) params.set("publisherName", publisher);
       if (genre) params.set("booksGenreId", genre);
       params.set("page", String(page));
-      router.push(`/books/search?${params.toString()}`, { scroll: false });
+      router.push(`/books/search?${params.toString()}`);
     },
     [searchParams, router],
   );
