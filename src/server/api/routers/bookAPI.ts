@@ -113,7 +113,7 @@ export const bookAPIRouter = createTRPCRouter({
       console.log(input.booksGenreId);
       try {
         const response = await fetch(
-          `${API_ENDPOINT}&sort=sales&hits=10&booksGenreId=${input.booksGenreId}`,
+          `${API_ENDPOINT}&sort=sales&hits=20&booksGenreId=${input.booksGenreId}`,
         );
 
         if (!response.ok) {
