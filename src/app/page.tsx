@@ -2,21 +2,13 @@ import { Button } from "~/components/ui/button";
 import { getServerAuthSession } from "~/server/auth";
 import Link from "next/link";
 import { BookOpen, Users, Search } from "lucide-react";
+import PopularBooks from "./_components/home/PopularBooks";
 
 export default async function Home() {
   const session = await getServerAuthSession();
 
   if (session?.user) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen py-2">
-        <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-4 sm:mb-6 md:mb-8 text-center">
-          Welcome back, {session.user.displayName}!
-        </h1>
-        <Link href="/books/mybooks">
-          <Button className="mt-4">Go to My Books</Button>
-        </Link>
-      </div>
-    );
+    return <PopularBooks />;
   }
 
   return (

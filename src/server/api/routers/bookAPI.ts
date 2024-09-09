@@ -6,6 +6,9 @@ import {
 } from "~/server/api/trpc";
 import { TRPCError } from "@trpc/server";
 import { fetchBookInfoFromAPI } from "~/lib/bookApi";
+import type { BookItem, BookResponse } from "~/types/book";
+
+const API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
 
 export const bookAPIRouter = createTRPCRouter({
   getByIsbn: publicProcedure
@@ -102,5 +105,30 @@ export const bookAPIRouter = createTRPCRouter({
         data: input,
       });
       return updatedBookAPI;
+    }),
+
+  getPopularBooks: publicProcedure
+    .input(z.object({ booksGenreId: z.string() }))
+    .query(async ({ input }) => {
+      console.log(input.booksGenreId);
+      try {
+        const response = await fetch(
+          `${API_ENDPOINT}&sort=sales&hits=10&booksGenreId=${input.booksGenreId}`,
+        );
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data: BookResponse = (await response.json()) as BookResponse;
+        const books: BookItem[] = data.Items.map((item) => item.Item);
+        return books;
+      } catch (error) {
+        console.error("Error fetching popular books:", error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Failed to fetch popular books",
+        });
+      }
     }),
 });

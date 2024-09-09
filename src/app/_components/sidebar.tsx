@@ -13,6 +13,7 @@ import {
   Menu,
   Download,
   MessageSquare,
+  Home,
 } from "lucide-react";
 import NextLink from "next/link";
 import LoginButton from "./login-button";
@@ -67,6 +68,12 @@ const Sidebar = () => {
         )}
         <nav>
           <div>
+            <NextLink href="/">
+              <Button variant="ghost" className="w-full justify-start mb-2">
+                <Home className="mr-2" />
+                {(isOpen || !isDesktop) && "ホーム"}
+              </Button>
+            </NextLink>
             <Button
               variant="ghost"
               className="w-full justify-start mb-2"

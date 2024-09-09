@@ -65,6 +65,20 @@ export const booksGenreId = {
   "001010015": "その他",
 };
 
+export function getGenreId(genreName: string): string | undefined {
+  const entries = Object.entries(booksGenreId);
+  const found = entries.find(([, value]) => value === genreName);
+  return found ? found[0] : undefined;
+}
+
+export function getGenreName(genreId: string): string | undefined {
+  return booksGenreId[genreId as keyof typeof booksGenreId];
+}
+
+export function getAllGenres(): { id: string; name: string }[] {
+  return Object.entries(booksGenreId).map(([id, name]) => ({ id, name }));
+}
+
 export const useBookSearch = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
