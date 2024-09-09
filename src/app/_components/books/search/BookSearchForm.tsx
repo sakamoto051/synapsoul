@@ -1,14 +1,14 @@
 import type React from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Grid, List, X } from "lucide-react";
+import { Search, Grid, List, ChevronDown, X } from "lucide-react";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { booksGenreId } from "~/hooks/useBookSearch";
 
 interface BookSearchFormProps {
@@ -38,88 +38,131 @@ export const BookSearchForm: React.FC<BookSearchFormProps> = ({
   onViewChange,
   view,
 }) => {
+  const [searchType, setSearchType] = useState<
+    "title" | "author" | "publisher"
+  >("title");
+  const placeholders = {
+    title: "タイトルで検索...",
+    author: "著者で検索...",
+    publisher: "出版社で検索...",
+  };
+
+  const handleSearchChange = (value: string) => {
+    switch (searchType) {
+      case "title":
+        onSearchTermChange(value);
+        break;
+      case "author":
+        onAuthorInputChange(value);
+        break;
+      case "publisher":
+        onPublisherInputChange(value);
+        break;
+    }
+  };
+
+  const selectedGenreName = genreInput
+    ? booksGenreId[genreInput as keyof typeof booksGenreId]
+    : "ジャンル";
+
   return (
-    <form onSubmit={onSubmit} className="mb-3 space-y-2">
-      <div className="flex flex-col space-y-2">
+    <form
+      onSubmit={onSubmit}
+      className="flex flex-wrap items-center gap-2 my-3"
+    >
+      <div className="relative flex-grow">
         <Input
           type="text"
-          placeholder="タイトルで検索"
-          value={searchTerm}
-          onChange={(e) => onSearchTermChange(e.target.value)}
-          className="w-full bg-gray-800 text-gray-100 border-gray-700"
+          placeholder={placeholders[searchType]}
+          value={
+            searchType === "title"
+              ? searchTerm
+              : searchType === "author"
+                ? authorInput
+                : publisherInput
+          }
+          onChange={(e) => handleSearchChange(e.target.value)}
+          className="w-full bg-gray-800 text-gray-100 border-gray-700 pr-24"
         />
-        <Input
-          type="text"
-          placeholder="著者名で検索"
-          value={authorInput}
-          onChange={(e) => onAuthorInputChange(e.target.value)}
-          className="w-full bg-gray-800 text-gray-100 border-gray-700"
-        />
-        <Input
-          type="text"
-          placeholder="出版社で検索"
-          value={publisherInput}
-          onChange={(e) => onPublisherInputChange(e.target.value)}
-          className="w-full bg-gray-800 text-gray-100 border-gray-700"
-        />
-        <div className="relative">
-          <Select value={genreInput} onValueChange={onGenreInputChange}>
-            <SelectTrigger className="w-full bg-gray-800 text-gray-100 border-gray-700">
-              <SelectValue placeholder="ジャンルを選択" />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(booksGenreId).map(([id, name]) => (
-                <SelectItem key={id} value={id}>
-                  {name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          {genreInput && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              className="absolute right-0 top-0 h-full px-3 text-gray-400 hover:text-gray-100"
-              onClick={() => onGenreInputChange("")}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          )}
+        <div className="absolute inset-y-0 right-0 flex items-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="h-full px-2 text-gray-400 hover:text-gray-100 hover:bg-gray-700"
+              >
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem onClick={() => setSearchType("title")}>
+                タイトル
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSearchType("author")}>
+                著者
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSearchType("publisher")}>
+                出版社
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
-      <div className="flex items-center space-x-2">
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            className="bg-gray-800 text-gray-100 border-gray-700"
+          >
+            {selectedGenreName}
+            <ChevronDown className="ml-2 h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent>
+          {Object.entries(booksGenreId).map(([id, name]) => (
+            <DropdownMenuItem key={id} onSelect={() => onGenreInputChange(id)}>
+              {name}
+            </DropdownMenuItem>
+          ))}
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {genreInput && (
         <Button
-          type="submit"
-          className="flex-grow bg-blue-600 hover:bg-blue-700"
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={() => onGenreInputChange("")}
+          className="text-gray-400 hover:text-gray-100 hover:bg-gray-700"
         >
-          <Search className="mr-2 h-4 w-4" />
-          <span>検索</span>
+          <X className="h-4 w-4" />
         </Button>
-        <div className="flex border border-gray-700 rounded-md">
-          <Button
-            type="button"
-            onClick={() => onViewChange("grid")}
-            variant="ghost"
-            size="icon"
-            className={`rounded-r-none ${
-              view === "grid" ? "bg-gray-700" : "hover:bg-gray-700"
-            }`}
-          >
-            <Grid className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            onClick={() => onViewChange("list")}
-            variant="ghost"
-            size="icon"
-            className={`rounded-l-none border-l border-gray-700 ${
-              view === "list" ? "bg-gray-700" : "hover:bg-gray-700"
-            }`}
-          >
-            <List className="h-4 w-4" />
-          </Button>
-        </div>
+      )}
+
+      <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+        <Search className="h-4 w-4" />
+      </Button>
+
+      <div className="flex border border-gray-700 rounded-md">
+        <Button
+          type="button"
+          onClick={() => onViewChange("grid")}
+          variant="ghost"
+          size="icon"
+          className={`rounded-r-none ${view === "grid" ? "bg-gray-700" : "hover:bg-gray-700"}`}
+        >
+          <Grid className="h-4 w-4" />
+        </Button>
+        <Button
+          type="button"
+          onClick={() => onViewChange("list")}
+          variant="ghost"
+          size="icon"
+          className={`rounded-l-none border-l border-gray-700 ${view === "list" ? "bg-gray-700" : "hover:bg-gray-700"}`}
+        >
+          <List className="h-4 w-4" />
+        </Button>
       </div>
     </form>
   );
