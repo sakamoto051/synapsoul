@@ -1,10 +1,9 @@
-// src/components/BookNoteForm.tsx
 import type React from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { ChevronLeft, Save } from "lucide-react";
+import { ChevronLeft, Save, Globe, Lock } from "lucide-react";
 
 interface BookNoteFormProps {
   title: string;
@@ -59,13 +58,37 @@ export const BookNoteForm: React.FC<BookNoteFormProps> = ({
         required
       />
     </div>
-    <div className="flex items-center space-x-2">
+    <div className="flex items-center space-x-2 bg-gray-700 p-4 rounded-lg">
       <Switch
         id="isPublic"
         checked={isPublic}
         onCheckedChange={onIsPublicChange}
-      />
-      <label htmlFor="isPublic">公開する</label>
+        className={`${
+          isPublic ? "bg-green-600" : "bg-red-600"
+        } relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800`}
+      >
+        <span
+          className={`${
+            isPublic ? "translate-x-6" : "translate-x-1"
+          } inline-block h-4 w-4 transform rounded-full bg-white transition-transform`}
+        />
+      </Switch>
+      <label
+        htmlFor="isPublic"
+        className="text-sm font-medium text-gray-300 flex items-center"
+      >
+        {isPublic ? (
+          <>
+            <Globe className="h-4 w-4 mr-2 text-green-500" />
+            公開
+          </>
+        ) : (
+          <>
+            <Lock className="h-4 w-4 mr-2 text-red-500" />
+            非公開
+          </>
+        )}
+      </label>
     </div>
     <div className="flex justify-between">
       <Button
