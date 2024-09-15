@@ -1,15 +1,9 @@
 import type React from "react";
-import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search, Grid, List, ChevronDown, X } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Search, Grid, List } from "lucide-react";
 import { booksGenreId } from "~/hooks/useBookSearch";
+import { GenreSelector } from "./GenreSelector";
 
 interface BookSearchFormProps {
   searchTerm: string;
@@ -38,33 +32,6 @@ export const BookSearchForm: React.FC<BookSearchFormProps> = ({
   onViewChange,
   view,
 }) => {
-  const [searchType, setSearchType] = useState<
-    "title" | "author" | "publisher"
-  >("title");
-  const placeholders = {
-    title: "タイトルで検索...",
-    author: "著者で検索...",
-    publisher: "出版社で検索...",
-  };
-
-  const handleSearchChange = (value: string) => {
-    switch (searchType) {
-      case "title":
-        onSearchTermChange(value);
-        break;
-      case "author":
-        onAuthorInputChange(value);
-        break;
-      case "publisher":
-        onPublisherInputChange(value);
-        break;
-    }
-  };
-
-  const selectedGenreName = genreInput
-    ? booksGenreId[genreInput as keyof typeof booksGenreId]
-    : "ジャンル";
-
   return (
     <form
       onSubmit={onSubmit}
@@ -73,72 +40,34 @@ export const BookSearchForm: React.FC<BookSearchFormProps> = ({
       <div className="relative flex-grow">
         <Input
           type="text"
-          placeholder={placeholders[searchType]}
-          value={
-            searchType === "title"
-              ? searchTerm
-              : searchType === "author"
-                ? authorInput
-                : publisherInput
-          }
-          onChange={(e) => handleSearchChange(e.target.value)}
+          placeholder="タイトルで検索..."
+          value={searchTerm}
+          onChange={(e) => onSearchTermChange(e.target.value)}
           className="w-full bg-gray-800 text-gray-100 border-gray-700 pr-24"
         />
-        <div className="absolute inset-y-0 right-0 flex items-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                className="h-full px-2 text-gray-400 hover:text-gray-100 hover:bg-gray-700"
-              >
-                <ChevronDown className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setSearchType("title")}>
-                タイトル
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSearchType("author")}>
-                著者
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setSearchType("publisher")}>
-                出版社
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
       </div>
 
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            className="bg-gray-800 text-gray-100 border-gray-700"
-          >
-            {selectedGenreName}
-            <ChevronDown className="ml-2 h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          {Object.entries(booksGenreId).map(([id, name]) => (
-            <DropdownMenuItem key={id} onSelect={() => onGenreInputChange(id)}>
-              {name}
-            </DropdownMenuItem>
-          ))}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <Input
+        type="text"
+        placeholder="著者で検索..."
+        value={authorInput}
+        onChange={(e) => onAuthorInputChange(e.target.value)}
+        className="w-full sm:w-auto bg-gray-800 text-gray-100 border-gray-700"
+      />
 
-      {genreInput && (
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          onClick={() => onGenreInputChange("")}
-          className="text-gray-400 hover:text-gray-100 hover:bg-gray-700"
-        >
-          <X className="h-4 w-4" />
-        </Button>
-      )}
+      <Input
+        type="text"
+        placeholder="出版社で検索..."
+        value={publisherInput}
+        onChange={(e) => onPublisherInputChange(e.target.value)}
+        className="w-full sm:w-auto bg-gray-800 text-gray-100 border-gray-700"
+      />
+
+      <GenreSelector
+        genres={Object.entries(booksGenreId)}
+        selectedGenre={genreInput}
+        onGenreChange={onGenreInputChange}
+      />
 
       <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
         <Search className="h-4 w-4" />
@@ -150,7 +79,9 @@ export const BookSearchForm: React.FC<BookSearchFormProps> = ({
           onClick={() => onViewChange("grid")}
           variant="ghost"
           size="icon"
-          className={`rounded-r-none ${view === "grid" ? "bg-gray-700" : "hover:bg-gray-700"}`}
+          className={`rounded-r-none ${
+            view === "grid" ? "bg-gray-700" : "hover:bg-gray-700"
+          }`}
         >
           <Grid className="h-4 w-4" />
         </Button>
@@ -159,7 +90,9 @@ export const BookSearchForm: React.FC<BookSearchFormProps> = ({
           onClick={() => onViewChange("list")}
           variant="ghost"
           size="icon"
-          className={`rounded-l-none border-l border-gray-700 ${view === "list" ? "bg-gray-700" : "hover:bg-gray-700"}`}
+          className={`rounded-l-none border-l border-gray-700 ${
+            view === "list" ? "bg-gray-700" : "hover:bg-gray-700"
+          }`}
         >
           <List className="h-4 w-4" />
         </Button>
