@@ -7,8 +7,9 @@ import { BookActions } from "~/app/_components/books/detail/BookActions";
 import { ConfirmDialog } from "~/app/_components/books/detail/ConfirmDialog";
 import BookThreadList from "~/app/_components/books/thread/BookThreadList";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, MessageCircle } from "lucide-react";
+import { ChevronLeft, MessageCircle, Clock5 } from "lucide-react";
 import Script from "next/script";
+import Link from "next/link";
 import type { BookItem } from "~/types/book";
 
 const BookDetailClient = ({
@@ -55,10 +56,6 @@ const BookDetailClient = ({
       const publisherName = searchParams.get("publisherName") ?? "";
       const booksGenreId = searchParams.get("booksGenreId") ?? "";
       const page = searchParams.get("page") ?? "1";
-      console.log(title)
-      console.log(author)
-      console.log(publisherName)
-      console.log(booksGenreId)
 
       const searchConditions = new URLSearchParams();
       if (title) searchConditions.append("title", title);
@@ -105,7 +102,13 @@ const BookDetailClient = ({
           </div>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-4 space-y-2">
+          <Link href={`/books/${isbn}/timelines`} passHref>
+            <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
+              <Clock5 className="mr-2 h-4 w-4" />
+              タイムライン一覧
+            </Button>
+          </Link>
           <Button
             onClick={() => setShowThreads(!showThreads)}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white"
@@ -113,12 +116,12 @@ const BookDetailClient = ({
             <MessageCircle className="mr-2 h-4 w-4" />
             {showThreads ? "スレッド一覧を隠す" : "スレッド一覧を表示"}
           </Button>
-          {showThreads && (
-            <div className="mt-3">
-              <BookThreadList />
-            </div>
-          )}
         </div>
+        {showThreads && (
+          <div className="mt-3">
+            <BookThreadList />
+          </div>
+        )}
 
         <ConfirmDialog
           isOpen={isConfirmOpen}
