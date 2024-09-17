@@ -1,4 +1,5 @@
 import type React from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,13 +9,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { Character } from "~/hooks/useTimelineData";
 
 interface CharacterFormProps {
-  name: string;
-  color: string;
-  onNameChange: (value: string) => void;
-  onColorChange: (value: string) => void;
-  onSubmit: () => void;
+  character: Character | null;
+  onSubmit: (character: Omit<Character, "id">) => void;
 }
 
 const colorOptions = [
@@ -28,12 +27,28 @@ const colorOptions = [
 ];
 
 export const CharacterForm: React.FC<CharacterFormProps> = ({
-  name,
-  color,
-  onNameChange,
-  onColorChange,
+  character,
   onSubmit,
 }) => {
+  const [name, setName] = useState(character?.name ?? "");
+  const [color, setColor] = useState(character?.color ?? "bg-gray-500");
+
+  useEffect(() => {
+    if (character) {
+      setName(character.name);
+      setColor(character.color);
+    } else {
+      setName("");
+      setColor("bg-gray-500");
+    }
+  }, [character]);
+
+  const handleSubmit = () => {
+    onSubmit({ name, color });
+    setName("");
+    setColor("bg-gray-500");
+  };
+
   return (
     <div className="space-y-4">
       <div>
@@ -46,7 +61,7 @@ export const CharacterForm: React.FC<CharacterFormProps> = ({
         <Input
           id="character-name"
           value={name}
-          onChange={(e) => onNameChange(e.target.value)}
+          onChange={(e) => setName(e.target.value)}
           className="bg-gray-700 text-white border-gray-600"
         />
       </div>
@@ -57,7 +72,7 @@ export const CharacterForm: React.FC<CharacterFormProps> = ({
         >
           キャラクターの色
         </label>
-        <Select value={color} onValueChange={onColorChange}>
+        <Select value={color} onValueChange={setColor}>
           <SelectTrigger
             id="character-color"
             className="w-full bg-gray-700 border-gray-600 text-white"
@@ -82,10 +97,10 @@ export const CharacterForm: React.FC<CharacterFormProps> = ({
         </Select>
       </div>
       <Button
-        onClick={onSubmit}
+        onClick={handleSubmit}
         className="w-full bg-blue-600 hover:bg-blue-700"
       >
-        キャラクターを追加
+        {character ? "キャラクターを更新" : "キャラクターを追加"}
       </Button>
     </div>
   );

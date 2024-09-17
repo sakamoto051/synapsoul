@@ -2,7 +2,7 @@
 import React from "react";
 import { useParams } from "next/navigation";
 import { useTimelineData } from "~/hooks/useTimelineData";
-import { CharacterSplitTimeline } from "./CharacterSplitTimeline";
+import { TimelinePage } from "./TimelinePage";
 
 const TimelineDetailPage = () => {
   const params = useParams();
@@ -23,7 +23,7 @@ const TimelineDetailPage = () => {
   }
 
   return (
-    <CharacterSplitTimeline
+    <TimelinePage
       timelineData={timelineData}
       setTimelineData={setTimelineData}
       onSave={handleSaveTimeline}
