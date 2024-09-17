@@ -1,3 +1,5 @@
+// src/app/books/[isbn]/timelines/[id]/EventManager.tsx
+
 import type React from "react";
 import { useState } from "react";
 import {
@@ -14,18 +16,13 @@ import { Button } from "~/components/ui/button";
 interface EventManagerProps {
   characters: Character[];
   onAddOrUpdateEvent: (event: Omit<Event, "id">) => void;
-  isOpen: boolean;
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  setIsEventDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const EventManager: React.FC<EventManagerProps> = ({
   characters,
   onAddOrUpdateEvent,
-  isOpen,
-  setIsOpen,
-  setIsEventDialogOpen,
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
 
   const handleSubmit = (event: Omit<Event, "id">) => {
@@ -38,7 +35,7 @@ export const EventManager: React.FC<EventManagerProps> = ({
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
-          onClick={() => setIsEventDialogOpen(true)}
+          onClick={() => setIsOpen(true)}
           className="bg-green-600 hover:bg-green-700 text-white"
         >
           イベント追加

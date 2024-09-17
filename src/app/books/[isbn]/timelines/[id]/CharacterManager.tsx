@@ -1,3 +1,5 @@
+// src/app/books/[isbn]/timelines/[id]/CharacterManager.tsx
+
 import type React from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -16,17 +18,14 @@ interface CharacterManagerProps {
   characters: Character[];
   onAddOrUpdateCharacter: (character: Omit<Character, "id">) => void;
   onDeleteCharacter: (id: string) => void;
-  isOpen: boolean;
-  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export const CharacterManager: React.FC<CharacterManagerProps> = ({
   characters,
   onAddOrUpdateCharacter,
   onDeleteCharacter,
-  isOpen,
-  setIsOpen,
 }) => {
+  const [isOpen, setIsOpen] = useState(false);
   const [editingCharacter, setEditingCharacter] = useState<Character | null>(
     null,
   );
