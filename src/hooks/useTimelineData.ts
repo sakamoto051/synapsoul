@@ -1,6 +1,4 @@
-// src/hooks/useTimelineData.ts
-
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { api } from "~/trpc/react";
 import { useToast } from "~/components/ui/use-toast";
 
@@ -9,6 +7,7 @@ export interface Character {
   name: string;
   color: string;
   timelineGroupId: number;
+  isVisible: boolean;
 }
 
 export interface Event {
@@ -77,7 +76,8 @@ export const useTimelineData = (timelineId: number) => {
         characters: fetchedTimelineData.timelineGroup.characters.map(
           (char) => ({
             ...char,
-            id: char.id, // すでに number 型なので変換は不要
+            id: char.id,
+            isVisible: true, // デフォルトで全キャラクターを表示
           }),
         ),
         events: fetchedTimelineData.events.map((event) => ({
@@ -108,7 +108,7 @@ export const useTimelineData = (timelineId: number) => {
   };
 
   const handleAddOrUpdateCharacter = async (
-    character: Omit<Character, "id">,
+    character: Omit<Character, "id" | "isVisible">,
   ) => {
     try {
       if ("id" in character) {
@@ -120,7 +120,9 @@ export const useTimelineData = (timelineId: number) => {
         setLocalTimelineData((prev) => ({
           ...prev,
           characters: prev.characters.map((c) =>
-            c.id === character.id ? { ...result, id: result.id } : c,
+            c.id === character.id
+              ? { ...result, id: result.id, isVisible: c.isVisible }
+              : c,
           ),
         }));
       } else {
@@ -130,7 +132,10 @@ export const useTimelineData = (timelineId: number) => {
         });
         setLocalTimelineData((prev) => ({
           ...prev,
-          characters: [...prev.characters, { ...result, id: result.id }],
+          characters: [
+            ...prev.characters,
+            { ...result, id: result.id, isVisible: true },
+          ],
         }));
       }
     } catch (error) {
@@ -227,13 +232,30 @@ export const useTimelineData = (timelineId: number) => {
     }
   };
 
+  const toggleCharacterVisibility = (characterId: number) => {
+    setLocalTimelineData((prev) => ({
+      ...prev,
+      characters: prev.characters.map((char) =>
+        char.id === characterId
+          ? { ...char, isVisible: !char.isVisible }
+          : char,
+      ),
+    }));
+  };
+
+  const visibleCharacters = useMemo(() => {
+    return localTimelineData.characters.filter((char) => char.isVisible);
+  }, [localTimelineData.characters]);
+
   return {
     timelineData: localTimelineData,
+    visibleCharacters,
     isLoading: isTimelineLoading,
     handleSaveTimeline,
     handleAddOrUpdateCharacter,
     handleDeleteCharacter,
     handleAddOrUpdateEvent,
     handleDeleteEvent,
+    toggleCharacterVisibility,
   };
 };

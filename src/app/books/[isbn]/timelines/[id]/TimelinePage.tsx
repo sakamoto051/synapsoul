@@ -1,5 +1,3 @@
-// src/app/books/[isbn]/timelines/[id]/TimelinePage.tsx
-
 import type React from "react";
 import { Button } from "@/components/ui/button";
 import { Save } from "lucide-react";
@@ -7,23 +5,30 @@ import { CharacterManager } from "./CharacterManager";
 import { EventManager } from "./EventManager";
 import { TimelineGrid } from "./TimelineGrid";
 import type { TimelineData, Character, Event } from "~/hooks/useTimelineData";
+import { CharacterVisibilityToggle } from "./CharacterVisibilityToggle";
 
 interface TimelinePageProps {
   timelineData: TimelineData;
+  visibleCharacters: Character[];
   onSave: () => Promise<void>;
-  onAddOrUpdateCharacter: (character: Omit<Character, "id">) => Promise<void>;
+  onAddOrUpdateCharacter: (
+    character: Omit<Character, "id" | "isVisible">,
+  ) => Promise<void>;
   onDeleteCharacter: (id: number) => Promise<void>;
   onAddOrUpdateEvent: (event: Omit<Event, "id">) => Promise<void>;
   onDeleteEvent: (id: string) => Promise<void>;
+  toggleCharacterVisibility: (characterId: number) => void;
 }
 
 export const TimelinePage: React.FC<TimelinePageProps> = ({
   timelineData,
+  visibleCharacters,
   onSave,
   onAddOrUpdateCharacter,
   onDeleteCharacter,
   onAddOrUpdateEvent,
   onDeleteEvent,
+  toggleCharacterVisibility,
 }) => {
   return (
     <div className="container mx-auto px-4 py-8">
@@ -43,13 +48,18 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
         />
 
         <EventManager
-          characters={timelineData.characters}
+          characters={visibleCharacters}
           onAddOrUpdateEvent={onAddOrUpdateEvent}
         />
       </div>
 
-      <TimelineGrid
+      <CharacterVisibilityToggle
         characters={timelineData.characters}
+        toggleVisibility={toggleCharacterVisibility}
+      />
+
+      <TimelineGrid
+        characters={visibleCharacters}
         events={timelineData.events}
         onEditEvent={onAddOrUpdateEvent}
         onDeleteEvent={onDeleteEvent}
