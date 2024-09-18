@@ -47,7 +47,7 @@ export const timelineGroupRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       return ctx.db.timelineGroup.findMany({
         where: { bookId: input.bookId },
-        include: { timelines: true },
+        include: { timelines: true, characters: true },
       });
     }),
 });

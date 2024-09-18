@@ -12,7 +12,7 @@ interface TimelinePageProps {
   timelineData: TimelineData;
   onSave: () => Promise<void>;
   onAddOrUpdateCharacter: (character: Omit<Character, "id">) => Promise<void>;
-  onDeleteCharacter: (id: string) => Promise<void>;
+  onDeleteCharacter: (id: number) => Promise<void>;
   onAddOrUpdateEvent: (event: Omit<Event, "id">) => Promise<void>;
   onDeleteEvent: (id: string) => Promise<void>;
 }
@@ -34,16 +34,19 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
         </Button>
       </div>
 
-      <CharacterManager
-        characters={timelineData.characters}
-        onAddOrUpdateCharacter={onAddOrUpdateCharacter}
-        onDeleteCharacter={onDeleteCharacter}
-      />
+      <div className="flex space-x-2 mb-2">
+        <CharacterManager
+          timelineGroupId={timelineData.timelineGroupId}
+          characters={timelineData.characters}
+          onAddOrUpdateCharacter={onAddOrUpdateCharacter}
+          onDeleteCharacter={onDeleteCharacter}
+        />
 
-      <EventManager
-        characters={timelineData.characters}
-        onAddOrUpdateEvent={onAddOrUpdateEvent}
-      />
+        <EventManager
+          characters={timelineData.characters}
+          onAddOrUpdateEvent={onAddOrUpdateEvent}
+        />
+      </div>
 
       <TimelineGrid
         characters={timelineData.characters}

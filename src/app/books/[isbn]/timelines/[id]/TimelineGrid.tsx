@@ -47,7 +47,7 @@ export const TimelineGrid: React.FC<TimelineGridProps> = ({
               </div>
             ))}
             {events
-              .filter((event) => event.characterId === character.id)
+              .filter((event) => event.characterId === character.id.toString())
               .map((event) => (
                 <EventCard
                   key={event.id}

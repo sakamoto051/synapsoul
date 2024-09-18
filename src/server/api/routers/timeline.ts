@@ -14,6 +14,7 @@ export const timelineRouter = createTRPCRouter({
           date: true,
           timelineGroup: {
             select: {
+              id: true,
               bookId: true,
             },
           },
@@ -27,6 +28,7 @@ export const timelineRouter = createTRPCRouter({
       return {
         id: timeline.id,
         date: timeline.date,
+        timelineGroupId: timeline.timelineGroup.id,
         bookId: timeline.timelineGroup.bookId,
       };
     }),
@@ -83,6 +85,7 @@ export const timelineRouter = createTRPCRouter({
           timelineGroup: {
             include: {
               book: true,
+              characters: true,
             },
           },
         },
@@ -92,15 +95,7 @@ export const timelineRouter = createTRPCRouter({
         throw new Error("Timeline not found");
       }
 
-      // Book に関連する characters を取得
-      const characters = await ctx.db.character.findMany({
-        where: { bookId: timeline.timelineGroup.book.id },
-      });
-
-      return {
-        ...timeline,
-        characters,
-      };
+      return timeline;
     }),
 
   getByGroupId: protectedProcedure

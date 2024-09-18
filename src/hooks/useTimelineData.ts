@@ -5,9 +5,10 @@ import { api } from "~/trpc/react";
 import { useToast } from "~/components/ui/use-toast";
 
 export interface Character {
-  id: string;
+  id: number;
   name: string;
   color: string;
+  timelineGroupId: number;
 }
 
 export interface Event {
@@ -21,6 +22,7 @@ export interface Event {
 export interface TimelineData {
   id: number;
   date: Date;
+  timelineGroupId: number;
   characters: Character[];
   events: Event[];
 }
@@ -29,6 +31,7 @@ export const useTimelineData = (timelineId: number) => {
   const [localTimelineData, setLocalTimelineData] = useState<TimelineData>({
     id: timelineId,
     date: new Date(),
+    timelineGroupId: 0,
     characters: [],
     events: [],
   });
@@ -58,11 +61,11 @@ export const useTimelineData = (timelineId: number) => {
   });
 
   const addCharacterMutation = api.character.create.useMutation();
-  // const updateCharacterMutation = api.character.update.useMutation();
+  const updateCharacterMutation = api.character.update.useMutation();
   const deleteCharacterMutation = api.character.delete.useMutation();
 
   const addEventMutation = api.event.create.useMutation();
-  // const updateEventMutation = api.event.update.useMutation();
+  const updateEventMutation = api.event.update.useMutation();
   const deleteEventMutation = api.event.delete.useMutation();
 
   useEffect(() => {
@@ -70,10 +73,13 @@ export const useTimelineData = (timelineId: number) => {
       setLocalTimelineData({
         id: fetchedTimelineData.id,
         date: new Date(fetchedTimelineData.date),
-        characters: fetchedTimelineData.characters.map((char) => ({
-          ...char,
-          id: char.id.toString(),
-        })),
+        timelineGroupId: fetchedTimelineData.timelineGroupId,
+        characters: fetchedTimelineData.timelineGroup.characters.map(
+          (char) => ({
+            ...char,
+            id: char.id, // すでに number 型なので変換は不要
+          }),
+        ),
         events: fetchedTimelineData.events.map((event) => ({
           ...event,
           id: event.id.toString(),
@@ -105,17 +111,28 @@ export const useTimelineData = (timelineId: number) => {
     character: Omit<Character, "id">,
   ) => {
     try {
-      const result = await addCharacterMutation.mutateAsync({
-        ...character,
-        bookId: fetchedTimelineData?.timelineGroup.book.id ?? 0,
-      });
-      setLocalTimelineData((prev) => ({
-        ...prev,
-        characters: [
-          ...prev.characters,
-          { ...result, id: result.id.toString() },
-        ],
-      }));
+      if ("id" in character) {
+        const result = await updateCharacterMutation.mutateAsync({
+          id: Number(character.id),
+          name: character.name,
+          color: character.color,
+        });
+        setLocalTimelineData((prev) => ({
+          ...prev,
+          characters: prev.characters.map((c) =>
+            c.id === character.id ? { ...result, id: result.id } : c,
+          ),
+        }));
+      } else {
+        const result = await addCharacterMutation.mutateAsync({
+          ...character,
+          timelineGroupId: localTimelineData.timelineGroupId,
+        });
+        setLocalTimelineData((prev) => ({
+          ...prev,
+          characters: [...prev.characters, { ...result, id: result.id }],
+        }));
+      }
     } catch (error) {
       console.error("Error adding/updating character:", error);
       toast({
@@ -126,13 +143,13 @@ export const useTimelineData = (timelineId: number) => {
     }
   };
 
-  const handleDeleteCharacter = async (id: string) => {
+  const handleDeleteCharacter = async (id: number) => {
     try {
-      await deleteCharacterMutation.mutateAsync({ id: Number(id) });
+      await deleteCharacterMutation.mutateAsync({ id: id });
       setLocalTimelineData((prev) => ({
         ...prev,
         characters: prev.characters.filter((char) => char.id !== id),
-        events: prev.events.filter((event) => event.characterId !== id),
+        events: prev.events.filter((event) => Number(event.characterId) !== id),
       }));
     } catch (error) {
       console.error("Error deleting character:", error);
@@ -146,22 +163,43 @@ export const useTimelineData = (timelineId: number) => {
 
   const handleAddOrUpdateEvent = async (event: Omit<Event, "id">) => {
     try {
-      const result = await addEventMutation.mutateAsync({
-        ...event,
-        timelineId,
-        characterId: Number(event.characterId),
-      });
-      setLocalTimelineData((prev) => ({
-        ...prev,
-        events: [
-          ...prev.events,
-          {
-            ...result,
-            id: result.id.toString(),
-            characterId: result.characterId.toString(),
-          },
-        ],
-      }));
+      if ("id" in event) {
+        const result = await updateEventMutation.mutateAsync({
+          id: Number(event.id),
+          action: event.action,
+          startTime: event.startTime,
+          endTime: event.endTime,
+        });
+        setLocalTimelineData((prev) => ({
+          ...prev,
+          events: prev.events.map((e) =>
+            e.id === event.id
+              ? {
+                  ...result,
+                  id: result.id.toString(),
+                  characterId: result.characterId.toString(),
+                }
+              : e,
+          ),
+        }));
+      } else {
+        const result = await addEventMutation.mutateAsync({
+          ...event,
+          timelineId,
+          characterId: Number(event.characterId),
+        });
+        setLocalTimelineData((prev) => ({
+          ...prev,
+          events: [
+            ...prev.events,
+            {
+              ...result,
+              id: result.id.toString(),
+              characterId: result.characterId.toString(),
+            },
+          ],
+        }));
+      }
     } catch (error) {
       console.error("Error adding/updating event:", error);
       toast({

@@ -73,7 +73,7 @@ export const EventForm: React.FC<EventFormProps> = ({
         </SelectTrigger>
         <SelectContent>
           {characters.map((character) => (
-            <SelectItem key={character.id} value={character.id}>
+            <SelectItem key={character.id} value={character.id.toString()}>
               {character.name}
             </SelectItem>
           ))}

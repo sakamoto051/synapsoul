@@ -4,18 +4,18 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const characterRouter = createTRPCRouter({
-  getByBookId: protectedProcedure
-    .input(z.object({ bookId: z.number() }))
+  getByTimelineGroupId: protectedProcedure
+    .input(z.object({ timelineGroupId: z.number() }))
     .query(async ({ ctx, input }) => {
       return ctx.db.character.findMany({
-        where: { bookId: input.bookId },
+        where: { timelineGroupId: input.timelineGroupId },
       });
     }),
 
   create: protectedProcedure
     .input(
       z.object({
-        bookId: z.number(),
+        timelineGroupId: z.number(),
         name: z.string(),
         color: z.string(),
       }),
@@ -25,7 +25,7 @@ export const characterRouter = createTRPCRouter({
         data: {
           name: input.name,
           color: input.color,
-          bookId: input.bookId,
+          timelineGroupId: input.timelineGroupId,
         },
       });
     }),
