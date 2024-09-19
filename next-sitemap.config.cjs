@@ -1,6 +1,6 @@
 /** @type {import('next-sitemap').IConfig} */
 module.exports = {
-  siteUrl: process.env.SITE_URL ?? "https://synapsoul.vercel.app",
+  siteUrl: process.env.SITE_URL ?? "https://www.synapsoul.com/",
   generateRobotsTxt: true,
   changefreq: "daily",
   priority: 0.7,
@@ -8,7 +8,7 @@ module.exports = {
   exclude: ["/api/*", "/404"],
   robotsTxtOptions: {
     additionalSitemaps: [
-      "https://synapsoul.vercel.app/server-sitemap.xml", // 動的なページ用のサイトマップ
+      "https://www.synapsoul.com/server-sitemap.xml", // 動的なページ用のサイトマップ
     ],
   },
 };

@@ -3,8 +3,8 @@ User-agent: *
 Allow: /
 
 # Host
-Host: https://synapsoul.vercel.app
+Host: https://www.synapsoul.com/
 
 # Sitemaps
-Sitemap: https://synapsoul.vercel.app/sitemap.xml
-Sitemap: https://synapsoul.vercel.app/server-sitemap.xml
+Sitemap: https://www.synapsoul.com/sitemap.xml
+Sitemap: https://www.synapsoul.com/server-sitemap.xml
