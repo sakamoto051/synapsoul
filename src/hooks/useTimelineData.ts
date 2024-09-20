@@ -13,7 +13,8 @@ export interface Character {
 export interface Event {
   id: string;
   characterId: string;
-  action: string;
+  title: string;
+  content: string;
   startTime: Date;
   endTime: Date;
 }
@@ -171,7 +172,8 @@ export const useTimelineData = (timelineId: number) => {
       if ("id" in event) {
         const result = await updateEventMutation.mutateAsync({
           id: Number(event.id),
-          action: event.action,
+          title: event.title,
+          content: event.content,
           startTime: event.startTime,
           endTime: event.endTime,
         });

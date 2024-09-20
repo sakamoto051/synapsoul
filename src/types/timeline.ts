@@ -8,7 +8,8 @@ export interface Character {
 export interface Event {
   id: number;
   characterId: number;
-  action: string;
+  title: string;
+  content: string;
   startTime: string;
   endTime: string;
 }

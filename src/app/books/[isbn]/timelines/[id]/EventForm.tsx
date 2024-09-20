@@ -1,6 +1,7 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -23,7 +24,8 @@ export const EventForm: React.FC<EventFormProps> = ({
   onSubmit,
 }) => {
   const [characterId, setCharacterId] = useState(event?.characterId ?? "");
-  const [action, setAction] = useState(event?.action ?? "");
+  const [title, setTitle] = useState(event?.title ?? "");
+  const [content, setContent] = useState(event?.content ?? "");
   const [startTime, setStartTime] = useState<Date>(
     event?.startTime ?? new Date(),
   );
@@ -32,21 +34,18 @@ export const EventForm: React.FC<EventFormProps> = ({
   useEffect(() => {
     if (event) {
       setCharacterId(event.characterId);
-      setAction(event.action);
-      setStartTime(event.startTime);
-      setEndTime(event.endTime);
-    } else {
-      setCharacterId("");
-      setAction("");
-      setStartTime(new Date());
-      setEndTime(new Date());
+      setTitle(event.title);
+      setContent(event.content);
+      setStartTime(new Date(event.startTime));
+      setEndTime(new Date(event.endTime));
     }
   }, [event]);
 
   const handleSubmit = () => {
     onSubmit({
       characterId,
-      action,
+      title,
+      content,
       startTime,
       endTime,
     });
@@ -80,10 +79,17 @@ export const EventForm: React.FC<EventFormProps> = ({
         </SelectContent>
       </Select>
       <Input
-        placeholder="イベント"
-        value={action}
-        onChange={(e) => setAction(e.target.value)}
+        placeholder="イベントタイトル"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
         className="bg-gray-700 text-white border-gray-600"
+      />
+      <Textarea
+        placeholder="イベント内容"
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        className="bg-gray-700 text-white border-gray-600"
+        rows={3}
       />
       <div className="flex space-x-2">
         <Input
@@ -99,9 +105,7 @@ export const EventForm: React.FC<EventFormProps> = ({
           className="bg-gray-700 text-white border-gray-600"
         />
       </div>
-      <Button onClick={handleSubmit}>
-        {event ? "イベントを更新" : "イベントを追加"}
-      </Button>
+      <Button onClick={handleSubmit}>{event ? "更新" : "追加"}</Button>
     </div>
   );
 };

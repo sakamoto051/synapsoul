@@ -1,5 +1,3 @@
-// src/server/api/routers/event.ts
-
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
@@ -9,7 +7,8 @@ export const eventRouter = createTRPCRouter({
       z.object({
         timelineId: z.number(),
         characterId: z.number(),
-        action: z.string(),
+        title: z.string(),
+        content: z.string(),
         startTime: z.date(),
         endTime: z.date(),
       }),
@@ -17,7 +16,8 @@ export const eventRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       return ctx.db.event.create({
         data: {
-          action: input.action,
+          title: input.title,
+          content: input.content,
           startTime: input.startTime,
           endTime: input.endTime,
           characterId: input.characterId,
@@ -30,7 +30,8 @@ export const eventRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.number(),
-        action: z.string(),
+        title: z.string(),
+        content: z.string(),
         startTime: z.date(),
         endTime: z.date(),
       }),
@@ -39,7 +40,8 @@ export const eventRouter = createTRPCRouter({
       return ctx.db.event.update({
         where: { id: input.id },
         data: {
-          action: input.action,
+          title: input.title,
+          content: input.content,
           startTime: input.startTime,
           endTime: input.endTime,
         },

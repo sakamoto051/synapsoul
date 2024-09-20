@@ -298,7 +298,8 @@ model Character {
 
 model Event {
   id          Int       @id @default(autoincrement())
-  action      String
+  title       String
+  content     String
   startTime   DateTime
   endTime     DateTime
   characterId Int
