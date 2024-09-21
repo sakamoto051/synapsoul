@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { EventForm } from "./EventForm";
 import type { Event } from "@prisma/client";
 import type { Character } from "~/types/timeline";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface TimelineGridProps {
   characters: Character[];
@@ -119,65 +120,91 @@ export const TimelineGrid: React.FC<TimelineGridProps> = ({
     }
   };
 
-  return (
-    <div className="flex">
-      {/* Time column */}
-      <div className="w-20 mr-2">
-        <div className="h-10" /> {/* Space for character names */}
-        <div className="relative h-[3000px]">
-          {Array.from({ length: 97 }).map((_, i) => (
-            <div
-              key={uniqueId()}
-              className={`absolute w-full text-xs text-gray-400 text-right pr-2 ${
-                i % 4 === 0 ? "font-bold" : ""
-              }`}
-              style={{ top: `${(i / 96) * 100}%` }}
-            >
-              {i % 4 === 0 && `${Math.floor(i / 4)}:00`}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Character columns */}
-      {characters.map((character) => (
-        <div key={character.id} className="flex-1 mr-1 last:mr-0">
-          <h2
-            className={`text-center p-2 ${character.color} text-white rounded-t-lg`}
+  const renderTimeColumn = () => (
+    <div className="w-10 flex-shrink-0 sticky left-0 z-20 bg-gray-900">
+      {/* Space for character names */}
+      <div className="relative h-[1440px]">
+        {Array.from({ length: 97 }).map((_, i) => (
+          <div
+            key={uniqueId()}
+            className={`absolute w-full text-xs text-gray-400 text-right pr-2 ${
+              i % 4 === 0 ? "font-bold" : ""
+            }`}
+            style={{ top: `${(i / 96) * 100}%` }}
           >
-            {character.name}
-          </h2>
-          <div className="relative h-[3000px] bg-gray-800 border border-gray-600 rounded-b-lg overflow-hidden">
-            {Array.from({ length: 97 }).map((_, i) => (
-              <div
-                key={uniqueId()}
-                className={`absolute w-full border-t ${
-                  i % 4 === 0 ? "border-gray-500" : "border-gray-700"
-                }`}
-                style={{ top: `${(i / 96) * 100}%` }}
-              />
-            ))}
-            {groupedEventsByCharacter[character.id]?.map((event) => (
-              <EventCard
-                key={event.id}
-                event={event}
-                characterColor={character.color}
-                onClick={() => handleEventClick(event)}
-                top={event.top}
-                height={event.height}
-                left={event.left}
-                width={event.width}
-              />
-            ))}
+            {i % 4 === 0 && `${Math.floor(i / 4)}:00`}
           </div>
-        </div>
-      ))}
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderCharacterColumns = () => (
+    <>
+      <div className="flex sticky top-0 z-10 bg-gray-900">
+        <div className="w-10 flex-shrink-0" /> {/* Space for time column */}
+        {characters.map((character) => (
+          <div
+            key={character.id}
+            className="flex-1 mr-1 last:mr-0 min-w-[200px]"
+          >
+            <h2
+              className={`text-center p-2 ${character.color} text-white rounded-t-lg`}
+            >
+              {character.name}
+            </h2>
+          </div>
+        ))}
+      </div>
+      <div className="flex">
+        {renderTimeColumn()}
+        {characters.map((character) => (
+          <div
+            key={character.id}
+            className="flex-1 mr-1 last:mr-0 min-w-[200px]"
+          >
+            <div className="relative h-[1440px] bg-gray-800 border border-gray-600 rounded-b-lg overflow-hidden">
+              {Array.from({ length: 97 }).map((_, i) => (
+                <div
+                  key={uniqueId()}
+                  className={`absolute w-full border-t ${
+                    i % 4 === 0 ? "border-gray-500" : "border-gray-700"
+                  }`}
+                  style={{ top: `${(i / 96) * 100}%` }}
+                />
+              ))}
+              {groupedEventsByCharacter[character.id]?.map((event) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  characterColor={character.color}
+                  onClick={() => handleEventClick(event)}
+                  top={event.top}
+                  height={event.height}
+                  left={event.left}
+                  width={event.width}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </>
+  );
+
+  return (
+    <div className="flex h-[calc(100vh-200px)]">
+      <ScrollArea className="flex-grow w-[calc(100vw-200px)]">
+        {renderCharacterColumns()}
+        <ScrollBar orientation="horizontal" />
+        <ScrollBar orientation="vertical" />
+      </ScrollArea>
 
       <Dialog
         open={!!selectedEvent}
         onOpenChange={() => setSelectedEvent(null)}
       >
-        <DialogContent>
+        <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle>
               {isEditing ? "イベントを編集" : "イベント詳細"}
@@ -208,7 +235,7 @@ export const TimelineGrid: React.FC<TimelineGridProps> = ({
           )}
           <DialogFooter>
             {!isEditing && (
-              <div className="flex justify-end space-x-2">
+              <div className="flex justify-end space-x-2 mt-4">
                 <Button variant="default" onClick={handleEditClick}>
                   編集
                 </Button>

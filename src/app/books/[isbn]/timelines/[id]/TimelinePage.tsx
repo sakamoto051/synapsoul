@@ -50,19 +50,19 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between">
+    <div className="container mx-auto px-4 py-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0 sm:space-x-4">
         <Link href={`/books/${isbn}/timelines`} passHref>
           <Button
             variant="outline"
-            className="bg-gray-200 hover:bg-gray-300 text-gray-800"
+            className="w-full sm:w-auto bg-gray-200 hover:bg-gray-300 text-gray-800"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             タイムライン一覧に戻る
           </Button>
         </Link>
 
-        <div className="flex space-x-2 mb-2">
+        <div className="flex flex-wrap justify-center sm:justify-end items-center gap-2 w-full sm:w-auto">
           <CharacterManager
             characters={timelineData.characters}
             onAddOrUpdateCharacter={onAddOrUpdateCharacter}
@@ -73,7 +73,10 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
             characters={visibleCharacters}
             onAddOrUpdateEvent={onAddOrUpdateEvent}
           />
-          <Button onClick={onSave} className="bg-green-600 hover:bg-green-700">
+          <Button
+            onClick={onSave}
+            className="bg-green-600 hover:bg-green-700 w-full sm:w-auto"
+          >
             <Save className="mr-2 h-4 w-4" />
             保存
           </Button>

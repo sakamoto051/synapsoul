@@ -1,4 +1,3 @@
-// src/app/books/[isbn]/timelines/TimelineCalendarView.tsx
 import type React from "react";
 import { useState, useMemo } from "react";
 import {
@@ -121,7 +120,7 @@ export const TimelineCalendarView: React.FC<TimelineCalendarViewProps> = ({
     }
 
     return (
-      <div className="flex justify-between items-center mb-2">
+      <div className="flex justify-between items-center mb-4">
         <Button
           onClick={navigatePrev}
           variant="outline"
@@ -173,7 +172,11 @@ export const TimelineCalendarView: React.FC<TimelineCalendarViewProps> = ({
         </div>,
       );
     }
-    return <div className="grid grid-cols-3 gap-4">{months}</div>;
+    return (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {months}
+      </div>
+    );
   };
 
   const renderMonthView = () => {
@@ -182,7 +185,7 @@ export const TimelineCalendarView: React.FC<TimelineCalendarViewProps> = ({
     const days = eachDayOfInterval({ start: startDate, end: endDate });
 
     return (
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-2">
         {days.map((day) => {
           const dayTimelines = timelinesInView.filter((t) =>
             isSameDay(t.date, day),
@@ -239,14 +242,14 @@ export const TimelineCalendarView: React.FC<TimelineCalendarViewProps> = ({
   };
 
   return (
-    <div className="container mx-auto px-0 py-2">
+    <div className="container mx-auto px-4 py-6">
       {renderHeader()}
       {mode === "year" && renderYearView()}
       {mode === "month" && renderMonthView()}
       {mode === "day" && renderDayView()}
       <Button
         variant="outline"
-        className="mt-4 w-full bg-white text-indigo-600 hover:bg-indigo-100"
+        className="mt-6 w-full bg-white text-indigo-600 hover:bg-indigo-100"
         onClick={handleAddClick}
       >
         <Plus className="h-4 w-4 mr-2" />

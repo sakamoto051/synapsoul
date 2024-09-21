@@ -1,4 +1,3 @@
-// src/app/books/[isbn]/timelines/TimelineView.tsx
 import type React from "react";
 import { useState } from "react";
 import { TimelineCalendarView } from "./TimelineCalendarView";
@@ -46,12 +45,12 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
   }
 
   return (
-    <>
-      <div className="mb-2 flex justify-between">
+    <div className="container mx-auto px-4 py-6">
+      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <Link href={`/books/${isbn}`} passHref>
           <Button
             variant="outline"
-            className="bg-gray-200 hover:bg-gray-300 text-gray-800"
+            className="w-full sm:w-auto bg-gray-200 hover:bg-gray-300 text-gray-800"
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             書籍詳細に戻る
@@ -74,6 +73,6 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
       ) : (
         <TimelineListView timelines={timelines} bookId={bookId} />
       )}
-    </>
+    </div>
   );
 };
