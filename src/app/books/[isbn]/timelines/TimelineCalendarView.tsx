@@ -19,6 +19,7 @@ import { TimelinePopover } from "./TimelinePopover";
 import { CreateTimelineModal } from "./CreateTimelineModal";
 import Link from "next/link";
 import { DateSelectModal } from "./DateSelectModal";
+import { useParams } from "next/navigation";
 
 interface Timeline {
   id: number;
@@ -45,7 +46,8 @@ export const TimelineCalendarView: React.FC<TimelineCalendarViewProps> = ({
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDateSelectModalOpen, setIsDateSelectModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-
+  const params = useParams();
+  const isbn = params.isbn as string;
   const timelinesInView = useMemo(() => {
     switch (mode) {
       case "year":
@@ -158,7 +160,7 @@ export const TimelineCalendarView: React.FC<TimelineCalendarViewProps> = ({
           {monthTimelines.map((timeline) => (
             <TimelinePopover key={timeline.id} timeline={timeline}>
               <Link
-                href={`/books/${bookId}/timelines/${timeline.id}`}
+                href={`/books/${isbn}/timelines/${timeline.id}`}
                 className="block"
               >
                 <div className="bg-indigo-600 text-white p-1 mb-1 text-xs rounded cursor-pointer hover:bg-indigo-700 transition-colors">
@@ -196,7 +198,7 @@ export const TimelineCalendarView: React.FC<TimelineCalendarViewProps> = ({
               {dayTimelines.map((timeline) => (
                 <TimelinePopover key={timeline.id} timeline={timeline}>
                   <Link
-                    href={`/books/${bookId}/timelines/${timeline.id}`}
+                    href={`/books/${isbn}/timelines/${timeline.id}`}
                     className="block"
                   >
                     <div className="bg-indigo-600 text-white p-1 mb-1 text-xs rounded cursor-pointer hover:bg-indigo-700 transition-colors">
@@ -218,7 +220,7 @@ export const TimelineCalendarView: React.FC<TimelineCalendarViewProps> = ({
         {timelinesInView.map((timeline) => (
           <TimelinePopover key={timeline.id} timeline={timeline}>
             <Link
-              href={`/books/${bookId}/timelines/${timeline.id}`}
+              href={`/books/${isbn}/timelines/${timeline.id}`}
               className="block"
             >
               <div className="bg-indigo-600 text-white p-2 rounded cursor-pointer hover:bg-indigo-700 transition-colors">
