@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { EventCard } from "./EventCard";
 import type { Character, Event } from "~/hooks/useTimelineData";
 import { uniqueId } from "lodash";
@@ -20,6 +20,11 @@ interface TimelineGridProps {
   onDeleteEvent: (id: string) => void;
 }
 
+interface PositionedEvent extends Event {
+  left: number;
+  width: number;
+}
+
 export const TimelineGrid: React.FC<TimelineGridProps> = ({
   characters,
   events,
@@ -37,8 +42,45 @@ export const TimelineGrid: React.FC<TimelineGridProps> = ({
   const getEventHeight = (startTime: Date, endTime: Date) => {
     const start = getEventPosition(startTime);
     const end = getEventPosition(endTime);
-    return end - start;
+    return Math.max(end - start, 1.04); // Ensure a minimum height of 1.04% (15 minutes)
   };
+
+  const groupedEventsByCharacter = useMemo(() => {
+    const positionEvents = (characterEvents: Event[]): PositionedEvent[] => {
+      const sortedEvents = [...characterEvents].sort(
+        (a, b) => a.startTime.getTime() - b.startTime.getTime(),
+      );
+      const positionedEvents: PositionedEvent[] = [];
+
+      for (const event of sortedEvents) {
+        const conflictingEvents = positionedEvents.filter(
+          (e) => e.endTime > event.startTime && e.startTime < event.endTime,
+        );
+
+        const availableWidth = 1 / (conflictingEvents.length + 1);
+        const left = conflictingEvents.length * availableWidth;
+
+        positionedEvents.push({
+          ...event,
+          left: left * 100,
+          width: availableWidth * 100,
+        });
+      }
+
+      return positionedEvents;
+    };
+
+    return characters.reduce(
+      (acc, character) => {
+        const characterEvents = events.filter(
+          (event) => event.characterId === character.id.toString(),
+        );
+        acc[character.id] = positionEvents(characterEvents);
+        return acc;
+      },
+      {} as Record<number, PositionedEvent[]>,
+    );
+  }, [characters, events]);
 
   const handleEventClick = (event: Event) => {
     setSelectedEvent(event);
@@ -67,16 +109,18 @@ export const TimelineGrid: React.FC<TimelineGridProps> = ({
   return (
     <div className="flex">
       {/* Time column */}
-      <div className="w-16 mr-2">
+      <div className="w-20 mr-2">
         <div className="h-10" /> {/* Space for character names */}
-        <div className="relative h-[600px]">
-          {Array.from({ length: 25 }).map((_, i) => (
+        <div className="relative h-[1200px]">
+          {Array.from({ length: 97 }).map((_, i) => (
             <div
               key={uniqueId()}
-              className="absolute w-full text-xs text-gray-400 text-right pr-2"
-              style={{ top: `${(i / 24) * 100}%` }}
+              className={`absolute w-full text-xs text-gray-400 text-right pr-2 ${
+                i % 4 === 0 ? "font-bold" : ""
+              }`}
+              style={{ top: `${(i / 96) * 100}%` }}
             >
-              {i}:00
+              {i % 4 === 0 && `${Math.floor(i / 4)}:00`}
             </div>
           ))}
         </div>
@@ -90,26 +134,28 @@ export const TimelineGrid: React.FC<TimelineGridProps> = ({
           >
             {character.name}
           </h2>
-          <div className="relative h-[600px] bg-gray-800 border border-gray-600 rounded-b-lg overflow-hidden">
-            {Array.from({ length: 24 }).map((_, i) => (
+          <div className="relative h-[1200px] bg-gray-800 border border-gray-600 rounded-b-lg overflow-hidden">
+            {Array.from({ length: 97 }).map((_, i) => (
               <div
                 key={uniqueId()}
-                className="absolute w-full border-t border-gray-600"
-                style={{ top: `${(i / 24) * 100}%` }}
+                className={`absolute w-full border-t ${
+                  i % 4 === 0 ? "border-gray-500" : "border-gray-700"
+                }`}
+                style={{ top: `${(i / 96) * 100}%` }}
               />
             ))}
-            {events
-              .filter((event) => event.characterId === character.id.toString())
-              .map((event) => (
-                <EventCard
-                  key={event.id}
-                  event={event}
-                  characterColor={character.color}
-                  onClick={() => handleEventClick(event)}
-                  top={`${getEventPosition(event.startTime)}%`}
-                  height={`${getEventHeight(event.startTime, event.endTime)}%`}
-                />
-              ))}
+            {groupedEventsByCharacter[character.id]?.map((event) => (
+              <EventCard
+                key={event.id}
+                event={event}
+                characterColor={character.color}
+                onClick={() => handleEventClick(event)}
+                top={`${getEventPosition(event.startTime)}%`}
+                height={`${getEventHeight(event.startTime, event.endTime)}%`}
+                left={`${event.left}%`}
+                width={`${event.width}%`}
+              />
+            ))}
           </div>
         </div>
       ))}
