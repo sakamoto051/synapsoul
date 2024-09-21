@@ -7,7 +7,6 @@ interface Timeline {
   id: number;
   date: Date;
   title: string;
-  content: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -40,7 +39,6 @@ export const TimelineListView: React.FC<TimelineListViewProps> = ({
             <p className="text-sm text-gray-400">
               日付: {format(timeline.date, "yyyy年 MM月 dd日", { locale: ja })}
             </p>
-            <p className="mt-2 text-gray-300">{timeline.content}</p>
             <div className="mt-2 text-xs text-gray-500">
               <p>
                 作成日:{" "}

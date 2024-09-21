@@ -1,22 +1,22 @@
+// src/app/books/[isbn]/timelines/TimelineView.tsx
 import type React from "react";
 import { useState } from "react";
 import { TimelineCalendarView } from "./TimelineCalendarView";
 import { TimelineListView } from "./TimelineListView";
 import { ViewToggle } from "./ViewToggle";
+import { Loader2 } from "lucide-react";
+import type { Timeline } from "@prisma/client";
 
-interface Timeline {
-  id: number;
-  date: Date;
-  title: string;
-  content: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
+// interface Timeline {
+//   id: number;
+//   title: string;
+//   date: Date;
+//   bookId: number;
+// }
 
 interface TimelineViewProps {
-  timelines: Timeline[];
+  timelines: Timeline[] | undefined;
   bookId: number;
-  timelineGroupId: number;
   onTimelineCreated: () => void;
 }
 
@@ -26,7 +26,6 @@ type CalendarMode = "year" | "month" | "day";
 export const TimelineView: React.FC<TimelineViewProps> = ({
   timelines,
   bookId,
-  timelineGroupId,
   onTimelineCreated,
 }) => {
   const [viewMode, setViewMode] = useState<ViewMode>("calendar");
@@ -39,6 +38,14 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
   const handleCalendarModeChange = (mode: CalendarMode) => {
     setCalendarMode(mode);
   };
+
+  if (timelines === undefined) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -55,7 +62,6 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
           timelines={timelines}
           mode={calendarMode}
           bookId={bookId}
-          timelineGroupId={timelineGroupId}
           onTimelineCreated={onTimelineCreated}
         />
       ) : (

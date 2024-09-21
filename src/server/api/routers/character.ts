@@ -1,21 +1,20 @@
-// src/server/api/routers/character.ts
-
+// src/server/api/routers/character.ts (continued)
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
 export const characterRouter = createTRPCRouter({
-  getByTimelineGroupId: protectedProcedure
-    .input(z.object({ timelineGroupId: z.number() }))
+  getByBookId: protectedProcedure
+    .input(z.object({ bookId: z.number() }))
     .query(async ({ ctx, input }) => {
       return ctx.db.character.findMany({
-        where: { timelineGroupId: input.timelineGroupId },
+        where: { bookId: input.bookId },
       });
     }),
 
   create: protectedProcedure
     .input(
       z.object({
-        timelineGroupId: z.number(),
+        bookId: z.number(),
         name: z.string(),
         color: z.string(),
       }),
@@ -25,7 +24,7 @@ export const characterRouter = createTRPCRouter({
         data: {
           name: input.name,
           color: input.color,
-          timelineGroupId: input.timelineGroupId,
+          bookId: input.bookId,
         },
       });
     }),

@@ -1,5 +1,4 @@
 // src/server/api/routers/timeline.ts
-
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
@@ -11,13 +10,9 @@ export const timelineRouter = createTRPCRouter({
         where: { id: input.id },
         select: {
           id: true,
+          title: true,
           date: true,
-          timelineGroup: {
-            select: {
-              id: true,
-              bookId: true,
-            },
-          },
+          bookId: true,
         },
       });
 
@@ -25,50 +20,7 @@ export const timelineRouter = createTRPCRouter({
         throw new Error("Timeline not found");
       }
 
-      return {
-        id: timeline.id,
-        date: timeline.date,
-        timelineGroupId: timeline.timelineGroup.id,
-        bookId: timeline.timelineGroup.bookId,
-      };
-    }),
-
-  create: protectedProcedure
-    .input(
-      z.object({
-        date: z.date(),
-        timelineGroupId: z.number(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      return ctx.db.timeline.create({
-        data: {
-          date: input.date,
-          timelineGroupId: input.timelineGroupId,
-        },
-      });
-    }),
-
-  update: protectedProcedure
-    .input(
-      z.object({
-        id: z.number(),
-        date: z.date(),
-      }),
-    )
-    .mutation(async ({ ctx, input }) => {
-      return ctx.db.timeline.update({
-        where: { id: input.id },
-        data: { date: input.date },
-      });
-    }),
-
-  delete: protectedProcedure
-    .input(z.object({ id: z.number() }))
-    .mutation(async ({ ctx, input }) => {
-      return ctx.db.timeline.delete({
-        where: { id: input.id },
-      });
+      return timeline;
     }),
 
   getById: protectedProcedure
@@ -82,9 +34,8 @@ export const timelineRouter = createTRPCRouter({
               character: true,
             },
           },
-          timelineGroup: {
+          book: {
             include: {
-              book: true,
               characters: true,
             },
           },
@@ -98,11 +49,52 @@ export const timelineRouter = createTRPCRouter({
       return timeline;
     }),
 
-  getByGroupId: protectedProcedure
-    .input(z.object({ groupId: z.number() }))
+  create: protectedProcedure
+    .input(
+      z.object({
+        title: z.string(),
+        date: z.date(),
+        bookId: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.timeline.create({
+        data: {
+          title: input.title,
+          date: input.date,
+          bookId: input.bookId,
+        },
+      });
+    }),
+
+  update: protectedProcedure
+    .input(
+      z.object({
+        id: z.number(),
+        title: z.string(),
+        date: z.date(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.timeline.update({
+        where: { id: input.id },
+        data: { title: input.title, date: input.date },
+      });
+    }),
+
+  delete: protectedProcedure
+    .input(z.object({ id: z.number() }))
+    .mutation(async ({ ctx, input }) => {
+      return ctx.db.timeline.delete({
+        where: { id: input.id },
+      });
+    }),
+
+  getByBookId: protectedProcedure
+    .input(z.object({ bookId: z.number() }))
     .query(async ({ ctx, input }) => {
       return ctx.db.timeline.findMany({
-        where: { timelineGroupId: input.groupId },
+        where: { bookId: input.bookId },
         include: { events: { include: { character: true } } },
       });
     }),

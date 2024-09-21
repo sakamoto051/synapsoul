@@ -10,8 +10,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { EventForm } from "./EventForm";
-import type { Character, Event } from "~/hooks/useTimelineData";
 import { Button } from "~/components/ui/button";
+import type { Character } from "~/types/timeline";
+import type { Event } from "@prisma/client";
 
 interface EventManagerProps {
   characters: Character[];

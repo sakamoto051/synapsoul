@@ -1,3 +1,4 @@
+// src/app/books/[isbn]/timelines/[id]/CharacterManager.tsx
 import type React from "react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -14,14 +15,14 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Character } from "~/types/timeline";
 
 interface CharacterManagerProps {
-  timelineGroupId: number;
   characters: Character[];
-  onAddOrUpdateCharacter: (character: Omit<Character, "id">) => Promise<void>;
+  onAddOrUpdateCharacter: (
+    character: Omit<Character, "id" | "isVisible" | "bookId">,
+  ) => Promise<void>;
   onDeleteCharacter: (id: number) => Promise<void>;
 }
 
 export const CharacterManager: React.FC<CharacterManagerProps> = ({
-  timelineGroupId,
   characters,
   onAddOrUpdateCharacter,
   onDeleteCharacter,
@@ -29,7 +30,9 @@ export const CharacterManager: React.FC<CharacterManagerProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
 
-  const handleSubmit = async (character: Omit<Character, "id">) => {
+  const handleSubmit = async (
+    character: Omit<Character, "id" | "isVisible" | "bookId">,
+  ) => {
     await onAddOrUpdateCharacter(character);
     setIsAdding(false);
   };
@@ -57,7 +60,6 @@ export const CharacterManager: React.FC<CharacterManagerProps> = ({
             <CharacterForm
               character={null}
               onSubmit={handleSubmit}
-              timelineGroupId={timelineGroupId}
               onCancel={() => setIsAdding(false)}
             />
           ) : (

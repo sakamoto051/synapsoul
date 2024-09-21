@@ -1,3 +1,4 @@
+// src/app/books/[isbn]/timelines/[id]/CharacterForm.tsx
 import type React from "react";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
@@ -14,8 +15,7 @@ import type { Character } from "~/types/timeline";
 
 interface CharacterFormProps {
   character: Character | null;
-  timelineGroupId: number;
-  onSubmit: (character: Omit<Character, "id">) => void;
+  onSubmit: (character: Omit<Character, "id" | "isVisible" | "bookId">) => void;
   onCancel: () => void;
 }
 
@@ -31,7 +31,6 @@ const colorOptions = [
 
 export const CharacterForm: React.FC<CharacterFormProps> = ({
   character,
-  timelineGroupId,
   onSubmit,
   onCancel,
 }) => {
@@ -50,7 +49,7 @@ export const CharacterForm: React.FC<CharacterFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ name, color, timelineGroupId });
+    onSubmit({ name, color });
   };
 
   return (

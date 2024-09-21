@@ -10,7 +10,6 @@ interface Timeline {
   id: number;
   date: Date;
   title: string;
-  content: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -33,7 +32,6 @@ export const TimelinePopover: React.FC<TimelinePopoverProps> = ({
           <p className="text-sm text-gray-500">
             タイムライン日付: {format(timeline.date, "PPP")}
           </p>
-          <p className="text-sm">{timeline.content}</p>
           <p className="text-xs text-gray-400">
             作成日: {format(timeline.createdAt, "PPP")}
           </p>

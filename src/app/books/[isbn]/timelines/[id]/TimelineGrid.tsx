@@ -1,7 +1,6 @@
 import type React from "react";
 import { useState, useMemo } from "react";
 import { EventCard } from "./EventCard";
-import type { Character, Event } from "~/hooks/useTimelineData";
 import { uniqueId } from "lodash";
 import {
   Dialog,
@@ -12,12 +11,14 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { EventForm } from "./EventForm";
+import type { Event } from "@prisma/client";
+import type { Character } from "~/types/timeline";
 
 interface TimelineGridProps {
   characters: Character[];
   events: Event[];
   onEditEvent: (event: Event) => void;
-  onDeleteEvent: (id: string) => void;
+  onDeleteEvent: (id: number) => void;
 }
 
 interface PositionedEvent extends Event {
@@ -73,7 +74,7 @@ export const TimelineGrid: React.FC<TimelineGridProps> = ({
     return characters.reduce(
       (acc, character) => {
         const characterEvents = events.filter(
-          (event) => event.characterId === character.id.toString(),
+          (event) => event.characterId === character.id,
         );
         acc[character.id] = positionEvents(characterEvents);
         return acc;

@@ -10,7 +10,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Character, Event } from "~/hooks/useTimelineData";
+import type { Event } from "@prisma/client";
+import type { Character } from "~/types/timeline";
 
 interface EventFormProps {
   characters: Character[];
@@ -23,7 +24,9 @@ export const EventForm: React.FC<EventFormProps> = ({
   event,
   onSubmit,
 }) => {
-  const [characterId, setCharacterId] = useState(event?.characterId ?? "");
+  const [characterId, setCharacterId] = useState<string>(
+    event?.characterId.toString() ?? "",
+  );
   const [title, setTitle] = useState(event?.title ?? "");
   const [content, setContent] = useState(event?.content ?? "");
   const [startTime, setStartTime] = useState<Date>(
@@ -33,7 +36,7 @@ export const EventForm: React.FC<EventFormProps> = ({
 
   useEffect(() => {
     if (event) {
-      setCharacterId(event.characterId);
+      setCharacterId(event.characterId.toString());
       setTitle(event.title);
       setContent(event.content);
       setStartTime(new Date(event.startTime));
@@ -43,11 +46,14 @@ export const EventForm: React.FC<EventFormProps> = ({
 
   const handleSubmit = () => {
     onSubmit({
-      characterId,
+      characterId: Number(characterId),
       title,
       content,
       startTime,
       endTime,
+      timelineId: event?.timelineId ?? 0,
+      createdAt: event?.createdAt ?? new Date(),
+      updatedAt: new Date(),
     });
   };
 

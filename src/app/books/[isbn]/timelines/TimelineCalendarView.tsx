@@ -1,3 +1,4 @@
+// src/app/books/[isbn]/timelines/TimelineCalendarView.tsx
 import type React from "react";
 import { useState, useMemo } from "react";
 import {
@@ -21,9 +22,8 @@ import { DateSelectModal } from "./DateSelectModal";
 
 interface Timeline {
   id: number;
-  date: Date;
   title: string;
-  content: string;
+  date: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,7 +32,6 @@ interface TimelineCalendarViewProps {
   timelines: Timeline[];
   mode: "year" | "month" | "day";
   bookId: number;
-  timelineGroupId: number;
   onTimelineCreated: () => void;
 }
 
@@ -40,15 +39,9 @@ export const TimelineCalendarView: React.FC<TimelineCalendarViewProps> = ({
   timelines,
   mode,
   bookId,
-  timelineGroupId,
   onTimelineCreated,
 }) => {
-  const [currentDate, setCurrentDate] = useState(() => {
-    const dates = timelines.map((t) => t.date);
-    return dates.length > 0
-      ? new Date(Math.min(...dates.map((d) => d.getTime())))
-      : new Date();
-  });
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isDateSelectModalOpen, setIsDateSelectModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -230,11 +223,15 @@ export const TimelineCalendarView: React.FC<TimelineCalendarViewProps> = ({
             >
               <div className="bg-indigo-600 text-white p-2 rounded cursor-pointer hover:bg-indigo-700 transition-colors">
                 <div className="font-bold">{timeline.title}</div>
-                <div className="text-sm">{timeline.content}</div>
               </div>
             </Link>
           </TimelinePopover>
         ))}
+        {timelinesInView.length === 0 && (
+          <div className="text-center py-4 text-gray-500">
+            この日のタイムラインはありません。
+          </div>
+        )}
       </div>
     );
   };
@@ -258,7 +255,7 @@ export const TimelineCalendarView: React.FC<TimelineCalendarViewProps> = ({
           isOpen={isCreateModalOpen}
           onClose={() => setIsCreateModalOpen(false)}
           selectedDate={selectedDate}
-          timelineGroupId={timelineGroupId}
+          bookId={bookId}
           onTimelineCreated={onTimelineCreated}
         />
       )}

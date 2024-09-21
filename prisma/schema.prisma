@@ -155,7 +155,8 @@ model Book {
   userId    Int
   status    BookStatus
   notes     Note[]
-  timelineGroups TimelineGroup[]
+  timelines Timeline[]
+  characters Character[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -264,36 +265,26 @@ enum ReactionType {
   DISLIKE
 }
 
-model TimelineGroup {
+model Timeline {
   id        Int       @id @default(autoincrement())
   title     String
+  date      DateTime
   bookId    Int
   book      Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  timelines Timeline[]
-  characters Character[]
+  events    Event[]
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
 }
 
-model Timeline {
-  id              Int           @id @default(autoincrement())
-  date            DateTime
-  timelineGroupId Int
-  timelineGroup   TimelineGroup @relation(fields: [timelineGroupId], references: [id], onDelete: Cascade)
-  events          Event[]
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-}
-
 model Character {
-  id              Int           @id @default(autoincrement())
-  name            String
-  color           String
-  timelineGroupId Int
-  timelineGroup   TimelineGroup @relation(fields: [timelineGroupId], references: [id], onDelete: Cascade)
-  events          Event[]
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id        Int       @id @default(autoincrement())
+  name      String
+  color     String
+  bookId    Int
+  book      Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  events    Event[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
 
 model Event {

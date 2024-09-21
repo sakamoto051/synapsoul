@@ -2,7 +2,8 @@ export interface Character {
   id: number;
   name: string;
   color: string;
-  timelineGroupId: number;
+  bookId: number;
+  isVisible?: boolean;
 }
 
 export interface Event {

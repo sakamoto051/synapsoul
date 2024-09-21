@@ -4,19 +4,21 @@ import { Save } from "lucide-react";
 import { CharacterManager } from "./CharacterManager";
 import { EventManager } from "./EventManager";
 import { TimelineGrid } from "./TimelineGrid";
-import type { TimelineData, Character, Event } from "~/hooks/useTimelineData";
+import type { TimelineData } from "~/hooks/useTimelineData";
 import { CharacterVisibilityToggle } from "./CharacterVisibilityToggle";
+import type { Character } from "~/types/timeline";
+import type { Event } from "@prisma/client";
 
 interface TimelinePageProps {
   timelineData: TimelineData;
   visibleCharacters: Character[];
   onSave: () => Promise<void>;
   onAddOrUpdateCharacter: (
-    character: Omit<Character, "id" | "isVisible">,
+    character: Omit<Character, "id" | "isVisible" | "bookId">,
   ) => Promise<void>;
   onDeleteCharacter: (id: number) => Promise<void>;
   onAddOrUpdateEvent: (event: Omit<Event, "id">) => Promise<void>;
-  onDeleteEvent: (id: string) => Promise<void>;
+  onDeleteEvent: (id: number) => Promise<void>;
   toggleCharacterVisibility: (characterId: number) => void;
 }
 
@@ -41,7 +43,6 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
 
       <div className="flex space-x-2 mb-2">
         <CharacterManager
-          timelineGroupId={timelineData.timelineGroupId}
           characters={timelineData.characters}
           onAddOrUpdateCharacter={onAddOrUpdateCharacter}
           onDeleteCharacter={onDeleteCharacter}
