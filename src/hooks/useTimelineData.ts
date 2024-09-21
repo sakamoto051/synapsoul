@@ -1,5 +1,4 @@
-// src/hooks/useTimelineData.ts
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { api } from "~/trpc/react";
 import { useToast } from "~/components/ui/use-toast";
 import type {
@@ -236,7 +235,7 @@ export const useTimelineData = (timelineId: number) => {
     }
   };
 
-  const toggleCharacterVisibility = (characterId: number) => {
+  const toggleCharacterVisibility = useCallback((characterId: number) => {
     setLocalTimelineData((prev) => ({
       ...prev,
       characters: prev.characters.map((char) =>
@@ -245,7 +244,7 @@ export const useTimelineData = (timelineId: number) => {
           : char,
       ),
     }));
-  };
+  }, []);
 
   const visibleCharacters = useMemo(() => {
     return localTimelineData.characters.filter((char) => char.isVisible);
@@ -253,6 +252,7 @@ export const useTimelineData = (timelineId: number) => {
 
   return {
     timelineData: localTimelineData,
+    setTimelineData: setLocalTimelineData,
     visibleCharacters,
     isLoading: isTimelineLoading,
     handleSaveTimeline,

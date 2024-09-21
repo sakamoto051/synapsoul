@@ -18,6 +18,7 @@ const TimelineDetailPage = () => {
 
   const {
     timelineData,
+    setTimelineData,
     visibleCharacters,
     isLoading: isTimelineDataLoading,
     handleSaveTimeline,
@@ -43,6 +44,7 @@ const TimelineDetailPage = () => {
   return (
     <TimelinePage
       timelineData={timelineData}
+      setTimelineData={setTimelineData}
       visibleCharacters={visibleCharacters}
       onSave={handleSaveTimeline}
       onAddOrUpdateCharacter={handleAddOrUpdateCharacter}

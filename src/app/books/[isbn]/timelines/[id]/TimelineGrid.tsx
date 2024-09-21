@@ -1,5 +1,5 @@
 import type React from "react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { EventCard } from "./EventCard";
 import { uniqueId } from "lodash";
 import {
@@ -22,8 +22,10 @@ interface TimelineGridProps {
 }
 
 interface PositionedEvent extends Event {
-  left: number;
-  width: number;
+  left: string;
+  width: string;
+  top: string;
+  height: string;
 }
 
 export const TimelineGrid: React.FC<TimelineGridProps> = ({
@@ -35,42 +37,52 @@ export const TimelineGrid: React.FC<TimelineGridProps> = ({
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isEditing, setIsEditing] = useState(false);
 
-  const getEventPosition = (time: Date) => {
+  const getEventPosition = useCallback((time: Date) => {
     const totalMinutes = time.getHours() * 60 + time.getMinutes();
     return (totalMinutes / 1440) * 100; // 1440 minutes in a day
-  };
+  }, []);
 
-  const getEventHeight = (startTime: Date, endTime: Date) => {
-    const start = getEventPosition(startTime);
-    const end = getEventPosition(endTime);
-    return Math.max(end - start, 1.04); // Ensure a minimum height of 1.04% (15 minutes)
-  };
+  const getEventHeight = useCallback(
+    (startTime: Date, endTime: Date) => {
+      const start = getEventPosition(startTime);
+      const end = getEventPosition(endTime);
+      return Math.max(end - start, 1.04); // Ensure a minimum height of 1.04% (15 minutes)
+    },
+    [getEventPosition],
+  );
 
-  const groupedEventsByCharacter = useMemo(() => {
-    const positionEvents = (characterEvents: Event[]): PositionedEvent[] => {
+  const positionEvents = useCallback(
+    (characterEvents: Event[]): PositionedEvent[] => {
       const sortedEvents = [...characterEvents].sort(
         (a, b) => a.startTime.getTime() - b.startTime.getTime(),
       );
       const positionedEvents: PositionedEvent[] = [];
 
       for (const event of sortedEvents) {
-        const conflictingEvents = positionedEvents.filter(
-          (e) => e.endTime > event.startTime && e.startTime < event.endTime,
+        const overlappingEvents = positionedEvents.filter(
+          (e) =>
+            (event.startTime < e.endTime && event.endTime > e.startTime) ||
+            (e.startTime < event.endTime && e.endTime > event.startTime),
         );
 
-        const availableWidth = 1 / (conflictingEvents.length + 1);
-        const left = conflictingEvents.length * availableWidth;
+        const availableWidth = 100 / (overlappingEvents.length + 1);
+        const left = overlappingEvents.length * availableWidth;
 
         positionedEvents.push({
           ...event,
-          left: left * 100,
-          width: availableWidth * 100,
+          left: `${left}%`,
+          width: `${availableWidth}%`,
+          top: `${getEventPosition(event.startTime)}%`,
+          height: `${getEventHeight(event.startTime, event.endTime)}%`,
         });
       }
 
       return positionedEvents;
-    };
+    },
+    [getEventPosition, getEventHeight],
+  );
 
+  const groupedEventsByCharacter = useMemo(() => {
     return characters.reduce(
       (acc, character) => {
         const characterEvents = events.filter(
@@ -81,7 +93,7 @@ export const TimelineGrid: React.FC<TimelineGridProps> = ({
       },
       {} as Record<number, PositionedEvent[]>,
     );
-  }, [characters, events]);
+  }, [characters, events, positionEvents]);
 
   const handleEventClick = (event: Event) => {
     setSelectedEvent(event);
@@ -112,7 +124,7 @@ export const TimelineGrid: React.FC<TimelineGridProps> = ({
       {/* Time column */}
       <div className="w-20 mr-2">
         <div className="h-10" /> {/* Space for character names */}
-        <div className="relative h-[1200px]">
+        <div className="relative h-[3000px]">
           {Array.from({ length: 97 }).map((_, i) => (
             <div
               key={uniqueId()}
@@ -135,7 +147,7 @@ export const TimelineGrid: React.FC<TimelineGridProps> = ({
           >
             {character.name}
           </h2>
-          <div className="relative h-[1200px] bg-gray-800 border border-gray-600 rounded-b-lg overflow-hidden">
+          <div className="relative h-[3000px] bg-gray-800 border border-gray-600 rounded-b-lg overflow-hidden">
             {Array.from({ length: 97 }).map((_, i) => (
               <div
                 key={uniqueId()}
@@ -151,10 +163,10 @@ export const TimelineGrid: React.FC<TimelineGridProps> = ({
                 event={event}
                 characterColor={character.color}
                 onClick={() => handleEventClick(event)}
-                top={`${getEventPosition(event.startTime)}%`}
-                height={`${getEventHeight(event.startTime, event.endTime)}%`}
-                left={`${event.left}%`}
-                width={`${event.width}%`}
+                top={event.top}
+                height={event.height}
+                left={event.left}
+                width={event.width}
               />
             ))}
           </div>

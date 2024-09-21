@@ -13,6 +13,7 @@ import { useParams } from "next/navigation";
 
 interface TimelinePageProps {
   timelineData: TimelineData;
+  setTimelineData: React.Dispatch<React.SetStateAction<TimelineData>>;
   visibleCharacters: Character[];
   onSave: () => Promise<void>;
   onAddOrUpdateCharacter: (
@@ -26,6 +27,7 @@ interface TimelinePageProps {
 
 export const TimelinePage: React.FC<TimelinePageProps> = ({
   timelineData,
+  setTimelineData,
   visibleCharacters,
   onSave,
   onAddOrUpdateCharacter,
@@ -36,6 +38,17 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
 }) => {
   const params = useParams();
   const isbn = params.isbn as string;
+
+  const handleEditEvent = (updatedEvent: Event) => {
+    setTimelineData((prevData) => ({
+      ...prevData,
+      events: prevData.events.map((event) =>
+        event.id === updatedEvent.id ? updatedEvent : event,
+      ),
+    }));
+    onAddOrUpdateEvent(updatedEvent);
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between">
@@ -75,7 +88,7 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
       <TimelineGrid
         characters={visibleCharacters}
         events={timelineData.events}
-        onEditEvent={onAddOrUpdateEvent}
+        onEditEvent={handleEditEvent}
         onDeleteEvent={onDeleteEvent}
       />
     </div>

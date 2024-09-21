@@ -26,15 +26,14 @@ export const EventCard: React.FC<EventCardProps> = ({
     style={{
       top,
       height,
-      left: `calc(${left} + 1px)`,
-      width: `calc(${width} - 2px)`,
+      left,
+      width,
       minHeight: "15px",
     }}
     onClick={onClick}
   >
     <CardContent className="p-1 flex flex-col items-start justify-center h-full overflow-hidden">
       <div className="text-xs font-semibold truncate w-full">{event.title}</div>
-      <div className="text-xs opacity-75 pl-2">{event.title}</div>
     </CardContent>
   </Card>
 );
