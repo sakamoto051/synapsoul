@@ -1,9 +1,7 @@
-// src/app/books/[isbn]/timelines/page.tsx
 "use client";
 import { useParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import { TimelineView } from "./TimelineView";
-import Link from "next/link";
 import { useToast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 
@@ -45,19 +43,7 @@ export default function TimelineListPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-6xl">
-      <h1 className="text-3xl font-bold text-indigo-300 mb-4">
-        タイムライン管理
-      </h1>
-      <div className="mb-4 flex justify-between items-center">
-        <Link
-          href={`/books/${isbn}`}
-          className="text-indigo-400 hover:text-indigo-300 transition-colors"
-        >
-          書籍詳細に戻る
-        </Link>
-      </div>
-
+    <div className="container">
       <TimelineView
         timelines={timelines}
         bookId={book.id}

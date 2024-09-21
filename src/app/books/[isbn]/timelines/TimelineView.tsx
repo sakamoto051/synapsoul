@@ -4,15 +4,11 @@ import { useState } from "react";
 import { TimelineCalendarView } from "./TimelineCalendarView";
 import { TimelineListView } from "./TimelineListView";
 import { ViewToggle } from "./ViewToggle";
-import { Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import type { Timeline } from "@prisma/client";
-
-// interface Timeline {
-//   id: number;
-//   title: string;
-//   date: Date;
-//   bookId: number;
-// }
+import { useParams } from "next/navigation";
+import Link from "next/link";
+import { Button } from "~/components/ui/button";
 
 interface TimelineViewProps {
   timelines: Timeline[] | undefined;
@@ -30,6 +26,8 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
 }) => {
   const [viewMode, setViewMode] = useState<ViewMode>("calendar");
   const [calendarMode, setCalendarMode] = useState<CalendarMode>("month");
+  const params = useParams();
+  const isbn = params.isbn as string;
 
   const handleViewModeChange = (mode: ViewMode) => {
     setViewMode(mode);
@@ -48,8 +46,17 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
+    <>
+      <div className="mb-2 flex justify-between">
+        <Link href={`/books/${isbn}`} passHref>
+          <Button
+            variant="outline"
+            className="bg-gray-200 hover:bg-gray-300 text-gray-800"
+          >
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            書籍詳細に戻る
+          </Button>
+        </Link>
         <ViewToggle
           viewMode={viewMode}
           calendarMode={calendarMode}
@@ -67,6 +74,6 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
       ) : (
         <TimelineListView timelines={timelines} bookId={bookId} />
       )}
-    </div>
+    </>
   );
 };
