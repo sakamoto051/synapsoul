@@ -41,7 +41,7 @@ export default function DataImportForm() {
         setJobId(null);
         toast({
           title: "成功",
-          description: `${importStatus.result.processedBooks}冊の書籍データをインポートしました。`,
+          description: `${importStatus.result?.processedBooks ?? 0}冊の書籍データをインポートしました。`,
         });
       } else if (importStatus.status === "failed") {
         setIsLoading(false);

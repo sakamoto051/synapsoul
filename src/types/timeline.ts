@@ -1,23 +1,16 @@
-export interface Character {
-  id: number;
-  name: string;
-  color: string;
-  bookId: number;
-  isVisible?: boolean;
-}
+// src/types/timeline.ts
+import type {
+  Timeline as PrismaTimeline,
+  Character as PrismaCharacter,
+  Event as PrismaEvent,
+} from "@prisma/client";
 
-export interface Event {
-  id: number;
-  characterId: number;
-  title: string;
-  content: string;
-  startTime: string;
-  endTime: string;
-}
+export type Timeline = PrismaTimeline;
+export type Character = PrismaCharacter;
+export type Event = PrismaEvent;
 
-export interface TimelineData {
-  id: number;
-  title: string;
-  characters: Character[];
+export type CharacterWithVisibility = Character & { isVisible: boolean };
+export type TimelineData = Timeline & {
+  characters: CharacterWithVisibility[];
   events: Event[];
-}
+};

@@ -1,9 +1,9 @@
 import type React from "react";
 import { Switch } from "@/components/ui/switch";
-import type { Character } from "~/types/timeline";
+import type { CharacterWithVisibility } from "~/types/timeline";
 
 interface CharacterVisibilityToggleProps {
-  characters: Character[];
+  characters: CharacterWithVisibility[];
   toggleVisibility: (characterId: number) => void;
 }
 

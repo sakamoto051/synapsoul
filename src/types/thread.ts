@@ -1,26 +1,19 @@
 // src/types/thread.ts
-import type { Comment, Like } from "@prisma/client";
+import type {
+  BookThread as PrismaBookThread,
+  Comment as PrismaComment,
+  Like as PrismaLike,
+} from "@prisma/client";
+
+export type BookThread = PrismaBookThread;
+export type Comment = PrismaComment;
+export type Like = PrismaLike;
 
 export type CommentWithRepliesAndLikes = Comment & {
   replies: CommentWithRepliesAndLikes[];
   likes: Like[];
 };
 
-export interface ThreadType {
-  id: number;
-  title: string;
-  content: string;
+export type ThreadType = BookThread & {
   comments: CommentWithRepliesAndLikes[];
-}
-
-export type CommentType = {
-  id: number;
-  content: string;
-  createdAt: Date;
-  updatedAt: Date;
-  threadId: number;
-  userId: number;
-  parentId: number | null;
-  replies: CommentType[];
-  likes: Like[];
 };

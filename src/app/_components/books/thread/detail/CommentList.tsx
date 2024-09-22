@@ -1,10 +1,10 @@
 // src/app/_components/books/thread/detail/CommentList.tsx
 import type React from "react";
-import { Comment } from "./Comment";
-import type { CommentType } from "~/types/thread";
+import { Comment as CommentComponent } from "./Comment";
+import type { CommentWithRepliesAndLikes } from "~/types/thread";
 
 interface CommentListProps {
-  comments: CommentType[];
+  comments: CommentWithRepliesAndLikes[];
   onReply: (parentId: number | null, content: string) => void;
   onDelete: (commentId: number) => void;
   onEdit: (commentId: number, newContent: string) => void;
@@ -24,7 +24,7 @@ export const CommentList: React.FC<CommentListProps> = ({
 }) => (
   <div className="space-y-2 mt-4">
     {comments.map((comment) => (
-      <Comment
+      <CommentComponent
         key={comment.id}
         comment={comment}
         onReply={onReply}

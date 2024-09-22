@@ -1,37 +1,15 @@
-import type { Book } from "@prisma/client";
+// src/types/book.ts
+import type {
+  Book as PrismaBook,
+  BookAPI as PrismaBookAPI,
+  BookStatus as PrismaBookStatus,
+} from "@prisma/client";
 
-export type BookItem = {
-  affiliateUrl: string;
-  author: string;
-  authorKana: string;
-  availability: string;
-  booksGenreId: string;
-  chirayomiUrl: string;
-  contents: string;
-  discountPrice: number;
-  discountRate: number;
-  isbn: string;
-  itemCaption: string;
-  itemPrice: number;
-  itemUrl: string;
-  largeImageUrl: string;
-  limitedFlag: number;
-  listPrice: number;
-  mediumImageUrl: string;
-  postageFlag: number;
-  publisherName: string;
-  reviewAverage: string;
-  reviewCount: number;
-  salesDate: string;
-  seriesName: string;
-  seriesNameKana: string;
-  size: string;
-  smallImageUrl: string;
-  subTitle: string;
-  subTitleKana: string;
-  title: string;
-  titleKana: string;
-};
+export type Book = PrismaBook;
+export type BookAPI = PrismaBookAPI;
+export type BookStatus = PrismaBookStatus;
+
+export type BookItem = BookAPI;
 
 export type BookItemWrapper = {
   Item: BookItem;

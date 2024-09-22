@@ -1,30 +1,15 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { api } from "~/trpc/react";
 import { useToast } from "~/components/ui/use-toast";
-import type {
-  Book,
-  Timeline,
-  Event,
-  Character as CharacterPrisma,
-  Prisma,
-} from "@prisma/client";
-import type { Character } from "~/types/timeline";
-
-export interface TimelineData {
-  id: number;
-  title: string;
-  date: Date;
-  bookId: number;
-  characters: (Character & { isVisible: boolean })[];
-  events: Event[];
-}
+import type { Book, Timeline, Event, Character, Prisma } from "@prisma/client";
+import type { TimelineData } from "~/types/timeline";
 
 interface FetchedTimelineData extends Timeline {
   book: Book & {
-    characters: CharacterPrisma[];
+    characters: Character[];
   };
   events: (Event & {
-    character: CharacterPrisma;
+    character: Character;
   })[];
 }
 
@@ -36,6 +21,8 @@ export const useTimelineData = (timelineId: number) => {
     bookId: 0,
     characters: [],
     events: [],
+    createdAt: new Date(),
+    updatedAt: new Date(),
   });
 
   const { toast } = useToast();
@@ -95,8 +82,7 @@ export const useTimelineData = (timelineId: number) => {
         bookId: fetchedTimelineData.bookId,
         characters: fetchedTimelineData.book.characters.map((char) => ({
           ...char,
-          id: char.id,
-          isVisible: true, // デフォルトで全キャラクターを表示
+          isVisible: true,
         })),
         events: fetchedTimelineData.events.map((event) => ({
           ...event,
@@ -105,6 +91,8 @@ export const useTimelineData = (timelineId: number) => {
           startTime: new Date(event.startTime),
           endTime: new Date(event.endTime),
         })),
+        createdAt: new Date(fetchedTimelineData.createdAt),
+        updatedAt: new Date(fetchedTimelineData.updatedAt),
       });
     }
   }, [fetchedTimelineData]);
@@ -188,7 +176,7 @@ export const useTimelineData = (timelineId: number) => {
       setLocalTimelineData((prev) => ({
         ...prev,
         characters: prev.characters.filter((char) => char.id !== id),
-        events: prev.events.filter((event) => Number(event.characterId) !== id),
+        events: prev.events.filter((event) => event.characterId !== id),
       }));
     } catch (error) {
       console.error("Error deleting character:", error);
@@ -200,11 +188,15 @@ export const useTimelineData = (timelineId: number) => {
     }
   };
 
-  const handleAddOrUpdateEvent = async (event: Omit<Event, "id">) => {
+  const handleAddOrUpdateEvent = async (
+    event: Omit<Event, "id" | "timelineId" | "createdAt" | "updatedAt"> & {
+      id?: number;
+    },
+  ) => {
     try {
-      if ("id" in event) {
+      if (event.id) {
         const result = await updateEventMutation.mutateAsync({
-          id: Number(event.id),
+          id: event.id,
           title: event.title,
           content: event.content,
           startTime: event.startTime,
@@ -216,8 +208,8 @@ export const useTimelineData = (timelineId: number) => {
             e.id === event.id
               ? {
                   ...result,
-                  id: Number(result.id),
-                  characterId: Number(result.characterId),
+                  id: result.id,
+                  characterId: result.characterId,
                 }
               : e,
           ),
@@ -226,7 +218,7 @@ export const useTimelineData = (timelineId: number) => {
         const result = await addEventMutation.mutateAsync({
           ...event,
           timelineId,
-          characterId: Number(event.characterId),
+          characterId: event.characterId,
         });
         setLocalTimelineData((prev) => ({
           ...prev,
@@ -234,8 +226,8 @@ export const useTimelineData = (timelineId: number) => {
             ...prev.events,
             {
               ...result,
-              id: Number(result.id),
-              characterId: Number(result.characterId),
+              id: result.id,
+              characterId: result.characterId,
             },
           ],
         }));
@@ -252,7 +244,7 @@ export const useTimelineData = (timelineId: number) => {
 
   const handleDeleteEvent = async (id: number) => {
     try {
-      await deleteEventMutation.mutateAsync({ id: Number(id) });
+      await deleteEventMutation.mutateAsync({ id: id });
       setLocalTimelineData((prev) => ({
         ...prev,
         events: prev.events.filter((event) => event.id !== id),

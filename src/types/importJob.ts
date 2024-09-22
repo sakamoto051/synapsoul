@@ -1,13 +1,8 @@
 // src/types/importJob.ts
-
 export interface ImportJobStatus {
   status: "started" | "processing" | "completed" | "failed";
   progress: number;
-  result: {
-    processedBooks: number;
-    successfulImports: number;
-    failedImports: number;
-  };
+  result?: ImportJobResult;
   error?: string;
 }
 

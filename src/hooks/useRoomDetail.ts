@@ -1,7 +1,7 @@
-// src/hooks/useRoomDetail.ts
 import { useState, useEffect, useRef } from "react";
 import { api } from "~/trpc/react";
 import { useToast } from "@/components/ui/use-toast";
+import type { Room } from "~/types/room";
 
 export const useRoomDetail = (roomId: number) => {
   const [isSharing, setIsSharing] = useState(false);
@@ -38,7 +38,6 @@ export const useRoomDetail = (roomId: number) => {
         };
       }
     } catch (error) {
-      // console.error("Error starting screen share:", error);
       toast({
         title: "Error",
         description: "Failed to start screen sharing",
@@ -58,7 +57,7 @@ export const useRoomDetail = (roomId: number) => {
   };
 
   return {
-    room,
+    room: room as Room | undefined,
     isSharing,
     stream,
     newMessage,

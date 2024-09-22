@@ -46,6 +46,8 @@ export async function fetchBookInfoFromAPI(
         subTitleKana: item.subTitleKana,
         title: item.title,
         titleKana: item.titleKana,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       };
     }
     return null;

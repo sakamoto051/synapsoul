@@ -1,4 +1,11 @@
-import type { Attachment, Note } from "@prisma/client";
+// src/types/note.ts
+import type {
+  Note as PrismaNote,
+  Attachment as PrismaAttachment,
+} from "@prisma/client";
+
+export type Note = PrismaNote;
+export type Attachment = PrismaAttachment;
 
 export type NoteWithBook = Note & {
   book: {

@@ -48,12 +48,12 @@ const TimelineDetailPage = () => {
       setTimelineData={setTimelineData}
       visibleCharacters={visibleCharacters}
       onSave={handleSaveTimeline}
-      onDeleteTimeline={handleDeleteTimeline}
       onAddOrUpdateCharacter={handleAddOrUpdateCharacter}
       onDeleteCharacter={handleDeleteCharacter}
       onAddOrUpdateEvent={handleAddOrUpdateEvent}
       onDeleteEvent={handleDeleteEvent}
       toggleCharacterVisibility={toggleCharacterVisibility}
+      onDeleteTimeline={handleDeleteTimeline}
     />
   );
 };

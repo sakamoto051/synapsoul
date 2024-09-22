@@ -1,11 +1,8 @@
-// src/app/_components/books/BookCard.tsx
-
 import type React from "react";
 import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { BookStatusDropdown } from "~/app/_components/books/BookStatusDropDown";
-import type { BookWithDetails } from "~/types/book";
-import type { BookStatus } from "@prisma/client";
+import type { BookWithDetails, BookStatus } from "~/types/book";
 
 interface BookCardProps {
   book: BookWithDetails;

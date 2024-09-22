@@ -1,8 +1,7 @@
-// src/components/NoteList.tsx
 import type React from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
-import type { Note } from "@prisma/client";
+import type { Note } from "~/types/note";
 import { PublicBadge } from "./PublicBadge";
 
 interface NoteListProps {

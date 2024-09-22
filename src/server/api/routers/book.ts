@@ -4,9 +4,9 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { type BookAPI, BookStatus } from "@prisma/client";
+import { BookStatus } from "@prisma/client";
 import { TRPCError } from "@trpc/server";
-import type { BookResponse, BookWithDetails } from "~/types/book";
+import type { BookAPI, BookResponse, BookWithDetails } from "~/types/book";
 import { importUserBooks } from "~/lib/bookImportService";
 import { db } from "~/server/db";
 import { kv } from "@vercel/kv";
@@ -132,25 +132,6 @@ async function fetchBookInfo(isbn: string): Promise<BookAPI | null> {
   }
 
   return bookAPI;
-
-  // // Convert BookAPI to BookWithDetails
-  // const bookWithDetails: BookWithDetails = {
-  //   id: 0, // This will be set when creating a user's book
-  //   isbn: bookAPI.isbn,
-  //   title: bookAPI.title,
-  //   author: bookAPI.author ?? "",
-  //   publisherName: bookAPI.publisherName ?? "",
-  //   largeImageUrl: bookAPI.largeImageUrl ?? "",
-  //   itemCaption: bookAPI.itemCaption ?? "",
-  //   salesDate: bookAPI.salesDate ?? "",
-  //   itemPrice: bookAPI.itemPrice ?? 0,
-  //   status: "INTERESTED", // Default status
-  //   userId: 0, // This will be set when creating a user's book
-  //   createdAt: new Date(),
-  //   updatedAt: new Date(),
-  // };
-
-  // return bookWithDetails;
 }
 
 export const bookRouter = createTRPCRouter({
@@ -243,14 +224,11 @@ export const bookRouter = createTRPCRouter({
         books.map(async (book) => {
           const bookInfo = await fetchBookInfo(book.isbn);
           if (!bookInfo) {
-            // console.warn(
-            //   `Failed to fetch info for book with ISBN: ${book.isbn}`,
-            // );
             return null;
           }
           return {
             ...bookInfo,
-            ...book, // Overwrite with database values
+            ...book,
           };
         }),
       );
@@ -259,17 +237,9 @@ export const bookRouter = createTRPCRouter({
         (book): book is BookWithDetails => book !== null,
       );
 
-      // console.log(
-      //   `Successfully fetched info for ${validBooks.length} out of ${books.length} books`,
-      // );
-
       return validBooks;
     } catch (error) {
-      // console.error("Error in getUserBooks:", error);
-      // throw new TRPCError({
-      //   code: "INTERNAL_SERVER_ERROR",
-      //   message: "An error occurred while fetching user books",
-      // });
+      // Handle error
     }
   }),
 
@@ -293,10 +263,7 @@ export const bookRouter = createTRPCRouter({
       const bookMakerId = Number(input.userId);
       const userId = Number(ctx.session.user.id);
 
-      // 進捗を追跡するための関数を作成
       const progressCallback = (progress: number) => {
-        // WebSocketやServer-Sent Eventsを使用して、クライアントに進捗を送信
-        // ここでは簡単のため、コンソールにログを出力
         console.log(`Import progress: ${progress}%`);
       };
 
@@ -314,7 +281,6 @@ export const bookRouter = createTRPCRouter({
       const jobId = `import-${ctx.session.user.id}-${Date.now()}`;
       await kv.set(jobId, { status: "started", progress: 0 });
 
-      // バックグラウンドでインポート処理を開始
       void importBooksBackground(
         jobId,
         input.userId,

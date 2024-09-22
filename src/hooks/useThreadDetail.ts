@@ -2,7 +2,7 @@
 import { useMemo, useState } from "react";
 import { api } from "~/trpc/react";
 import { useToast } from "@/components/ui/use-toast";
-import type { ThreadType, CommentType } from "~/types/thread";
+import type { ThreadType, CommentWithRepliesAndLikes } from "~/types/thread";
 
 export const useThreadDetail = (threadId: number) => {
   const [newComment, setNewComment] = useState("");
@@ -25,7 +25,7 @@ export const useThreadDetail = (threadId: number) => {
     try {
       await createCommentMutation.mutateAsync({
         threadId,
-        parentId, // ここにparentIdを追加
+        parentId,
         content,
       });
       setNewComment("");
@@ -35,7 +35,6 @@ export const useThreadDetail = (threadId: number) => {
         description: "コメントが投稿されました。",
       });
     } catch (error) {
-      // console.error("Error creating comment:", error);
       toast({
         title: "エラー",
         description: "コメントの投稿中にエラーが発生しました。",
@@ -119,8 +118,8 @@ export const useThreadDetail = (threadId: number) => {
   const structuredComments = useMemo(() => {
     if (!thread?.comments) return [];
 
-    const commentMap = new Map<number, CommentType>();
-    const rootComments: CommentType[] = [];
+    const commentMap = new Map<number, CommentWithRepliesAndLikes>();
+    const rootComments: CommentWithRepliesAndLikes[] = [];
 
     // すべてのコメントをマップに追加
     for (const comment of thread.comments) {

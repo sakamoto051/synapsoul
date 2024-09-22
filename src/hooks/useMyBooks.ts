@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { api } from "~/trpc/react";
-import type { BookStatus } from "@prisma/client";
-import type { BookWithDetails } from "~/types/book";
+import type { BookStatus, BookWithDetails } from "~/types/book";
 import { useToast } from "@/components/ui/use-toast";
 import { bookStatusConfig } from "~/config/bookStatus";
 

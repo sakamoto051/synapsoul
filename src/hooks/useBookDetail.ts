@@ -5,7 +5,7 @@ import { api } from "~/trpc/react";
 import type { BookItem, BookResponse } from "~/types/book";
 import type { BookStatus } from "@prisma/client";
 import { useToast } from "@/components/ui/use-toast";
-import { bookStatusConfig } from '~/config/bookStatus';
+import { bookStatusConfig } from "~/config/bookStatus";
 
 const API_ENDPOINT = process.env.NEXT_PUBLIC_RAKUTEN_BOOK_API_URL;
 
