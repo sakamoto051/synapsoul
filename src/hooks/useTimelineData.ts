@@ -62,6 +62,22 @@ export const useTimelineData = (timelineId: number) => {
     },
   });
 
+  const deleteTimelineMutation = api.timeline.delete.useMutation({
+    onSuccess: () => {
+      toast({
+        title: "タイムラインを削除しました",
+        description: "タイムラインが正常に削除されました。",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "エラー",
+        description: `タイムラインの削除中にエラーが発生しました: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+
   const addCharacterMutation = api.character.create.useMutation();
   const updateCharacterMutation = api.character.update.useMutation();
   const deleteCharacterMutation = api.character.delete.useMutation();
@@ -105,6 +121,19 @@ export const useTimelineData = (timelineId: number) => {
       toast({
         title: "エラー",
         description: "タイムラインの保存中にエラーが発生しました。",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteTimeline = async () => {
+    try {
+      await deleteTimelineMutation.mutateAsync({ id: timelineId });
+    } catch (error) {
+      console.error("Error deleting timeline:", error);
+      toast({
+        title: "エラー",
+        description: "タイムラインの削除中にエラーが発生しました。",
         variant: "destructive",
       });
     }
@@ -259,6 +288,7 @@ export const useTimelineData = (timelineId: number) => {
     visibleCharacters,
     isLoading: isTimelineLoading,
     handleSaveTimeline,
+    handleDeleteTimeline,
     handleAddOrUpdateCharacter,
     handleDeleteCharacter,
     handleAddOrUpdateEvent,

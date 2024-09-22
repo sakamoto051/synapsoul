@@ -85,6 +85,12 @@ export const timelineRouter = createTRPCRouter({
   delete: protectedProcedure
     .input(z.object({ id: z.number() }))
     .mutation(async ({ ctx, input }) => {
+      // 関連するイベントを削除
+      await ctx.db.event.deleteMany({
+        where: { timelineId: input.id },
+      });
+
+      // タイムラインを削除
       return ctx.db.timeline.delete({
         where: { id: input.id },
       });

@@ -1,6 +1,6 @@
 import type React from "react";
 import { Button } from "@/components/ui/button";
-import { Save, ArrowLeft } from "lucide-react";
+import { Save, ArrowLeft, Trash2 } from "lucide-react";
 import { CharacterManager } from "./CharacterManager";
 import { EventManager } from "./EventManager";
 import { TimelineGrid } from "./TimelineGrid";
@@ -9,8 +9,19 @@ import { CharacterVisibilityToggle } from "./CharacterVisibilityToggle";
 import type { Character } from "~/types/timeline";
 import type { Event, Prisma } from "@prisma/client";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface TimelinePageProps {
   timelineData: TimelineData;
@@ -26,6 +37,7 @@ interface TimelinePageProps {
   onAddOrUpdateEvent: (event: Omit<Event, "id">) => Promise<void>;
   onDeleteEvent: (id: number) => Promise<void>;
   toggleCharacterVisibility: (characterId: number) => void;
+  onDeleteTimeline: () => Promise<void>;
 }
 
 export const TimelinePage: React.FC<TimelinePageProps> = ({
@@ -38,8 +50,10 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
   onAddOrUpdateEvent,
   onDeleteEvent,
   toggleCharacterVisibility,
+  onDeleteTimeline,
 }) => {
   const params = useParams();
+  const router = useRouter();
   const isbn = params.isbn as string;
 
   const handleEditEvent = (updatedEvent: Event) => {
@@ -50,6 +64,11 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
       ),
     }));
     onAddOrUpdateEvent(updatedEvent);
+  };
+
+  const handleDeleteTimeline = async () => {
+    await onDeleteTimeline();
+    router.push(`/books/${isbn}/timelines`);
   };
 
   return (
@@ -83,6 +102,30 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
             <Save className="mr-2 h-4 w-4" />
             保存
           </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white">
+                <Trash2 className="mr-2 h-4 w-4" />
+                削除
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  タイムラインを削除しますか？
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  この操作は取り消せません。タイムラインとそれに関連するすべてのイベントが削除されます。
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDeleteTimeline}>
+                  削除
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 
