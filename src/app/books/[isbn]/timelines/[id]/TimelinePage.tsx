@@ -7,7 +7,7 @@ import { TimelineGrid } from "./TimelineGrid";
 import type { TimelineData } from "~/hooks/useTimelineData";
 import { CharacterVisibilityToggle } from "./CharacterVisibilityToggle";
 import type { Character } from "~/types/timeline";
-import type { Event } from "@prisma/client";
+import type { Event, Prisma } from "@prisma/client";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -18,7 +18,9 @@ interface TimelinePageProps {
   visibleCharacters: Character[];
   onSave: () => Promise<void>;
   onAddOrUpdateCharacter: (
-    character: Omit<Character, "id" | "isVisible" | "bookId">,
+    character:
+      | Prisma.CharacterCreateInput
+      | (Prisma.CharacterUpdateInput & { id: number }),
   ) => Promise<void>;
   onDeleteCharacter: (id: number) => Promise<void>;
   onAddOrUpdateEvent: (event: Omit<Event, "id">) => Promise<void>;

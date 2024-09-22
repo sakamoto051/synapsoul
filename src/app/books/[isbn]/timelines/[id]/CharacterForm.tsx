@@ -1,4 +1,3 @@
-// src/app/books/[isbn]/timelines/[id]/CharacterForm.tsx
 import type React from "react";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
@@ -12,10 +11,15 @@ import {
 } from "@/components/ui/select";
 import { Save, X } from "lucide-react";
 import type { Character } from "~/types/timeline";
+import type { Prisma } from "@prisma/client";
 
 interface CharacterFormProps {
   character: Character | null;
-  onSubmit: (character: Omit<Character, "id" | "isVisible" | "bookId">) => void;
+  onSubmit: (
+    character:
+      | Prisma.CharacterCreateInput
+      | (Prisma.CharacterUpdateInput & { id: number }),
+  ) => void;
   onCancel: () => void;
 }
 
@@ -49,7 +53,15 @@ export const CharacterForm: React.FC<CharacterFormProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ name, color });
+    if (character) {
+      onSubmit({
+        id: character.id,
+        name,
+        color,
+      } as Prisma.CharacterUpdateInput & { id: number });
+    } else {
+      onSubmit({ name, color } as Prisma.CharacterCreateInput);
+    }
   };
 
   return (
@@ -103,7 +115,7 @@ export const CharacterForm: React.FC<CharacterFormProps> = ({
           type="button"
           onClick={onCancel}
           variant="outline"
-          className="bg-gray-700 text-white border-gray-600 hover:bg-gray-600"
+          className="bg-gray-700 text-white hover:bg-gray-600"
         >
           <X className="mr-2 h-4 w-4" />
           キャンセル
