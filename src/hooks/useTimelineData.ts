@@ -6,6 +6,7 @@ import type {
   Timeline,
   Event,
   Character as CharacterPrisma,
+  Prisma,
 } from "@prisma/client";
 import type { Character } from "~/types/timeline";
 
@@ -110,14 +111,16 @@ export const useTimelineData = (timelineId: number) => {
   };
 
   const handleAddOrUpdateCharacter = async (
-    character: Omit<Character, "id" | "isVisible" | "bookId">,
+    character:
+      | Prisma.CharacterCreateInput
+      | (Prisma.CharacterUpdateInput & { id: number }),
   ) => {
     try {
       if ("id" in character) {
         const result = await updateCharacterMutation.mutateAsync({
           id: Number(character.id),
-          name: character.name,
-          color: character.color,
+          name: typeof character.name === "string" ? character.name : "",
+          color: typeof character.color === "string" ? character.color : "",
         });
         setLocalTimelineData((prev) => ({
           ...prev,
