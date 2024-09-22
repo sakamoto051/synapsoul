@@ -1,7 +1,5 @@
-// src/app/books/[isbn]/timelines/CreateTimelineModal.tsx
 import type React from "react";
 import { useState } from "react";
-import { format } from "date-fns";
 import { ja } from "date-fns/locale";
 import {
   Dialog,
@@ -13,11 +11,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { api } from "~/trpc/react";
+import { Calendar } from "@/components/ui/calendar";
 
 interface CreateTimelineModalProps {
   isOpen: boolean;
   onClose: () => void;
-  selectedDate: Date;
   bookId: number;
   onTimelineCreated: () => void;
 }
@@ -25,11 +23,13 @@ interface CreateTimelineModalProps {
 export const CreateTimelineModal: React.FC<CreateTimelineModalProps> = ({
   isOpen,
   onClose,
-  selectedDate,
   bookId,
   onTimelineCreated,
 }) => {
   const [title, setTitle] = useState("");
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    new Date(),
+  );
 
   const createTimelineMutation = api.timeline.create.useMutation({
     onSuccess: () => {
@@ -40,45 +40,37 @@ export const CreateTimelineModal: React.FC<CreateTimelineModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    createTimelineMutation.mutate({
-      title,
-      date: selectedDate,
-      bookId,
-    });
+    if (title && selectedDate) {
+      createTimelineMutation.mutate({
+        title,
+        date: selectedDate,
+        bookId,
+      });
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>新しいタイムラインを作成</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="title" className="text-right">
-                タイトル
-              </label>
-              <Input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="col-span-3"
-                required
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <label htmlFor="date" className="text-right">
-                日付
-              </label>
-              <Input
-                id="date"
-                value={format(selectedDate, "yyyy年MM月dd日", { locale: ja })}
-                disabled
-                className="col-span-3"
-              />
-            </div>
-          </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            id="title"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="col-span-3"
+            required
+            placeholder="タイトル"
+          />
+          <Calendar
+            mode="single"
+            selected={selectedDate}
+            onSelect={setSelectedDate}
+            className="rounded-md border"
+            locale={ja}
+          />
           <DialogFooter>
             <Button type="submit">作成</Button>
           </DialogFooter>

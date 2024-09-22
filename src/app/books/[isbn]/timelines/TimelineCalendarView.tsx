@@ -12,12 +12,10 @@ import {
   eachDayOfInterval,
 } from "date-fns";
 import { ja } from "date-fns/locale";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TimelinePopover } from "./TimelinePopover";
-import { CreateTimelineModal } from "./CreateTimelineModal";
 import Link from "next/link";
-import { DateSelectModal } from "./DateSelectModal";
 import { useParams } from "next/navigation";
 
 interface Timeline {
@@ -31,22 +29,17 @@ interface Timeline {
 interface TimelineCalendarViewProps {
   timelines: Timeline[];
   mode: "year" | "month" | "day";
-  bookId: number;
   onTimelineCreated: () => void;
 }
 
 export const TimelineCalendarView: React.FC<TimelineCalendarViewProps> = ({
   timelines,
   mode,
-  bookId,
-  onTimelineCreated,
 }) => {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isDateSelectModalOpen, setIsDateSelectModalOpen] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const params = useParams();
   const isbn = params.isbn as string;
+
   const timelinesInView = useMemo(() => {
     switch (mode) {
       case "year":
@@ -90,32 +83,17 @@ export const TimelineCalendarView: React.FC<TimelineCalendarViewProps> = ({
     }
   };
 
-  const handleAddClick = () => {
-    if (mode === "day") {
-      setSelectedDate(currentDate);
-      setIsCreateModalOpen(true);
-    } else {
-      setIsDateSelectModalOpen(true);
-    }
-  };
-
-  const handleDateSelect = (date: Date) => {
-    setSelectedDate(date);
-    setIsDateSelectModalOpen(false);
-    setIsCreateModalOpen(true);
-  };
-
   const renderHeader = () => {
     let dateFormat: string;
     switch (mode) {
       case "year":
-        dateFormat = "yyyy年";
+        dateFormat = "yyyy";
         break;
       case "month":
-        dateFormat = "yyyy年 MM月";
+        dateFormat = "yyyy/MM";
         break;
       case "day":
-        dateFormat = "yyyy年 MM月 dd日";
+        dateFormat = "yyyy/MM/dd";
         break;
     }
 
@@ -126,10 +104,9 @@ export const TimelineCalendarView: React.FC<TimelineCalendarViewProps> = ({
           variant="outline"
           className="text-gray-700 bg-white hover:bg-gray-100"
         >
-          <ChevronLeft className="mr-2 h-4 w-4" />
-          前へ
+          <ChevronLeft className="h-4 w-4" />
         </Button>
-        <span className="text-lg font-bold">
+        <span className="font-bold">
           {format(currentDate, dateFormat, { locale: ja })}
         </span>
         <Button
@@ -137,8 +114,7 @@ export const TimelineCalendarView: React.FC<TimelineCalendarViewProps> = ({
           variant="outline"
           className="text-gray-700 bg-white hover:bg-gray-100"
         >
-          次へ
-          <ChevronRight className="ml-2 h-4 w-4" />
+          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
     );
@@ -216,7 +192,6 @@ export const TimelineCalendarView: React.FC<TimelineCalendarViewProps> = ({
       </div>
     );
   };
-
   const renderDayView = () => {
     return (
       <div className="space-y-2">
@@ -242,34 +217,11 @@ export const TimelineCalendarView: React.FC<TimelineCalendarViewProps> = ({
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
+    <div className="py-4">
       {renderHeader()}
       {mode === "year" && renderYearView()}
       {mode === "month" && renderMonthView()}
       {mode === "day" && renderDayView()}
-      <Button
-        variant="outline"
-        className="mt-6 w-full bg-white text-indigo-600 hover:bg-indigo-100"
-        onClick={handleAddClick}
-      >
-        <Plus className="h-4 w-4 mr-2" />
-        新しいタイムラインを作成
-      </Button>
-      {selectedDate && (
-        <CreateTimelineModal
-          isOpen={isCreateModalOpen}
-          onClose={() => setIsCreateModalOpen(false)}
-          selectedDate={selectedDate}
-          bookId={bookId}
-          onTimelineCreated={onTimelineCreated}
-        />
-      )}
-      <DateSelectModal
-        isOpen={isDateSelectModalOpen}
-        onClose={() => setIsDateSelectModalOpen(false)}
-        onDateSelect={handleDateSelect}
-        currentDate={currentDate}
-      />
     </div>
   );
 };

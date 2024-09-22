@@ -34,6 +34,12 @@ export const EventCard: React.FC<EventCardProps> = ({
   >
     <CardContent className="p-1 flex flex-col items-start justify-center h-full overflow-hidden">
       <div className="text-xs font-semibold truncate w-full">{event.title}</div>
+      <div className="text-[10px] truncate w-full">
+        {new Date(event.startTime).toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        })}
+      </div>
     </CardContent>
   </Card>
 );

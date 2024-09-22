@@ -122,7 +122,6 @@ export const TimelineGrid: React.FC<TimelineGridProps> = ({
 
   const renderTimeColumn = () => (
     <div className="w-10 flex-shrink-0 sticky left-0 z-20 bg-gray-900">
-      {/* Space for character names */}
       <div className="relative h-[1440px]">
         {Array.from({ length: 97 }).map((_, i) => (
           <div
@@ -142,14 +141,14 @@ export const TimelineGrid: React.FC<TimelineGridProps> = ({
   const renderCharacterColumns = () => (
     <>
       <div className="flex sticky top-0 z-10 bg-gray-900">
-        <div className="w-10 flex-shrink-0" /> {/* Space for time column */}
+        <div className="w-10 flex-shrink-0" />
         {characters.map((character) => (
           <div
             key={character.id}
-            className="flex-1 mr-1 last:mr-0 min-w-[200px]"
+            className="flex-1 mr-1 last:mr-0 min-w-[150px] sm:min-w-[200px]"
           >
             <h2
-              className={`text-center p-2 ${character.color} text-white rounded-t-lg`}
+              className={`text-center p-2 ${character.color} text-white rounded-t-lg text-sm sm:text-base`}
             >
               {character.name}
             </h2>
@@ -161,7 +160,7 @@ export const TimelineGrid: React.FC<TimelineGridProps> = ({
         {characters.map((character) => (
           <div
             key={character.id}
-            className="flex-1 mr-1 last:mr-0 min-w-[200px]"
+            className="flex-1 mr-1 last:mr-0 min-w-[150px] sm:min-w-[200px]"
           >
             <div className="relative h-[1440px] bg-gray-800 border border-gray-600 rounded-b-lg overflow-hidden">
               {Array.from({ length: 97 }).map((_, i) => (
@@ -204,7 +203,7 @@ export const TimelineGrid: React.FC<TimelineGridProps> = ({
         open={!!selectedEvent}
         onOpenChange={() => setSelectedEvent(null)}
       >
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {isEditing ? "イベントを編集" : "イベント詳細"}

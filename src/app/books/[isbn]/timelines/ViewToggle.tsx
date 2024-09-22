@@ -22,7 +22,7 @@ export const ViewToggle: React.FC<ViewToggleProps> = ({
   onCalendarModeChange,
 }) => {
   return (
-    <div className="flex flex-wrap justify-center sm:justify-end items-center space-x-2 space-y-2 sm:space-y-0">
+    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
       <div className="flex space-x-2 w-full sm:w-auto">
         <Button
           variant={viewMode === "calendar" ? "default" : "secondary"}

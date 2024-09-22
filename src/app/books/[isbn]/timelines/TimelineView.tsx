@@ -3,11 +3,12 @@ import { useState } from "react";
 import { TimelineCalendarView } from "./TimelineCalendarView";
 import { TimelineListView } from "./TimelineListView";
 import { ViewToggle } from "./ViewToggle";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Plus } from "lucide-react";
 import type { Timeline } from "@prisma/client";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "~/components/ui/button";
+import { CreateTimelineModal } from "./CreateTimelineModal";
 
 interface TimelineViewProps {
   timelines: Timeline[] | undefined;
@@ -25,6 +26,7 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
 }) => {
   const [viewMode, setViewMode] = useState<ViewMode>("calendar");
   const [calendarMode, setCalendarMode] = useState<CalendarMode>("month");
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const params = useParams();
   const isbn = params.isbn as string;
 
@@ -39,14 +41,14 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
   if (timelines === undefined) {
     return (
       <div className="flex justify-center items-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+        <Loader2 className="h-8 w-4 animate-spin text-blue-500" />
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+    <div className="mx-auto py-2">
+      <div className="flex flex-col space-y-2 mb-2">
         <Link href={`/books/${isbn}`} passHref>
           <Button
             variant="outline"
@@ -62,17 +64,29 @@ export const TimelineView: React.FC<TimelineViewProps> = ({
           onViewModeChange={handleViewModeChange}
           onCalendarModeChange={handleCalendarModeChange}
         />
+        <Button
+          onClick={() => setIsCreateModalOpen(true)}
+          className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white"
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          新しいタイムラインを作成
+        </Button>
       </div>
       {viewMode === "calendar" ? (
         <TimelineCalendarView
           timelines={timelines}
           mode={calendarMode}
-          bookId={bookId}
           onTimelineCreated={onTimelineCreated}
         />
       ) : (
-        <TimelineListView timelines={timelines} bookId={bookId} />
+        <TimelineListView timelines={timelines} />
       )}
+      <CreateTimelineModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        bookId={bookId}
+        onTimelineCreated={onTimelineCreated}
+      />
     </div>
   );
 };

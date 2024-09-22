@@ -2,6 +2,8 @@ import type React from "react";
 import { format } from "date-fns";
 import { ja } from "date-fns/locale";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface Timeline {
   id: number;
@@ -13,13 +15,13 @@ interface Timeline {
 
 interface TimelineListViewProps {
   timelines: Timeline[];
-  bookId: number;
 }
 
 export const TimelineListView: React.FC<TimelineListViewProps> = ({
   timelines,
-  bookId,
 }) => {
+  const params = useParams();
+  const isbn = params.isbn as string;
   const sortedTimelines = [...timelines].sort(
     (a, b) => b.date.getTime() - a.date.getTime(),
   );
@@ -28,30 +30,28 @@ export const TimelineListView: React.FC<TimelineListViewProps> = ({
     <div className="space-y-4">
       {sortedTimelines.map((timeline) => (
         <Link
-          href={`/books/${bookId}/timelines/${timeline.id}`}
+          href={`/books/${isbn}/timelines/${timeline.id}`}
           key={timeline.id}
           className="block"
         >
-          <div className="bg-gray-800 p-4 rounded-lg shadow hover:bg-gray-700 transition-colors duration-200">
-            <h3 className="text-lg font-semibold text-blue-300">
-              {timeline.title}
-            </h3>
-            <p className="text-sm text-gray-400">
-              日付: {format(timeline.date, "yyyy年 MM月 dd日", { locale: ja })}
-            </p>
-            <div className="mt-2 text-xs text-gray-500">
-              <p>
-                作成日:{" "}
-                {format(timeline.createdAt, "yyyy年 MM月 dd日", { locale: ja })}
+          <Card className="bg-gray-800 hover:bg-gray-700 transition-colors duration-200">
+            <CardContent className="p-4">
+              <h3 className="text-lg font-semibold text-blue-300 mb-2">
+                {timeline.title}
+              </h3>
+              <p className="text-sm text-gray-400">
+                日付:{" "}
+                {format(timeline.date, "yyyy年 MM月 dd日", { locale: ja })}
               </p>
-              <p>
-                更新日:{" "}
-                {format(timeline.updatedAt, "yyyy年 MM月 dd日", { locale: ja })}
-              </p>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </Link>
       ))}
+      {timelines.length === 0 && (
+        <div className="text-center py-4 text-gray-500">
+          タイムラインがありません。新しいタイムラインを作成してください。
+        </div>
+      )}
     </div>
   );
 };

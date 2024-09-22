@@ -10,6 +10,7 @@ import type { Character } from "~/types/timeline";
 import type { Event } from "@prisma/client";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 
 interface TimelinePageProps {
   timelineData: TimelineData;
@@ -50,8 +51,8 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0 sm:space-x-4">
+    <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
+      <div className="flex flex-col space-y-4 mb-6">
         <Link href={`/books/${isbn}/timelines`} passHref>
           <Button
             variant="outline"
@@ -62,7 +63,7 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
           </Button>
         </Link>
 
-        <div className="flex flex-wrap justify-center sm:justify-end items-center gap-2 w-full sm:w-auto">
+        <div className="flex flex-col sm:flex-row sm:justify-end items-center gap-2">
           <CharacterManager
             characters={timelineData.characters}
             onAddOrUpdateCharacter={onAddOrUpdateCharacter}
@@ -75,7 +76,7 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
           />
           <Button
             onClick={onSave}
-            className="bg-green-600 hover:bg-green-700 w-full sm:w-auto"
+            className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white"
           >
             <Save className="mr-2 h-4 w-4" />
             保存
@@ -83,10 +84,15 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
         </div>
       </div>
 
-      <CharacterVisibilityToggle
-        characters={timelineData.characters}
-        toggleVisibility={toggleCharacterVisibility}
-      />
+      <ScrollArea className="w-full whitespace-nowrap rounded-md border mb-4">
+        <div className="flex w-max space-x-2 p-2">
+          <CharacterVisibilityToggle
+            characters={timelineData.characters}
+            toggleVisibility={toggleCharacterVisibility}
+          />
+        </div>
+        <ScrollBar orientation="horizontal" />
+      </ScrollArea>
 
       <TimelineGrid
         characters={visibleCharacters}
