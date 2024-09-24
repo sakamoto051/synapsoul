@@ -1,10 +1,11 @@
+// src/app/layout.tsx
 import "~/styles/globals.css";
 import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { TRPCReactProvider } from "~/trpc/react";
-import Sidebar from "./_components/sidebar";
-import { Toaster } from '~/components/ui/toaster';
+import { Toaster } from "~/components/ui/toaster";
+import Navigation from "./_components/Navigation";
 
 export const metadata: Metadata = {
   title: {
@@ -45,12 +46,12 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="ja" className={`${GeistSans.variable}`}>
-      <body className="bg-gray-900">
+      <body className="bg-gray-900 min-h-screen flex flex-col">
         <TRPCReactProvider>
-          <div className="flex text-white min-h-screen">
-            <Sidebar />
-            <main className="flex-grow bg-gray-900 p-2 sm:p-4">{children}</main>
-          </div>
+          <Navigation />
+          <main className="text-white flex-grow bg-gray-900 p-2 sm:p-4">
+            {children}
+          </main>
           <Toaster />
         </TRPCReactProvider>
         <Analytics />
