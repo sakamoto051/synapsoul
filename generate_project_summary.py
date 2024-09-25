@@ -20,8 +20,7 @@ def read_file_contents(file_path):
 def is_ignored(path, project_dir, gitignore_patterns, summaryignore_patterns, additional_ignore_patterns):
     relative_path = os.path.relpath(path, project_dir)
     for pattern in gitignore_patterns + summaryignore_patterns + additional_ignore_patterns:
-        pattern = f"*{pattern}*"
-        if fnmatch.fnmatch(relative_path, pattern) or fnmatch.fnmatch(f'{os.sep}{relative_path}', pattern):
+        if fnmatch.fnmatch(relative_path, pattern) or fnmatch.fnmatch(os.path.join(os.sep, relative_path), pattern):
             return True
     return False
 
@@ -33,7 +32,40 @@ def generate_project_summary(project_dir):
     print(f"gitignore_patterns: {gitignore_patterns}")
     summaryignore_patterns = read_summaryignore(project_dir)
     print(f"summaryignore_patterns: {summaryignore_patterns}")
-    additional_ignore_patterns = ['generate_project_summary.py','.summaryignore', f'{project_name}_project_summary.txt', '.git']
+
+    # 既存の無視パターン
+    default_ignore_patterns = [
+        'generate_project_summary.py',
+        f'{project_name}_project_summary.txt',
+        '.git',
+        '.summaryignore'
+    ]
+
+    # 新たに無視するパターンをここに追加
+    additional_ignore_patterns = [
+        '*.log',
+        'temp_*',
+        'node_modules',
+        'venv',
+        '__pycache__',
+        '.next',
+        'package-lock.json',
+        'package.json',
+        'public/*',
+        'README.md',
+        '.vscode/*',
+        'biome.json',
+        'next-sitemap.config.cjs',
+        '.gitignore',
+        'start-database.sh',
+        'components.json',
+        'tailwind.config.ts',
+        'tsconfig.json',
+        '.eslintrc.cjs',
+        'src/components/*',
+        'prisma/migrations/*',
+        # 必要に応じて、さらにパターンを追加できます
+    ]
 
     file_contents_section = "\n## File Contents\n\n"
 
@@ -41,22 +73,21 @@ def generate_project_summary(project_dir):
         nonlocal summary, file_contents_section
         indent = '  ' * level
         relative_path = os.path.relpath(root, project_dir)
-        if not is_ignored(relative_path, project_dir, gitignore_patterns, summaryignore_patterns, additional_ignore_patterns):
+        if not is_ignored(relative_path, project_dir, gitignore_patterns, summaryignore_patterns, default_ignore_patterns + additional_ignore_patterns):
             summary += f'{indent}- {os.path.basename(root)}/\n'
 
             subindent = '  ' * (level + 1)
             for item in os.listdir(root):
                 item_path = os.path.join(root, item)
                 if os.path.isdir(item_path):
-                    if not is_ignored(item_path, project_dir, gitignore_patterns, summaryignore_patterns, additional_ignore_patterns):
+                    if not is_ignored(item_path, project_dir, gitignore_patterns, summaryignore_patterns, default_ignore_patterns + additional_ignore_patterns):
                         traverse_directory(item_path, level + 1)
                 else:
-                    if not is_ignored(item_path, project_dir, gitignore_patterns, summaryignore_patterns, additional_ignore_patterns):
+                    if not is_ignored(item_path, project_dir, gitignore_patterns, summaryignore_patterns, default_ignore_patterns + additional_ignore_patterns):
                         if not is_binary(item_path):
                             summary += f'{subindent}- {item}\n'
                             content = read_file_contents(item_path)
                             if content.strip():
-                                # ファイル名をプロジェクト名からの相対パスで表示
                                 relative_file_path = os.path.relpath(item_path, project_dir)
                                 file_contents_section += f'### {relative_file_path}\n\n```\n{content}\n```\n\n'
                         else:
@@ -98,7 +129,5 @@ def read_summaryignore(project_dir):
     return []
 
 if __name__ == '__main__':
-    # project_directory = input('Enter the project directory path (leave blank for current directory): ')
-    # if not project_directory:
     project_directory = os.getcwd()
     generate_project_summary(project_directory)

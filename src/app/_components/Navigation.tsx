@@ -1,85 +1,71 @@
-// src/components/Navigation.tsx
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import {
-  Menu,
-  Home,
-  Search,
-  BookOpen,
-  MessageSquare,
-  Settings,
-  Download,
-} from "lucide-react";
-import LoginButton from "./LoginButton";
+import { Menu } from "lucide-react";
 import { SessionProvider } from "next-auth/react";
+import { UserMenu } from "./UserMenu";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const menuItems = [
-    { href: "/", label: "ホーム", icon: Home },
-    { href: "/books/search", label: "本を探す", icon: Search },
-    { href: "/books/mybooks", label: "本の管理", icon: BookOpen },
-    { href: "/books/data-import", label: "データ取り込み", icon: Download },
-    { href: "/feedback", label: "フィードバック", icon: MessageSquare },
-    { href: "/settings", label: "設定", icon: Settings },
+  const mainMenuItems = [
+    { href: "/", label: "ホーム" },
+    { href: "/books/search", label: "本を探す" },
+    { href: "/books/mybooks", label: "本の管理" },
   ];
 
   return (
-    <nav className="bg-gray-800 text-white p-4">
-      <div className="container mx-auto flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold">
-          SynapSoul
-        </Link>
+    <SessionProvider>
+      <nav className="bg-gray-800 text-white p-4">
+        <div className="container mx-auto flex justify-between items-center">
+          <Link href="/" className="text-xl font-bold">
+            SynapSoul
+          </Link>
 
-        {/* Desktop Menu */}
-        <div className="hidden md:flex space-x-4">
-          {menuItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="hover:text-gray-300 flex items-center"
-            >
-              <item.icon className="mr-2 h-4 w-4" />
-              <span>{item.label}</span>
-            </Link>
-          ))}
-          <SessionProvider>
-            <LoginButton />
-          </SessionProvider>
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center space-x-6">
+            {mainMenuItems.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="hover:text-gray-300 text-sm font-medium"
+              >
+                {item.label}
+              </Link>
+            ))}
+            <UserMenu />
+          </div>
+
+          {/* Mobile Menu */}
+          <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" className="md:hidden">
+                <Menu />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[250px]">
+              <div className="flex flex-col space-y-4 mt-8">
+                {mainMenuItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="text-lg"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+                <div className="pt-4">
+                  <UserMenu />
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
-
-        {/* Mobile Menu */}
-        <Sheet open={isOpen} onOpenChange={setIsOpen}>
-          <SheetTrigger asChild>
-            <Button variant="ghost" className="md:hidden">
-              <Menu />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-[300px] sm:w-[400px]">
-            <nav className="flex flex-col space-y-4">
-              {menuItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="flex items-center space-x-2 text-lg"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <item.icon className="h-5 w-5" />
-                  <span>{item.label}</span>
-                </Link>
-              ))}
-              <SessionProvider>
-                <LoginButton />
-              </SessionProvider>
-            </nav>
-          </SheetContent>
-        </Sheet>
-      </div>
-    </nav>
+      </nav>
+    </SessionProvider>
   );
 };
 
