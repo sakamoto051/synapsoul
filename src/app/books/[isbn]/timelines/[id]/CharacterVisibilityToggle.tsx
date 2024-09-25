@@ -17,7 +17,10 @@ export const CharacterVisibilityToggle: React.FC<
         className="flex items-center justify-between space-x-2 p-2 bg-gray-700 rounded-md"
       >
         <div className="flex items-center space-x-2">
-          <div className={`w-4 h-4 rounded-full ${character.color}`} />
+          <div
+            className={`w-4 h-4 rounded-full ${character.color}`}
+            style={{ backgroundColor: character.color }}
+          />
           <span className="text-sm font-medium whitespace-nowrap">
             {character.name}
           </span>

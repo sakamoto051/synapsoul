@@ -1,4 +1,3 @@
-// src/server/api/routers/character.ts (continued)
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "~/server/api/trpc";
 
@@ -14,9 +13,14 @@ export const characterRouter = createTRPCRouter({
   create: protectedProcedure
     .input(
       z.object({
-        bookId: z.number(),
         name: z.string(),
         color: z.string(),
+        age: z.number().nullable(),
+        gender: z.string().nullable(),
+        personality: z.string().nullable(),
+        background: z.string().nullable(),
+        relationships: z.string().nullable(),
+        bookId: z.number(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -24,6 +28,11 @@ export const characterRouter = createTRPCRouter({
         data: {
           name: input.name,
           color: input.color,
+          age: input.age,
+          gender: input.gender,
+          personality: input.personality,
+          background: input.background,
+          relationships: input.relationships,
           bookId: input.bookId,
         },
       });
@@ -35,15 +44,18 @@ export const characterRouter = createTRPCRouter({
         id: z.number(),
         name: z.string(),
         color: z.string(),
+        age: z.number().nullable(),
+        gender: z.string().nullable(),
+        personality: z.string().nullable(),
+        background: z.string().nullable(),
+        relationships: z.string().nullable(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      const { id, ...data } = input;
       return ctx.db.character.update({
-        where: { id: input.id },
-        data: {
-          name: input.name,
-          color: input.color,
-        },
+        where: { id },
+        data,
       });
     }),
 

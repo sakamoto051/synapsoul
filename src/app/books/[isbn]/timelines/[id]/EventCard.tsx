@@ -22,13 +22,16 @@ export const EventCard: React.FC<EventCardProps> = ({
   width,
 }) => (
   <Card
-    className={`absolute ${characterColor} bg-opacity-40 text-white border-2 border-gray-500 cursor-pointer hover:brightness-110 transition-all shadow-md`}
+    className={
+      "absolute bg-opacity-40 text-white border-2 border-gray-500 cursor-pointer hover:brightness-110 transition-all shadow-md"
+    }
     style={{
       top,
       height,
       left,
       width,
       minHeight: "15px",
+      backgroundColor: characterColor,
     }}
     onClick={onClick}
   >

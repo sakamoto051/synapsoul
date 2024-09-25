@@ -1,3 +1,4 @@
+// src/app/books/[isbn]/timelines/[id]/page.tsx
 "use client";
 import React from "react";
 import { useParams } from "next/navigation";
@@ -23,8 +24,6 @@ const TimelineDetailPage = () => {
     isLoading: isTimelineDataLoading,
     handleSaveTimeline,
     handleDeleteTimeline,
-    handleAddOrUpdateCharacter,
-    handleDeleteCharacter,
     handleAddOrUpdateEvent,
     handleDeleteEvent,
     toggleCharacterVisibility,
@@ -48,8 +47,6 @@ const TimelineDetailPage = () => {
       setTimelineData={setTimelineData}
       visibleCharacters={visibleCharacters}
       onSave={handleSaveTimeline}
-      onAddOrUpdateCharacter={handleAddOrUpdateCharacter}
-      onDeleteCharacter={handleDeleteCharacter}
       onAddOrUpdateEvent={handleAddOrUpdateEvent}
       onDeleteEvent={handleDeleteEvent}
       toggleCharacterVisibility={toggleCharacterVisibility}

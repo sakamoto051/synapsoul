@@ -148,7 +148,10 @@ export const TimelineGrid: React.FC<TimelineGridProps> = ({
             className="flex-1 mr-1 last:mr-0 min-w-[150px] sm:min-w-[200px]"
           >
             <h2
-              className={`text-center p-2 ${character.color} text-white rounded-t-lg text-sm sm:text-base`}
+              className={
+                "text-center p-2 text-white rounded-t-lg text-sm sm:text-base"
+              }
+              style={{ backgroundColor: character.color }}
             >
               {character.name}
             </h2>

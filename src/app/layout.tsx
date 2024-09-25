@@ -49,7 +49,7 @@ export default function RootLayout({
       <body className="bg-gray-900 min-h-screen flex flex-col">
         <TRPCReactProvider>
           <Navigation />
-          <main className="text-white flex-grow bg-gray-900 p-2 sm:p-4">
+          <main className="container text-white flex-grow bg-gray-900 p-2 sm:p-4">
             {children}
           </main>
           <Toaster />

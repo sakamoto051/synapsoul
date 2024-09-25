@@ -277,14 +277,19 @@ model Timeline {
 }
 
 model Character {
-  id        Int       @id @default(autoincrement())
-  name      String
-  color     String
-  bookId    Int
-  book      Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
-  events    Event[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id            Int       @id @default(autoincrement())
+  name          String
+  color         String
+  age           Int?
+  gender        String?
+  personality   String?
+  background    String?
+  relationships String?
+  bookId        Int
+  book          Book      @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  events        Event[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model Event {

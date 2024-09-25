@@ -7,7 +7,7 @@ import { BookActions } from "~/app/_components/books/detail/BookActions";
 import { ConfirmDialog } from "~/app/_components/books/detail/ConfirmDialog";
 import BookThreadList from "~/app/_components/books/thread/BookThreadList";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, MessageCircle, Clock5 } from "lucide-react";
+import { ChevronLeft, MessageCircle, Clock5, Users } from "lucide-react";
 import Script from "next/script";
 import Link from "next/link";
 import type { BookItem } from "~/types/book";
@@ -103,7 +103,13 @@ const BookDetailClient = ({
         </div>
 
         <div className="mt-4 space-y-2">
-          <Link href={`/books/${isbn}/timelines`} passHref>
+          <Link href={`/books/${isbn}/characters`} passHref className="block">
+            <Button className="w-full bg-cyan-600 hover:bg-cyan-700 text-white">
+              <Users className="mr-2 h-4 w-4" />
+              キャラクター管理
+            </Button>
+          </Link>
+          <Link href={`/books/${isbn}/timelines`} passHref className="block">
             <Button className="w-full bg-purple-600 hover:bg-purple-700 text-white">
               <Clock5 className="mr-2 h-4 w-4" />
               タイムライン一覧

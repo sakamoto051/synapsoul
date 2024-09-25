@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { api } from "~/trpc/react";
 import { useToast } from "~/components/ui/use-toast";
-import type { Book, Timeline, Event, Character, Prisma } from "@prisma/client";
+import type { Book, Timeline, Event, Character } from "@prisma/client";
 import type { TimelineData } from "~/types/timeline";
 
 interface FetchedTimelineData extends Timeline {
@@ -65,10 +65,6 @@ export const useTimelineData = (timelineId: number) => {
     },
   });
 
-  const addCharacterMutation = api.character.create.useMutation();
-  const updateCharacterMutation = api.character.update.useMutation();
-  const deleteCharacterMutation = api.character.delete.useMutation();
-
   const addEventMutation = api.event.create.useMutation();
   const updateEventMutation = api.event.update.useMutation();
   const deleteEventMutation = api.event.delete.useMutation();
@@ -122,67 +118,6 @@ export const useTimelineData = (timelineId: number) => {
       toast({
         title: "エラー",
         description: "タイムラインの削除中にエラーが発生しました。",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleAddOrUpdateCharacter = async (
-    character:
-      | Prisma.CharacterCreateInput
-      | (Prisma.CharacterUpdateInput & { id: number }),
-  ) => {
-    try {
-      if ("id" in character) {
-        const result = await updateCharacterMutation.mutateAsync({
-          id: Number(character.id),
-          name: typeof character.name === "string" ? character.name : "",
-          color: typeof character.color === "string" ? character.color : "",
-        });
-        setLocalTimelineData((prev) => ({
-          ...prev,
-          characters: prev.characters.map((c) =>
-            c.id === character.id
-              ? { ...result, id: result.id, isVisible: c.isVisible }
-              : c,
-          ),
-        }));
-      } else {
-        const result = await addCharacterMutation.mutateAsync({
-          ...character,
-          bookId: localTimelineData.bookId,
-        });
-        setLocalTimelineData((prev) => ({
-          ...prev,
-          characters: [
-            ...prev.characters,
-            { ...result, id: result.id, isVisible: true },
-          ],
-        }));
-      }
-    } catch (error) {
-      console.error("Error adding/updating character:", error);
-      toast({
-        title: "エラー",
-        description: "キャラクターの追加/更新中にエラーが発生しました。",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleDeleteCharacter = async (id: number) => {
-    try {
-      await deleteCharacterMutation.mutateAsync({ id: id });
-      setLocalTimelineData((prev) => ({
-        ...prev,
-        characters: prev.characters.filter((char) => char.id !== id),
-        events: prev.events.filter((event) => event.characterId !== id),
-      }));
-    } catch (error) {
-      console.error("Error deleting character:", error);
-      toast({
-        title: "エラー",
-        description: "キャラクターの削除中にエラーが発生しました。",
         variant: "destructive",
       });
     }
@@ -281,8 +216,6 @@ export const useTimelineData = (timelineId: number) => {
     isLoading: isTimelineLoading,
     handleSaveTimeline,
     handleDeleteTimeline,
-    handleAddOrUpdateCharacter,
-    handleDeleteCharacter,
     handleAddOrUpdateEvent,
     handleDeleteEvent,
     toggleCharacterVisibility,
