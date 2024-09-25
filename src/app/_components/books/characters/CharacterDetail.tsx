@@ -24,6 +24,16 @@ interface CharacterDetailProps {
   onSave: () => void;
 }
 
+const colorOptions = [
+  { value: "bg-red-500", label: "Red", hex: "#ef4444" },
+  { value: "bg-blue-500", label: "Blue", hex: "#3b82f6" },
+  { value: "bg-green-500", label: "Green", hex: "#22c55e" },
+  { value: "bg-yellow-500", label: "Yellow", hex: "#eab308" },
+  { value: "bg-purple-500", label: "Purple", hex: "#a855f7" },
+  { value: "bg-pink-500", label: "Pink", hex: "#ec4899" },
+  { value: "bg-indigo-500", label: "Indigo", hex: "#6366f1" },
+];
+
 const CharacterDetail: React.FC<CharacterDetailProps> = ({
   character,
   bookId,
@@ -158,8 +168,17 @@ const CharacterDetail: React.FC<CharacterDetailProps> = ({
             type="color"
             value={color}
             onChange={(e) => setColor(e.target.value)}
-            className="w-12 h-12 p-1 bg-gray-700 border-gray-600 rounded"
+            className="w-8 h-8 p-1 bg-gray-700 border-gray-600 rounded"
           />
+          {colorOptions.map((option) => (
+            <div key={option.hex} className="flex space-x-2">
+              <div
+                className="w-5 h-5 rounded-full"
+                style={{ backgroundColor: option.hex }}
+                onMouseUp={() => setColor(option.hex)}
+              />
+            </div>
+          ))}
         </div>
         <Input
           value={age}
