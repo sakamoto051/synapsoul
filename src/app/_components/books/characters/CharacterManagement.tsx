@@ -55,18 +55,21 @@ const CharacterManagement: React.FC<CharacterManagementProps> = ({ isbn }) => {
           <h2 className="text-xl font-semibold text-blue-300">
             キャラクター一覧
           </h2>
-          <Button
-            onClick={handleAddNewCharacter}
-            className="bg-green-600 hover:bg-green-700 text-white"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            新規キャラクター
-          </Button>
+          {bookData && (
+            <Button
+              onClick={handleAddNewCharacter}
+              className="bg-green-600 hover:bg-green-700 text-white"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              新規キャラクター
+            </Button>
+          )}
         </div>
         <CharacterList
           characters={characters}
           onCharacterSelect={handleCharacterSelect}
           selectedCharacterId={selectedCharacter?.id}
+          bookId={bookData?.id ?? null}
         />
       </div>
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg">

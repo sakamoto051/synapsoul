@@ -39,7 +39,15 @@ export default function TimelineListPage() {
   }
 
   if (!book) {
-    return <div>Book not found</div>;
+    return (
+      <>
+        <p>
+          本のステータスが設定されていません。
+          <br />
+          ステータスを設定するとタイムラインを作成できます。
+        </p>
+      </>
+    );
   }
 
   return (

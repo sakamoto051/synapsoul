@@ -7,12 +7,14 @@ interface CharacterListProps {
   characters: Character[];
   onCharacterSelect: (character: Character) => void;
   selectedCharacterId?: number;
+  bookId: number | null;
 }
 
 const CharacterList: React.FC<CharacterListProps> = ({
   characters,
   onCharacterSelect,
   selectedCharacterId,
+  bookId,
 }) => {
   return (
     <div className="space-y-2">
@@ -35,9 +37,19 @@ const CharacterList: React.FC<CharacterListProps> = ({
           </div>
         </Button>
       ))}
-      {characters.length === 0 && (
+      {bookId ? (
+        <>
+          {characters.length === 0 && (
+            <p className="text-gray-400 text-center">
+              キャラクターがまだ登録されていません。
+            </p>
+          )}
+        </>
+      ) : (
         <p className="text-gray-400 text-center">
-          キャラクターがまだ登録されていません。
+          本のステータスが設定されていません。
+          <br />
+          ステータスを設定するとキャラクターを追加できます。
         </p>
       )}
     </div>
