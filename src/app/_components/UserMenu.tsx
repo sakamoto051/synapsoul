@@ -57,7 +57,7 @@ export function UserMenu() {
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/data-import" className="w-full flex items-center">
+          <Link href="/books/data-import" className="w-full flex items-center">
             <Download className="mr-2 h-4 w-4" />
             <span>データ取り込み</span>
           </Link>
