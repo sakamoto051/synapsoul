@@ -1,4 +1,3 @@
-// src/app/books/[isbn]/timelines/[id]/TimelinePage.tsx
 import type React from "react";
 import { Button } from "@/components/ui/button";
 import { Save, ArrowLeft, Trash2, Users } from "lucide-react";
@@ -64,61 +63,64 @@ export const TimelinePage: React.FC<TimelinePageProps> = ({
 
   return (
     <div className="container mx-auto px-2 sm:px-4 py-4 sm:py-6">
-      <div className="flex flex-col mb-6">
-        <div className="flex sm:flex-row justify-between items-center gap-2">
-          {" "}
+      <div className="flex flex-col mb-6 space-y-4">
+        <div className="inline">
           <Link href={`/books/${isbn}/timelines`} passHref className="inline">
             <Button
               variant="outline"
-              className="sm:w-auto bg-gray-200 hover:bg-gray-300 text-gray-800"
+              className="w-full sm:w-auto bg-gray-200 hover:bg-gray-300 text-gray-800"
             >
               <ArrowLeft className="mr-2 h-4 w-4" />
               タイムライン一覧に戻る
             </Button>
           </Link>
-          <div className="space-x-2 flex items-center">
-            <Link href={`/books/${isbn}/characters`} passHref>
-              <Button className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white">
-                <Users className="mr-2 h-4 w-4" />
-                キャラクター管理
-              </Button>
-            </Link>
-            <EventManager
-              characters={visibleCharacters}
-              onAddOrUpdateEvent={onAddOrUpdateEvent}
-            />
-            <Button
-              onClick={onSave}
-              className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white"
-            >
-              <Save className="mr-2 h-4 w-4" />
-              保存
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href={`/books/${isbn}/characters`}
+            passHref
+            className="flex-grow sm:flex-grow-0"
+          >
+            <Button className="w-full sm:w-auto bg-purple-600 hover:bg-purple-700 text-white">
+              <Users className="mr-2 h-4 w-4" />
+              キャラクター管理
             </Button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button className="w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white">
-                  <Trash2 className="mr-2 h-4 w-4" />
+          </Link>
+          <EventManager
+            characters={visibleCharacters}
+            onAddOrUpdateEvent={onAddOrUpdateEvent}
+          />
+          <Button
+            onClick={onSave}
+            className="flex-grow sm:flex-grow-0 w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white"
+          >
+            <Save className="mr-2 h-4 w-4" />
+            保存
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button className="flex-grow sm:flex-grow-0 w-full sm:w-auto bg-red-600 hover:bg-red-700 text-white">
+                <Trash2 className="mr-2 h-4 w-4" />
+                削除
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  タイムラインを削除しますか？
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  この操作は取り消せません。タイムラインとそれに関連するすべてのイベントが削除されます。
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>キャンセル</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDeleteTimeline}>
                   削除
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>
-                    タイムラインを削除しますか？
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    この操作は取り消せません。タイムラインとそれに関連するすべてのイベントが削除されます。
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>キャンセル</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDeleteTimeline}>
-                    削除
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </div>
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 
