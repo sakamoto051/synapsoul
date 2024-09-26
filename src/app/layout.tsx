@@ -6,6 +6,8 @@ import { Analytics } from "@vercel/analytics/react";
 import { TRPCReactProvider } from "~/trpc/react";
 import { Toaster } from "~/components/ui/toaster";
 import Navigation from "./_components/Navigation";
+import { AuthStateManager } from "./_components/AuthStateManager";
+import { SessionProviderManager } from "./_components/SessionProviderManager";
 
 export const metadata: Metadata = {
   title: {
@@ -48,6 +50,9 @@ export default function RootLayout({
     <html lang="ja" className={`${GeistSans.variable}`}>
       <body className="bg-gray-900 min-h-screen flex flex-col">
         <TRPCReactProvider>
+          <SessionProviderManager>
+            <AuthStateManager />
+          </SessionProviderManager>
           <Navigation />
           <main className="container text-white flex-grow bg-gray-900 p-2 sm:p-4">
             {children}
