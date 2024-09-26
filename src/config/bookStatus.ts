@@ -28,21 +28,6 @@ export const bookStatusConfig: StatusConfig<BookStatus> = {
     color: "bg-yellow-600",
     icon: "🤔",
   },
-  [BookStatus.DNF]: {
-    label: "読まなかった本",
-    color: "bg-red-600",
-    icon: "🛑",
-  },
-  [BookStatus.REFERENCE]: {
-    label: "参考書",
-    color: "bg-indigo-600",
-    icon: "📘",
-  },
-  [BookStatus.REREADING]: {
-    label: "再読中",
-    color: "bg-teal-600",
-    icon: "🔄",
-  },
 };
 
 export const getStatusLabel = (status: BookStatus): string => {

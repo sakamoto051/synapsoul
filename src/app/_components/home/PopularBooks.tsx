@@ -8,7 +8,7 @@ export default function PopularBooks() {
   ];
 
   return (
-    <div className="mt-8 w-full">
+    <div className="mt-2 w-full">
       {popularBookList.map((genre) => (
         <PopularBookBar key={genre} genre={genre} />
       ))}

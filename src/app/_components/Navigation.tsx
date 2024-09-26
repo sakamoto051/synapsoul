@@ -18,9 +18,9 @@ const Navigation = () => {
 
   return (
     <SessionProvider>
-      <nav className="bg-gray-800 text-white p-4">
+      <nav className="bg-gray-800 text-white p-2">
         <div className="container mx-auto flex justify-between items-center">
-          <Link href="/" className="text-xl font-bold">
+          <Link href="/" className="font-bold">
             SynapSoul
           </Link>
 
@@ -41,7 +41,7 @@ const Navigation = () => {
           {/* Mobile Menu */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" className="md:hidden">
+              <Button variant="ghost" className="md:hidden p-0 h-auto">
                 <Menu />
               </Button>
             </SheetTrigger>

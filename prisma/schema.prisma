@@ -169,10 +169,7 @@ enum BookStatus {
   TO_READ
   INTERESTED
   FINISHED
-  DNF
-  REFERENCE
   FAVORITE
-  REREADING
 }
 
 
