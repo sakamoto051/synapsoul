@@ -1,19 +1,28 @@
-// src/components/LoginButton.tsx
 import { useSession, signIn, signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { LogIn, LogOut, Loader2 } from "lucide-react";
+import { LogIn, LogOut, Loader2, User } from "lucide-react";
 import { useState } from "react";
 import useAuthStore from "~/store/useAuthStore";
+import { useRouter } from "next/navigation";
 
 const LoginButton = () => {
   const { data: session, status } = useSession();
   const [isLoading, setIsLoading] = useState(false);
   const { logout } = useAuthStore();
+  const router = useRouter();
 
-  const handleSignIn = async () => {
+  const handleSignIn = async (provider: string) => {
     setIsLoading(true);
     try {
-      await signIn("google", { callbackUrl: "/" });
+      const result = await signIn(provider, {
+        callbackUrl: "/",
+        redirect: false,
+      });
+      if (result?.error) {
+        console.error("Sign in failed", result.error);
+      } else {
+        router.push("/");
+      }
     } catch (error) {
       console.error("Sign in failed", error);
     } finally {
@@ -56,14 +65,24 @@ const LoginButton = () => {
   }
 
   return (
-    <Button onClick={handleSignIn} disabled={isLoading}>
-      {isLoading ? (
-        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-      ) : (
-        <LogIn className="mr-2 h-4 w-4" />
-      )}
-      Sign In
-    </Button>
+    <div className="space-y-2">
+      <Button onClick={() => handleSignIn("google")} disabled={isLoading}>
+        {isLoading ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          <LogIn className="mr-2 h-4 w-4" />
+        )}
+        Sign In with Google
+      </Button>
+      <Button onClick={() => handleSignIn("credentials")} disabled={isLoading}>
+        {isLoading ? (
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        ) : (
+          <User className="mr-2 h-4 w-4" />
+        )}
+        Guest Login
+      </Button>
+    </div>
   );
 };
 
