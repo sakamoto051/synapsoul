@@ -11,7 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 import type { BookStatus } from "@prisma/client";
 import { bookStatusConfig } from "~/config/bookStatus";
-import useAuthStore from "~/store/useAuthStore";
 import { useRouter } from "next/navigation";
 
 interface BookStatusDropdownProps {
@@ -25,17 +24,18 @@ export const BookStatusDropdown: React.FC<BookStatusDropdownProps> = ({
   onStatusChange,
   isInMyBooks,
 }) => {
-  const { isAuthenticated } = useAuthStore();
   const router = useRouter();
 
-  if (!isAuthenticated) {
+  if (!currentStatus) {
     return (
       <Button
         className="w-full bg-gray-600 text-white"
         onClick={() => {
           router.push("/api/auth/signin");
         }}
-      />
+      >
+        ログインしてステータス設定
+      </Button>
     );
   }
 
