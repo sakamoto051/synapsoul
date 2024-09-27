@@ -8,6 +8,7 @@ import { Toaster } from "~/components/ui/toaster";
 import Navigation from "./_components/Navigation";
 import { AuthStateManager } from "./_components/AuthStateManager";
 import { SessionProviderManager } from "./_components/SessionProviderManager";
+import { GuestCautionMessage } from "./_components/GuestCautionMessage";
 
 export const metadata: Metadata = {
   title: {
@@ -55,6 +56,9 @@ export default function RootLayout({
           </SessionProviderManager>
           <Navigation />
           <main className="container text-white flex-grow bg-gray-900 p-2 sm:p-4">
+            <SessionProviderManager>
+              <GuestCautionMessage />
+            </SessionProviderManager>
             {children}
           </main>
           <Toaster />
