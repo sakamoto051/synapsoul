@@ -1,4 +1,5 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
+// import { PrismaAdapter } from "@auth/prisma-adapter";
+import { CustomPrismaAdapter } from "./auth/customPrismaAdapter";
 import {
   getServerSession,
   type DefaultSession,
@@ -43,7 +44,8 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-  adapter: PrismaAdapter(db) as Adapter,
+  // adapter: PrismaAdapter(db) as Adapter,
+  adapter: CustomPrismaAdapter(db) as unknown as Adapter,
   providers: [
     GoogleProvider({
       clientId: env.GOOGLE_CLIENT_ID,

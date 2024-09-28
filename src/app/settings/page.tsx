@@ -2,10 +2,10 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOut, useSession, signIn } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { User, Trash2 } from "lucide-react";
+import { User, Trash2, LinkIcon } from "lucide-react";
 import { api } from "~/trpc/react";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -25,6 +25,7 @@ const SettingsPage = () => {
   const router = useRouter();
   const { toast } = useToast();
   const deleteAccountMutation = api.user.deleteAccount.useMutation();
+  const { data: session } = useSession();
 
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
@@ -47,6 +48,20 @@ const SettingsPage = () => {
     }
   };
 
+  const handleUpgrade = async () => {
+    try {
+      await signIn("google", { callbackUrl: "/settings" });
+    } catch (error) {
+      toast({
+        title: "エラー",
+        description: "アカウントのアップグレード中にエラーが発生しました。",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const isGuestUser = session?.user?.email === null;
+
   return (
     <div className="container mx-auto px-4 py-8">
       <Card className="max-w-2xl mx-auto">
@@ -61,6 +76,16 @@ const SettingsPage = () => {
                 プロフィール設定
               </Button>
             </Link>
+            {isGuestUser && (
+              <Button
+                variant="default"
+                className="w-full justify-start bg-green-600 hover:bg-green-700"
+                onClick={handleUpgrade}
+              >
+                <LinkIcon className="mr-2" />
+                アカウント連携
+              </Button>
+            )}
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive" className="w-full justify-start">

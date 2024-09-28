@@ -13,10 +13,10 @@ export function GuestCautionMessage() {
   }
 
   return (
-    <div className="text-sm text-red-600">
-      ゲストログインの場合、ログアウトすると再度ログインすることができません。
+    <div className="text-sm text-destructive">
+      ゲストログインではログアウト後にご利用できなくなります。
       <br />
-      Googleアカウントよりログインください。
+      設定からアカウント連携してください。
     </div>
   );
 }

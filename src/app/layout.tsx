@@ -53,8 +53,8 @@ export default function RootLayout({
         <TRPCReactProvider>
           <SessionProviderManager>
             <AuthStateManager />
+            <Navigation />
           </SessionProviderManager>
-          <Navigation />
           <main className="container text-white flex-grow bg-gray-900 p-2 sm:p-4">
             <SessionProviderManager>
               <GuestCautionMessage />
