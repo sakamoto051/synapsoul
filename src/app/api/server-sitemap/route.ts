@@ -15,11 +15,11 @@ export async function GET() {
 
   const fields = [
     ...books.map((book) => ({
-      loc: `https://synapsoul.vercel.app/books/${book.isbn}`,
+      loc: `https://www.synapsoul.com/books/${book.isbn}`,
       lastmod: new Date().toISOString(),
     })),
     ...articles.map((article) => ({
-      loc: `https://synapsoul.vercel.app/articles/${article.id}`,
+      loc: `https://www.synapsoul.com/articles/${article.id}`,
       lastmod: new Date().toISOString(),
     })),
   ];
