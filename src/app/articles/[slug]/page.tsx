@@ -9,6 +9,7 @@ export async function generateMetadata({
   return {
     title: `${article.title} | SynapSoul`,
     description: article.excerpt,
+    keywords: article.keyward,
   };
 }
 

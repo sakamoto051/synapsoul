@@ -9,7 +9,7 @@ import { TRPCError } from "@trpc/server";
 export const articleRouter = createTRPCRouter({
   getAll: publicProcedure.query(async ({ ctx }) => {
     return ctx.db.article.findMany({
-      include: { user: { select: { name: true } } },
+      include: { user: { select: { id: true, name: true } } },
       orderBy: { publishDate: "desc" },
     });
   }),
@@ -62,9 +62,8 @@ export const articleRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      const { id, ...updateData } = input;
       const article = await ctx.db.article.findUnique({
-        where: { id },
+        where: { id: input.id },
       });
 
       if (!article) {
@@ -82,8 +81,13 @@ export const articleRouter = createTRPCRouter({
       }
 
       return ctx.db.article.update({
-        where: { id },
-        data: updateData,
+        where: { id: input.id },
+        data: {
+          title: input.title,
+          slug: input.slug,
+          excerpt: input.excerpt,
+          content: input.content,
+        },
       });
     }),
 

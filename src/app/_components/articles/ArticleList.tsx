@@ -1,9 +1,10 @@
 import React from "react";
 import Link from "next/link";
 import type { Article } from "@prisma/client";
+import ArticleEditButton from "./ArticleEditButton";
 
 interface ArticleListProps {
-  articles: Article[];
+  articles: (Article & { user: { id: number; name: string | null } })[];
 }
 
 export default function ArticleList({ articles }: ArticleListProps) {
@@ -18,23 +19,26 @@ export default function ArticleList({ articles }: ArticleListProps) {
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {articles.map((article) => (
-        <Link
+        <div
           key={article.id}
-          href={`/articles/${article.slug}`}
-          className="block"
+          className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
         >
-          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-            <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">
+          <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">
+            <Link
+              href={`/articles/${article.slug}`}
+              className="hover:underline"
+            >
               {article.title}
-            </h2>
-            <p className="text-gray-600 dark:text-gray-300 mb-2">
-              {article.excerpt}
-            </p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              公開日: {formatDate(new Date(article.publishDate))}
-            </p>
-          </div>
-        </Link>
+            </Link>
+          </h2>
+          <p className="text-gray-600 dark:text-gray-300 mb-2">
+            {article.excerpt}
+          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            公開日: {formatDate(new Date(article.publishDate))}
+          </p>
+          <ArticleEditButton article={article} />
+        </div>
       ))}
     </div>
   );
