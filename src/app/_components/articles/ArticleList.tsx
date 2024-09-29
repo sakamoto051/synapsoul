@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import type { Article } from "@prisma/client";
 import ArticleEditButton from "./ArticleEditButton";
+import ArticleDeleteButton from "./ArticleDeleteButton";
 
 interface ArticleListProps {
   articles: (Article & { user: { id: number; name: string | null } })[];
@@ -36,6 +37,7 @@ export default function ArticleList({ articles }: ArticleListProps) {
             公開日: {formatDate(new Date(article.publishDate))}
           </p>
           <ArticleEditButton article={article} />
+          <ArticleDeleteButton article={article} />
         </div>
       ))}
     </div>
