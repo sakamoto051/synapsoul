@@ -16,7 +16,7 @@ export default function ArticleEditButton({ article }: ArticleEditButtonProps) {
   return (
     <>
       {Number(user?.id) === article.user.id && (
-        <Link href={`/articles/${article.slug}/edit`} passHref>
+        <Link href={`/articles/${article.id}/edit`} passHref>
           <Button
             variant="outline"
             size="sm"

@@ -15,24 +15,22 @@ export default function ArticleList({ articles }: ArticleListProps) {
     const day = date.getDate().toString().padStart(2, "0");
     return `${year}/${month}/${day}`;
   };
+  console.log(articles);
 
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {articles.map((article) => (
+      {articles?.map((article) => (
         <div
           key={article.id}
           className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow"
         >
           <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">
-            <Link
-              href={`/articles/${article.slug}`}
-              className="hover:underline"
-            >
+            <Link href={`/articles/${article.id}`} className="hover:underline">
               {article.title}
             </Link>
           </h2>
           <p className="text-gray-600 dark:text-gray-300 mb-2">
-            {article.excerpt}
+            {article.description}
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400">
             公開日: {formatDate(new Date(article.publishDate))}

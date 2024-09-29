@@ -8,21 +8,12 @@ import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
 import { Card, CardContent } from "~/components/ui/card";
 import ArticleEditor from "./ArticleEditor";
+import type { Article } from "@prisma/client";
 
-interface EditArticleFormProps {
-  article: {
-    id: number;
-    title: string;
-    slug: string;
-    excerpt: string;
-    content: string;
-  };
-}
-
-export default function EditArticleForm({ article }: EditArticleFormProps) {
+export default function EditArticleForm({ article }: { article: Article }) {
   const [title, setTitle] = useState(article.title);
-  const [slug, setSlug] = useState(article.slug);
-  const [excerpt, setExcerpt] = useState(article.excerpt);
+  const [keywords, setKeywords] = useState(article.keywords);
+  const [description, setDescription] = useState(article.description);
   const [content, setContent] = useState(article.content);
   const router = useRouter();
   const { toast } = useToast();
@@ -30,7 +21,7 @@ export default function EditArticleForm({ article }: EditArticleFormProps) {
   const updateArticleMutation = api.article.update.useMutation({
     onSuccess: () => {
       toast({ title: "記事が更新されました" });
-      router.push(`/articles/${slug}`);
+      router.push(`/articles/${article.id}`);
     },
     onError: (error) => {
       toast({
@@ -46,8 +37,8 @@ export default function EditArticleForm({ article }: EditArticleFormProps) {
     updateArticleMutation.mutate({
       id: article.id,
       title,
-      slug,
-      excerpt,
+      description,
+      keywords,
       content,
     });
   };
@@ -55,7 +46,7 @@ export default function EditArticleForm({ article }: EditArticleFormProps) {
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div>
             <label
               htmlFor="title"
@@ -74,31 +65,31 @@ export default function EditArticleForm({ article }: EditArticleFormProps) {
           </div>
           <div>
             <label
-              htmlFor="slug"
+              htmlFor="keywords"
               className="block text-sm font-medium text-gray-700"
             >
-              スラッグ
+              キーワード
             </label>
             <Input
               type="text"
-              id="slug"
-              value={slug}
-              onChange={(e) => setSlug(e.target.value)}
+              id="keywords"
+              value={keywords}
+              onChange={(e) => setKeywords(e.target.value)}
               className="mt-1"
               required
             />
           </div>
           <div>
             <label
-              htmlFor="excerpt"
+              htmlFor="description"
               className="block text-sm font-medium text-gray-700"
             >
-              抜粋
+              概要
             </label>
             <Textarea
-              id="excerpt"
-              value={excerpt}
-              onChange={(e) => setExcerpt(e.target.value)}
+              id="description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               className="mt-1"
               rows={3}
               required

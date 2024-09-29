@@ -7,18 +7,18 @@ import {
 import { TRPCError } from "@trpc/server";
 
 export const articleRouter = createTRPCRouter({
-  getAll: publicProcedure.query(async ({ ctx }) => {
+  getAll: publicProcedure.query(({ ctx }) => {
     return ctx.db.article.findMany({
       include: { user: { select: { id: true, name: true } } },
       orderBy: { publishDate: "desc" },
     });
   }),
 
-  getBySlug: publicProcedure
-    .input(z.object({ slug: z.string() }))
+  getById: publicProcedure
+    .input(z.object({ id: z.number() }))
     .query(async ({ ctx, input }) => {
       const article = await ctx.db.article.findUnique({
-        where: { slug: input.slug },
+        where: { id: input.id },
         include: { user: { select: { name: true } } },
       });
 
@@ -36,8 +36,8 @@ export const articleRouter = createTRPCRouter({
     .input(
       z.object({
         title: z.string(),
-        slug: z.string(),
-        excerpt: z.string(),
+        keywords: z.string(),
+        description: z.string(),
         content: z.string(),
       }),
     )
@@ -56,14 +56,15 @@ export const articleRouter = createTRPCRouter({
       z.object({
         id: z.number(),
         title: z.string(),
-        slug: z.string(),
-        excerpt: z.string(),
+        keywords: z.string(),
+        description: z.string(),
         content: z.string(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
+      const { id, ...updateData } = input;
       const article = await ctx.db.article.findUnique({
-        where: { id: input.id },
+        where: { id },
       });
 
       if (!article) {
@@ -81,13 +82,8 @@ export const articleRouter = createTRPCRouter({
       }
 
       return ctx.db.article.update({
-        where: { id: input.id },
-        data: {
-          title: input.title,
-          slug: input.slug,
-          excerpt: input.excerpt,
-          content: input.content,
-        },
+        where: { id },
+        data: updateData,
       });
     }),
 

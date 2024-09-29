@@ -13,9 +13,9 @@ export default function EditArticlePage() {
   const [article, setArticle] = useState<Article>();
 
   const { data: fetchedArticle, isLoading: isFetching } =
-    api.article.getBySlug.useQuery(
-      { slug: params.slug as string },
-      { enabled: !!params.slug },
+    api.article.getById.useQuery(
+      { id: Number(params.id) },
+      { enabled: !!params.id },
     );
 
   useEffect(() => {

@@ -307,8 +307,8 @@ model Event {
 model Article {
   id          Int      @id @default(autoincrement())
   title       String
-  slug        String   @unique
-  excerpt     String
+  keywords    String
+  description String
   content     String   @db.Text
   publishDate DateTime
   userId      Int
