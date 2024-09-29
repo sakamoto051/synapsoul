@@ -9,6 +9,7 @@ import Navigation from "./_components/Navigation";
 import { AuthStateManager } from "./_components/AuthStateManager";
 import { SessionProviderManager } from "./_components/SessionProviderManager";
 import { GuestCautionMessage } from "./_components/GuestCautionMessage";
+import "github-markdown-css/github-markdown.css";
 
 export const metadata: Metadata = {
   title: {

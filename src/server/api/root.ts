@@ -11,6 +11,7 @@ import { bookAPIRouter } from "./routers/bookAPI";
 import { timelineRouter } from "./routers/timeline";
 import { characterRouter } from "./routers/character";
 import { eventRouter } from "./routers/event";
+import { articleRouter } from './routers/article';
 
 /**
  * This is the primary router for your server.
@@ -30,6 +31,7 @@ export const appRouter = createTRPCRouter({
   timeline: timelineRouter,
   character: characterRouter,
   event: eventRouter,
+  article: articleRouter,
 });
 
 // export type definition of API

@@ -14,6 +14,7 @@ const Navigation = () => {
     { href: "/", label: "ホーム" },
     { href: "/books/search", label: "本を探す" },
     { href: "/books/mybooks", label: "本の管理" },
+    { href: "/articles", label: "記事一覧" }, // 新しい項目を追加
   ];
 
   return (
